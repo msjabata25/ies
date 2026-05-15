@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IES JUST STUDENT CHAPTER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&amp;family=Sora:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#a2c9ff",
+                        "secondary-container": "#3394f1",
+                        "secondary-fixed-dim": "#a2c9ff",
+                        "on-secondary-fixed-variant": "#004881",
+                        "background": "#131313",
+                        "tertiary": "#ffb870",
+                        "on-secondary": "#00315b",
+                        "on-error-container": "#ffdad6",
+                        "surface-variant": "#353534",
+                        "grid-line": "rgba(30, 136, 229, 0.04)",
+                        "on-primary-fixed": "#311300",
+                        "inverse-primary": "#964900",
+                        "on-primary": "#502400",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary": "#4a2800",
+                        "surface-container-lowest": "#0e0e0e",
+                        "circuit-blue": "#1E88E5",
+                        "logic-blue": "#42A5F5",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed": "#001c38",
+                        "on-primary-container": "#572800",
+                        "secondary-fixed": "#d3e4ff",
+                        "surface-container-low": "#1c1b1b",
+                        "industrial-orange": "#F57C00",
+                        "on-error": "#690005",
+                        "surface-tint": "#ffb786",
+                        "tertiary-fixed-dim": "#ffb870",
+                        "tertiary-fixed": "#ffdcbe",
+                        "surface-container": "#201f1f",
+                        "safety-orange": "#FF9800",
+                        "surface-bright": "#3a3939",
+                        "tertiary-container": "#e48700",
+                        "surface-container-high": "#2a2a2a",
+                        "on-primary-fixed-variant": "#723600",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "on-surface-variant": "#dec1af",
+                        "surface": "#131313",
+                        "on-background": "#e5e2e1",
+                        "outline-variant": "#574235",
+                        "inverse-on-surface": "#313030",
+                        "deep-void": "#0A0A0A",
+                        "on-tertiary-fixed": "#2c1600",
+                        "surface-dim": "#131313",
+                        "on-secondary-container": "#002b50",
+                        "primary": "#ffb786",
+                        "primary-fixed": "#ffdcc6",
+                        "inverse-surface": "#e5e2e1",
+                        "error": "#ffb4ab",
+                        "primary-fixed-dim": "#ffb786",
+                        "on-tertiary-container": "#502c00",
+                        "outline": "#a68b7c",
+                        "on-surface": "#e5e2e1",
+                        "primary-container": "#f57c00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "60px",
+                        "gutter": "20px",
+                        "grid-unit": "60px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Bebas Neue"],
+                        "body-standard": ["Space Mono"],
+                        "terminal-code": ["Space Mono"],
+                        "headline-lg": ["Bebas Neue"],
+                        "ui-menu": ["Sora"],
+                        "ui-button": ["Sora"],
+                        "display-lg": ["Bebas Neue"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", {"lineHeight": "120%", "fontWeight": "400"}],
+                        "body-standard": ["16px", {"lineHeight": "150%", "fontWeight": "400"}],
+                        "terminal-code": ["14px", {"lineHeight": "160%", "fontWeight": "400"}],
+                        "headline-lg": ["48px", {"lineHeight": "110%", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                        "ui-menu": ["14px", {"lineHeight": "100%", "fontWeight": "700"}],
+                        "ui-button": ["16px", {"lineHeight": "100%", "fontWeight": "600"}],
+                        "display-lg": ["84px", {"lineHeight": "100%", "letterSpacing": "0.05em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.deep-void');
+            background-image: 
+                linear-gradient(theme('colors.grid-line') 1px, transparent 1px),
+                linear-gradient(90deg, theme('colors.grid-line') 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .cmd-window {
+            border: 2px solid theme('colors.circuit-blue');
+            background-color: theme('colors.surface-container-lowest');
+        }
+        .cmd-titlebar {
+            border-bottom: 2px solid theme('colors.circuit-blue');
+            background-color: theme('colors.deep-void');
+        }
+        .glow-button {
+            box-shadow: 0 0 15px rgba(245, 124, 0, 0.4);
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 25px rgba(245, 124, 0, 0.7);
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen relative overflow-x-hidden font-body-standard text-body-standard">
+<div class="scanlines"></div>
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-background/80 backdrop-blur-xl border-b-2 border-industrial-orange shadow-[0_0_15px_rgba(245,124,0,0.3)] text-industrial-orange">
+<div class="font-headline-md text-headline-md tracking-widest text-industrial-orange">IES JUST STUDENT CHAPTER</div>
+<nav class="hidden md:flex gap-gutter">
+<a class="font-ui-menu text-ui-menu text-primary border-b-2 border-primary pb-1" href="#">TERMINAL.EXE</a>
+<a class="font-ui-menu text-ui-menu text-on-surface-variant hover:text-industrial-orange transition-colors duration-200" href="#">MODULES</a>
+<a class="font-ui-menu text-ui-menu text-on-surface-variant hover:text-industrial-orange transition-colors duration-200" href="#">NET_OPS</a>
+<a class="font-ui-menu text-ui-menu text-on-surface-variant hover:text-industrial-orange transition-colors duration-200" href="#">ARCHIVE</a>
+</nav>
+<div class="hidden md:flex gap-4">
+<span class="material-symbols-outlined hover:text-industrial-orange transition-colors cursor-pointer" data-weight="fill" style="font-variation-settings: 'FILL' 1;">settings_input_component</span>
+<span class="material-symbols-outlined hover:text-industrial-orange transition-colors cursor-pointer" data-weight="fill" style="font-variation-settings: 'FILL' 1;">power_settings_new</span>
+</div>
+</header>
+<main class="pt-24 px-margin-mobile md:px-margin-desktop pb-32">
+<!-- Hero Section -->
+<section class="min-h-[819px] flex flex-col justify-center relative mb-24">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full md:translate-x-0 origin-left -rotate-90 text-circuit-blue font-terminal-code text-terminal-code opacity-50 tracking-widest hidden lg:block">
+                SYS.COORD: 32.5514° N, 35.8515° E
+            </div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+<div class="md:col-span-8 z-10">
+<h1 class="font-display-lg text-display-lg text-industrial-orange mb-4">SYSTEM BOOT <br/> SEQUENCE_</h1>
+<div class="font-terminal-code text-terminal-code text-circuit-blue mb-8 space-y-2 max-w-2xl bg-surface-container-lowest border border-circuit-blue/30 p-4 relative">
+<div class="absolute top-0 right-0 p-1 text-[10px] bg-circuit-blue text-deep-void">LOG</div>
+<p>&gt; INIT SYSTEM CORE...</p>
+<p>&gt; LOADING IES MODULES...</p>
+<p>&gt; ESTABLISHING CONNECTION...</p>
+<p class="text-industrial-orange">&gt; [OK] SYSTEM READY.</p>
+</div>
+</div>
+<div class="md:col-span-4 flex justify-center items-center opacity-50 md:opacity-100">
+<span class="material-symbols-outlined text-[120px] text-circuit-blue" data-weight="fill" style="font-variation-settings: 'FILL' 1;">settings</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full border-t border-industrial-orange/30 py-2 flex justify-between font-terminal-code text-terminal-code text-industrial-orange/70">
+<span>STATUS: ONLINE</span>
+<span>NETWORK: ACTIVE</span>
+</div>
+</section>
+<!-- About Section -->
+<section class="mb-24 scroll-mt-24" id="about">
+<div class="flex items-center gap-4 mb-8">
+<span class="material-symbols-outlined text-industrial-orange">folder_open</span>
+<h2 class="font-headline-lg text-headline-lg text-industrial-orange">ABOUT_IES.EXE</h2>
+<div class="h-px bg-circuit-blue/30 flex-grow ml-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-6 font-body-standard text-body-standard text-on-surface-variant space-y-6">
+<p>
+                        The Industrial Electronics Society (IES) Jordan University of Science and Technology (JUST) Student Chapter is dedicated to the advancement of theoretical and practical engineering knowledge.
+                    </p>
+<p>
+                        We focus on bridging the gap between academic theory and real-world industrial application through hands-on projects, technical workshops, and global networking opportunities.
+                    </p>
+<div class="border-l-2 border-circuit-blue pl-4 py-2 my-6">
+<span class="font-terminal-code text-terminal-code text-circuit-blue block mb-2">01011001 01000101 01010011</span>
+                        "Empowering the next generation of industrial engineers."
+                    </div>
+</div>
+<div class="md:col-span-6">
+<div class="cmd-window">
+<div class="cmd-titlebar px-4 py-2 flex justify-between items-center font-terminal-code text-terminal-code text-circuit-blue">
+<span>IES_ABOUT.EXE</span>
+<div class="flex gap-2">
+<span>_</span>
+<span>□</span>
+<span class="hover:text-industrial-orange cursor-pointer">X</span>
+</div>
+</div>
+<div class="p-6 font-terminal-code text-terminal-code text-on-background min-h-[250px]">
+<p class="mb-2 text-circuit-blue/70">Microsoft Windows [Version 10.0.19045.3324]</p>
+<p class="mb-4 text-circuit-blue/70">(c) Microsoft Corporation. All rights reserved.</p>
+<p class="mb-2">C:\Users\Admin&gt;RUN IES_ABOUT.EXE</p>
+<p class="text-industrial-orange mb-2">&gt; EXECUTING...</p>
+<ul class="list-none space-y-2 pl-4 text-secondary">
+<li>- ESTABLISHED: 2018</li>
+<li>- MEMBERS: 150+ ACTIVE</li>
+<li>- PROJECTS: 24+ DEPLOYED</li>
+<li>- FOCUS: IOT, ROBOTICS, AUTOMATION</li>
+</ul>
+<p class="mt-4 flex">C:\Users\Admin&gt;<span class="animate-pulse w-2 h-4 bg-on-background inline-block ml-1"></span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Events Section -->
+<section class="mb-24 scroll-mt-24" id="events">
+<div class="flex items-center gap-4 mb-8">
+<span class="material-symbols-outlined text-industrial-orange">terminal</span>
+<h2 class="font-headline-lg text-headline-lg text-industrial-orange">ACTIVE_INITIATIVES.LOG</h2>
+<div class="h-px bg-circuit-blue/30 flex-grow ml-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="cmd-window group">
+<div class="cmd-titlebar px-4 py-2 flex justify-between items-center font-terminal-code text-[12px] text-circuit-blue">
+<span>WORKSHOP_01</span>
+<div class="flex gap-2"><span>_</span><span>□</span><span class="group-hover:text-industrial-orange cursor-pointer">X</span></div>
+</div>
+<div class="p-6 border-b border-circuit-blue/20">
+<div class="inline-block px-2 py-1 bg-circuit-blue/10 text-circuit-blue font-terminal-code text-[12px] border border-circuit-blue mb-4">[STATUS: ONGOING]</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">PCB DESIGN BOOTCAMP</h3>
+<p class="font-body-standard text-body-standard text-on-surface-variant text-sm mb-4">Comprehensive training on designing industrial-grade printed circuit boards using Altium Designer.</p>
+</div>
+<div class="p-4 bg-surface-container-low font-terminal-code text-[12px] text-circuit-blue flex justify-between items-center">
+<span>DATE: 2024.10.15</span>
+<button class="px-3 py-1 bg-surface border border-circuit-blue hover:bg-circuit-blue hover:text-deep-void transition-colors">ACCESS &gt;</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="cmd-window group">
+<div class="cmd-titlebar px-4 py-2 flex justify-between items-center font-terminal-code text-[12px] text-circuit-blue">
+<span>HACKATHON_02</span>
+<div class="flex gap-2"><span>_</span><span>□</span><span class="group-hover:text-industrial-orange cursor-pointer">X</span></div>
+</div>
+<div class="p-6 border-b border-circuit-blue/20">
+<div class="inline-block px-2 py-1 bg-industrial-orange/10 text-industrial-orange font-terminal-code text-[12px] border border-industrial-orange mb-4">[STATUS: UPCOMING]</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">ROBOTICS CHALLENGE</h3>
+<p class="font-body-standard text-body-standard text-on-surface-variant text-sm mb-4">A 48-hour hackathon focused on autonomous navigation systems for industrial environments.</p>
+</div>
+<div class="p-4 bg-surface-container-low font-terminal-code text-[12px] text-circuit-blue flex justify-between items-center">
+<span>DATE: 2024.11.05</span>
+<button class="px-3 py-1 bg-surface border border-circuit-blue hover:bg-circuit-blue hover:text-deep-void transition-colors">ACCESS &gt;</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="cmd-window group">
+<div class="cmd-titlebar px-4 py-2 flex justify-between items-center font-terminal-code text-[12px] text-circuit-blue">
+<span>RECRUITMENT_DRIVE</span>
+<div class="flex gap-2"><span>_</span><span>□</span><span class="group-hover:text-industrial-orange cursor-pointer">X</span></div>
+</div>
+<div class="p-6 border-b border-circuit-blue/20">
+<div class="inline-block px-2 py-1 bg-surface-variant/30 text-on-surface-variant font-terminal-code text-[12px] border border-on-surface-variant mb-4">[STATUS: COMPLETED]</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">FALL INTAKE 2024</h3>
+<p class="font-body-standard text-body-standard text-on-surface-variant text-sm mb-4">Onboarding new talent into our technical modules. Results and team assignments available.</p>
+</div>
+<div class="p-4 bg-surface-container-low font-terminal-code text-[12px] text-circuit-blue flex justify-between items-center">
+<span>DATE: 2024.09.20</span>
+<button class="px-3 py-1 bg-surface border border-circuit-blue hover:bg-circuit-blue hover:text-deep-void transition-colors">ACCESS &gt;</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Join Section -->
+<section class="mb-12 relative py-24 border-y-2 border-industrial-orange/50 bg-surface-container-low overflow-hidden">
+<div aria-hidden="true" class="absolute inset-0 opacity-10 font-terminal-code text-[10px] text-circuit-blue break-all overflow-hidden leading-none select-none">
+                01010111 01000001 01001110 01010100 01011111 01010100 01001111 01011111 01001010 01001111 01001001 01001110 00111111 01010111 01000001 01001110 01010100 01011111 01010100 01001111 01011111 01001010 01001111 01001001 01001110 00111111 01010111 01000001 01001110 01010100 01011111 01010100 01001111 01011111 01001010 01001111 01001001 01001110 00111111 01010111 01000001 01001110 01010100 01011111 01010100 01001111 01011111 01001010 01001111 01001001 01001110 00111111 01010111 01000001 01001110 01010100 01011111 01010100 01001111 01011111 01001010 01001111 01001001 01001110 00111111
+            </div>
+<div class="relative z-10 text-center max-w-3xl mx-auto px-4">
+<h2 class="font-display-lg text-display-lg text-industrial-orange mb-6 glitch-text">WANT_TO_JOIN?</h2>
+<p class="font-body-standard text-body-standard text-on-surface-variant mb-12">
+                    Access granted to aspiring engineers. Initialize the application sequence to join the active network.
+                </p>
+<button class="bg-industrial-orange text-deep-void font-ui-button text-ui-button py-4 px-8 border-2 border-industrial-orange glow-button transition-all duration-200 hover:-translate-x-1 hover:-translate-y-1 relative group">
+                    INITIALIZE_APPLICATION.EXE
+                    <div class="absolute inset-0 border-2 border-circuit-blue bg-circuit-blue -z-10 translate-x-2 translate-y-2 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full z-40 flex flex-col md:flex-row justify-between items-center px-margin-desktop py-2 bg-grid-line bg-deep-void border-t-2 border-circuit-blue/30 flat no shadows font-terminal-code text-terminal-code text-circuit-blue">
+<div class="font-terminal-code text-terminal-code text-circuit-blue">NETWORK: ACTIVE // SESSION_0x8F2 // IES JUST STUDENT CHAPTER</div>
+<div class="flex gap-6 mt-2 md:mt-0">
+<a class="text-circuit-blue underline hover:glow-sm hover:text-circuit-blue transition-colors" href="#">ROOT_ACCESS</a>
+<a class="text-on-surface-variant/60 hover:glow-sm hover:text-circuit-blue transition-colors" href="#">SYSTEM_LOGS</a>
+<a class="text-on-surface-variant/60 hover:glow-sm hover:text-circuit-blue transition-colors" href="#">SUPPORT.CMD</a>
+</div>
+</footer>
+</body></html>
