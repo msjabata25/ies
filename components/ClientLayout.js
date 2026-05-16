@@ -8,7 +8,16 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function ClientLayout({ children }) {
   useEffect(() => {
+    // Force scroll to top on refresh/mount
+    if (typeof window !== 'undefined') {
+      window.history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+    }
+
     const lenis = new Lenis();
+    
+    // Ensure lenis starts at the top
+    lenis.scrollTo(0, { immediate: true });
 
     lenis.on('scroll', ScrollTrigger.update);
 

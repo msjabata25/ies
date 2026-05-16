@@ -15,7 +15,7 @@ export default function Footer() {
         </div>
         
         <div className="flex gap-4 md:justify-end text-sm text-accent">
-          <a href="#" className="hover:text-white transition">IG: @ies_just</a>
+          <a href="https://www.instagram.com/ieeeiesjust/" className="hover:text-white transition">IG: @ies_just</a>
           <a href="#" className="hover:text-white transition">LINKEDIN</a>
         </div>
       </div>
