@@ -10,8 +10,67 @@
   --font-ui: var(--font-sora);
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes ledPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+  50% { opacity: 0.5; box-shadow: 0 0 2px currentColor; }
+}
+
 @layer utilities {
   .text-shadow-glitch {
     text-shadow: -2px 0 blue, 2px 0 orange;
   }
+  
+  .cursor-blink {
+    animation: cursorBlink 1s step-end infinite;
+  }
+
+  .led-active {
+    color: #22c55e;
+    background-color: #22c55e;
+    animation: ledPulse 2s infinite;
+  }
+  .led-upcoming {
+    color: #eab308;
+    background-color: #eab308;
+    animation: ledPulse 2s infinite;
+  }
+  .led-planned {
+    color: #6b7280;
+    background-color: #6b7280;
+    animation: ledPulse 2s infinite;
+  }
+}
+
+html {
+  transition: filter 0.5s ease-in-out;
+}
+
+html.light-mode {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html.light-mode img {
+  filter: invert(1) hue-rotate(180deg);
 }

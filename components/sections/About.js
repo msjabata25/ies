@@ -2,6 +2,11 @@
 import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { TextPlugin } from 'gsap/TextPlugin';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(TextPlugin);
+}
 
 export default function About() {
   const container = useRef();
@@ -14,19 +19,21 @@ export default function About() {
       }
     });
     
-    tl.to('.about-title', { y: 0, opacity: 1, duration: 0.5 });
+    tl.to('.about-title-wrap', { y: 0, opacity: 1, duration: 0.5 });
+    tl.from('.about-title', { text: "", duration: 1, ease: "none" });
     tl.to('.about-text', { x: 0, opacity: 1, duration: 0.6 }, '-=0.3');
     tl.to('.terminal-window', { x: 0, opacity: 1, duration: 0.6 }, '-=0.5');
     tl.to('.terminal-line', { opacity: 1, duration: 0.1, stagger: 0.15 });
     
-    // Typewriter effect inside timeline or just on scroll
   }, { scope: container });
 
   return (
     <section ref={container} className="min-h-[80vh] flex flex-col justify-center px-4 md:px-14 max-w-7xl mx-auto py-20 mb-24 overflow-hidden">
-      <div className="flex items-center gap-4 mb-8 about-title opacity-0 translate-y-12">
+      <div className="flex items-center gap-4 mb-8 about-title-wrap opacity-0 translate-y-12">
         <span className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
-        <h2 className="text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">ABOUT_IES.EXE</h2>
+        <h2 className="text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+          <span className="about-title">ABOUT_IES.EXE</span><span className="cursor-blink font-mono">_</span>
+        </h2>
         <div className="h-px bg-[#1E88E5]/30 flex-grow ml-4"></div>
       </div>
 

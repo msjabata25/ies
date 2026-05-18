@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+import CursorHalo from './CursorHalo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,5 +34,10 @@ export default function ClientLayout({ children }) {
     };
   }, []);
 
-  return <>{children}</>;
+  return (
+    <>
+      <CursorHalo />
+      {children}
+    </>
+  );
 }
