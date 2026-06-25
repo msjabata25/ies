@@ -131,11 +131,9 @@ export default function AboutPage() {
         className="fixed inset-0 z-10 pointer-events-none"
         style={{ opacity: 0 }}
       >
-        {/* Transistor */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[340px] h-[340px] md:w-[500px] md:h-[500px]">
-            <TransistorCanvas progressRef={progressRef} />
-          </div>
+        {/* Transistor — fills viewport, model is centered in Canvas */}
+        <div className="absolute inset-0">
+          <TransistorCanvas progressRef={progressRef} />
         </div>
 
         {/* Quadrant text */}

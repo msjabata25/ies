@@ -47,7 +47,7 @@ function Model({ progressRef }: { progressRef: { current: number } }) {
   }
 
   return (
-    <group ref={tiltRef} scale={1.1} position={[0, 0, 0]}>
+    <group ref={tiltRef} scale={0.9} position={[0, 0, 0]}>
       <group ref={spinRef}>
         <primitive object={scene} />
       </group>
@@ -59,7 +59,7 @@ function Model({ progressRef }: { progressRef: { current: number } }) {
 export default function TransistorCanvas({ progressRef }: { progressRef: { current: number } }) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 6], fov: 38 }}
+      camera={{ position: [0, 0, 7], fov: 35 }}
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}
