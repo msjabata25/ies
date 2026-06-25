@@ -63,38 +63,56 @@ const quadrants = [
   },
 ];
 
+const revealOrder = ['q1', 'q3', 'q2', 'q4'];
+
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
 
   useGSAP(() => {
-    /* Transistor rotation — scrubs across entire page */
+    const transistorContainer = document.getElementById('transistor-container');
+    const page = containerRef.current;
+    if (!page) return;
+
+    /* Rotation + tilt progress across full page (header + 4 sections, excluding footer) */
     ScrollTrigger.create({
-      trigger: containerRef.current,
+      trigger: page,
       start: 'top top',
       end: 'bottom bottom',
       scrub: 0.5,
       onUpdate: (self) => {
-        progressRef.current = self.progress * Math.PI * 4;
+        const totalVH = 6; /* header + 4 quadrants + footer */
+        const activeVH = 5; /* rotation active over header + 4 quadrants */
+        const rotationProgress = Math.min(1, self.progress * (totalVH / activeVH));
+        progressRef.current = rotationProgress;
+
+        /* Fade transistor out during the last 1/6 (footer section) */
+        if (transistorContainer) {
+          if (self.progress > activeVH / totalVH) {
+            const fadeProgress = (self.progress - activeVH / totalVH) * totalVH;
+            transistorContainer.style.opacity = String(Math.max(0, 1 - fadeProgress));
+          } else {
+            transistorContainer.style.opacity = '1';
+          }
+        }
       },
     });
 
-    /* Each quadrant fades in when its trigger enters view, out when it leaves */
-    const ids = ['q1', 'q3', 'q2', 'q4'];
-    ids.forEach((id) => {
+    /* Each quadrant fades in ONCE when its trigger enters view — never fades out */
+    revealOrder.forEach((id) => {
       const q = quadrants.find((x) => x.id === id)!;
       ScrollTrigger.create({
         trigger: `#${id}-trigger`,
         start: 'top bottom-=5%',
-        end: 'bottom top+=5%',
-        onEnter: () => gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }),
-        onLeave: () => gsap.to(`#${id}-text`, { opacity: 0, y: q.enterDir.y, duration: 0.4, ease: 'power2.in' }),
-        onEnterBack: () => gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }),
-        onLeaveBack: () => gsap.to(`#${id}-text`, { opacity: 0, y: q.enterDir.y, duration: 0.4, ease: 'power2.in' }),
+        onEnter: () => {
+          gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
+        },
+        onEnterBack: () => {
+          gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
+        },
       });
     });
 
-    /* Kill all ScrollTriggers on cleanup */
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
@@ -103,7 +121,10 @@ export default function AboutPage() {
   return (
     <main ref={containerRef} className="relative bg-[#0A0A0A]">
       {/* Fixed 3D canvas — center of viewport */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div
+        id="transistor-container"
+        className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-500"
+      >
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-[280px] h-[280px] md:w-[380px] md:h-[380px]">
             <TransistorCanvas progressRef={progressRef} />
@@ -151,7 +172,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4 scroll triggers */}
+      {/* 4 scroll triggers — Q1 → Q3 → Q2 → Q4 */}
       <div id="q1-trigger" className="h-screen relative z-20" />
       <div id="q3-trigger" className="h-screen relative z-20" />
       <div id="q2-trigger" className="h-screen relative z-20" />

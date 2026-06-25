@@ -23,7 +23,9 @@ function Model({ progressRef }: { progressRef: { current: number } }) {
 
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.y = progressRef.current;
+      const p = Math.min(1, Math.max(0, progressRef.current));
+      meshRef.current.rotation.x = -0.4 * (1 - Math.pow(p, 3));
+      meshRef.current.rotation.y = p * Math.PI * 4;
     }
   });
 
