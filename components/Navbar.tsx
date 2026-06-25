@@ -19,7 +19,16 @@ export default function Navbar() {
   const [isLightMode, setIsLightMode] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const lastScrollY = useRef(0);
+  const scrollAccumulator = useRef(0);
   const ticking = useRef(false);
+  const isMobile = useRef(false);
+
+  useEffect(() => {
+    isMobile.current = window.innerWidth < 768;
+    const onResize = () => { isMobile.current = window.innerWidth < 768; };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useGSAP(() => {
     gsap.to(containerRef.current, { opacity: 1, duration: 0.5, delay: 2.5 });
@@ -32,12 +41,27 @@ export default function Navbar() {
         const nav = containerRef.current;
         if (!nav) return;
 
-        if (currentScrollY < 50) {
-          gsap.to(nav, { y: 0, opacity: 1, duration: 0.2 });
-        } else if (currentScrollY < lastScrollY.current) {
-          gsap.to(nav, { y: 0, opacity: 1, duration: 0.2 });
+        const delta = currentScrollY - lastScrollY.current;
+        const isScrollingDown = delta > 0;
+
+        /* Always visible near top */
+        if (currentScrollY < 100) {
+          scrollAccumulator.current = 0;
+          gsap.to(nav, { y: 0, opacity: 1, duration: 0.3 });
+          ticking.current = false;
+          lastScrollY.current = currentScrollY;
+          return;
+        }
+
+        if (isScrollingDown) {
+          scrollAccumulator.current += delta;
+          /* Only hide after accumulating enough downward scroll */
+          if (scrollAccumulator.current >= 150) {
+            gsap.to(nav, { y: -100, opacity: 0, duration: 0.3 });
+          }
         } else {
-          gsap.to(nav, { y: -100, opacity: 0, duration: 0.2 });
+          scrollAccumulator.current = 0;
+          gsap.to(nav, { y: 0, opacity: 1, duration: 0.2 });
         }
 
         lastScrollY.current = currentScrollY;
