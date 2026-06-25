@@ -73,10 +73,9 @@ export default function AboutPage() {
     const page = containerRef.current;
     if (!page) return;
 
-    const totalVH = 6;
+    const totalVH = 5;
     const headerFraction = 1 / totalVH;
-    const footerFraction = 1 / totalVH;
-    const activeFraction = (totalVH - 2) / totalVH;
+    const activeFraction = (totalVH - 1) / totalVH;
     const fadeOutStart = (totalVH - 1) / totalVH;
 
     ScrollTrigger.create({
@@ -110,16 +109,24 @@ export default function AboutPage() {
       },
     });
 
-    /* Each quadrant fades in ONCE when its trigger enters — never fades out */
+    /* Each quadrant fades in when scrolled into view, out when scrolled past */
     revealOrder.forEach((id) => {
+      const q = quadrants.find((x) => x.id === id)!;
       ScrollTrigger.create({
         trigger: `#${id}-trigger`,
         start: 'top bottom-=5%',
+        end: 'bottom top+=5%',
         onEnter: () => {
           gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
         },
+        onLeave: () => {
+          gsap.to(`#${id}-text`, { opacity: 0, y: q.enterDir.y, duration: 0.4, ease: 'power2.in' });
+        },
         onEnterBack: () => {
           gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
+        },
+        onLeaveBack: () => {
+          gsap.to(`#${id}-text`, { opacity: 0, y: q.enterDir.y, duration: 0.4, ease: 'power2.in' });
         },
       });
     });
@@ -139,7 +146,7 @@ export default function AboutPage() {
       >
         {/* Transistor */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[280px] h-[280px] md:w-[380px] md:h-[380px]">
+          <div className="w-[340px] h-[340px] md:w-[500px] md:h-[500px]">
             <TransistorCanvas progressRef={progressRef} />
           </div>
         </div>
@@ -189,18 +196,6 @@ export default function AboutPage() {
       <div id="q3-trigger" className="h-screen relative z-20" />
       <div id="q2-trigger" className="h-screen relative z-20" />
       <div id="q4-trigger" className="h-screen relative z-20" />
-
-      {/* CTA — scene is fully faded out by this point */}
-      <section className="relative z-20 h-screen flex flex-col items-center justify-center px-4">
-        <div className="text-center">
-          <div className="inline-block border border-[#F57C00] px-8 py-4 hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 cursor-pointer font-mono text-[15px] md:text-[16px] text-[#F57C00]">
-            INITIALIZE_APPLICATION.EXE
-          </div>
-          <p className="font-mono text-[12px] text-gray-600 mt-4">
-            applications open for all committees
-          </p>
-        </div>
-      </section>
     </main>
   );
 }
