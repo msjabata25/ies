@@ -29,20 +29,30 @@ function Model({ progressRef }: { progressRef: { current: number } }) {
     }
   });
 
-  /* Apply dark material on first load */
+  /* Apply materials per-mesh on first load */
   if (!(scene as any).__patched) {
     (scene as any).__patched = true;
     scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color('#2a2a2a'),
-          metalness: 0.6,
-          roughness: 0.3,
-          clearcoat: 0.1,
-          clearcoatRoughness: 0.4,
-          envMapIntensity: 1.2,
-        });
-      }
+      if (!(child instanceof THREE.Mesh)) return;
+      const isLeg = child.name === 'Transistor_1';
+      child.material = new THREE.MeshPhysicalMaterial(
+        isLeg
+          ? {
+              color: new THREE.Color('#8a8a8a'),
+              metalness: 0.85,
+              roughness: 0.2,
+              clearcoat: 0.05,
+              envMapIntensity: 1.5,
+            }
+          : {
+              color: new THREE.Color('#2a2a2a'),
+              metalness: 0.6,
+              roughness: 0.3,
+              clearcoat: 0.1,
+              clearcoatRoughness: 0.4,
+              envMapIntensity: 1.2,
+            },
+      );
     });
   }
 
