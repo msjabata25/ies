@@ -3,6 +3,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
 const navLinks = [
@@ -68,6 +69,19 @@ export default function Navbar() {
     }
   }, [mobileOpen]);
 
+  /* Reset scroll + force navbar visible on route change */
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
+    if (containerRef.current) {
+      gsap.set(containerRef.current, { y: 0, opacity: 1, clearProps: 'all' });
+      gsap.to(containerRef.current, { opacity: 1, duration: 0.3 });
+    }
+    lastScrollY.current = 0;
+    ScrollTrigger.refresh();
+  }, [pathname]);
+
   const togglePower = () => setIsLightMode(!isLightMode);
 
   return (
@@ -95,7 +109,6 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex gap-4 text-white">
-          <span className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer" style={{ fontVariationSettings: "'FILL' 1" }}>settings_input_component</span>
           <span
             className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
             style={{ fontVariationSettings: "'FILL' 1" }}
@@ -161,16 +174,15 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="mt-auto flex gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
-            <span className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer" style={{ fontVariationSettings: "'FILL' 1" }}>settings_input_component</span>
-            <span
-              className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-              onClick={togglePower}
-            >
-              power_settings_new
-            </span>
-          </div>
+            <div className="mt-auto flex gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
+              <span
+                className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+                onClick={togglePower}
+              >
+                power_settings_new
+              </span>
+            </div>
         </div>
       </div>
     </nav>
