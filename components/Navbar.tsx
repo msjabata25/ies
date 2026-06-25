@@ -20,19 +20,8 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const lastScrollY = useRef(0);
   const scrollAccumulator = useRef(0);
+  const isHidden = useRef(false);
   const ticking = useRef(false);
-  const isMobile = useRef(false);
-
-  useEffect(() => {
-    isMobile.current = window.innerWidth < 768;
-    const onResize = () => { isMobile.current = window.innerWidth < 768; };
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  useGSAP(() => {
-    gsap.to(containerRef.current, { opacity: 1, duration: 0.5, delay: 2.5 });
-  }, { scope: containerRef });
 
   const handleScroll = useCallback(() => {
     if (!ticking.current) {
@@ -47,6 +36,7 @@ export default function Navbar() {
         /* Always visible near top */
         if (currentScrollY < 100) {
           scrollAccumulator.current = 0;
+          isHidden.current = false;
           gsap.to(nav, { y: 0, opacity: 1, duration: 0.3 });
           ticking.current = false;
           lastScrollY.current = currentScrollY;
@@ -54,14 +44,19 @@ export default function Navbar() {
         }
 
         if (isScrollingDown) {
-          scrollAccumulator.current += delta;
-          /* Only hide after accumulating enough downward scroll */
-          if (scrollAccumulator.current >= 150) {
+          scrollAccumulator.current = Math.min(scrollAccumulator.current + delta, 300);
+          /* Hide once accumulator passes threshold */
+          if (scrollAccumulator.current >= 150 && !isHidden.current) {
+            isHidden.current = true;
             gsap.to(nav, { y: -100, opacity: 0, duration: 0.3 });
           }
         } else {
-          scrollAccumulator.current = 0;
-          gsap.to(nav, { y: 0, opacity: 1, duration: 0.2 });
+          /* Only re-show after meaningful upward scroll */
+          if (isHidden.current && delta < -30) {
+            isHidden.current = false;
+            scrollAccumulator.current = 0;
+            gsap.to(nav, { y: 0, opacity: 1, duration: 0.2 });
+          }
         }
 
         lastScrollY.current = currentScrollY;
