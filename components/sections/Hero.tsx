@@ -12,6 +12,8 @@ export default function Hero() {
   const container = useRef<HTMLElement>(null);
 
   useGSAP(() => {
+    gsap.set('.hero-title', { text: '' });
+
     const tl = gsap.timeline();
 
     tl.to('.status-bar', { width: '100%', duration: 0.3, ease: 'power2.inOut' });
@@ -38,7 +40,7 @@ export default function Hero() {
             <div className="hero-logo opacity-0 scale-50 w-24 h-24 md:w-32 md:h-32 flex-shrink-0 drop-shadow-[0_0_15px_rgba(245,124,0,0.5)]">
               <img src="/ies-logo.jpg" alt="IES JUST Logo" className="w-full h-full object-contain mix-blend-screen" />
             </div>
-            <h1 className="font-display text-[#F57C00] text-[5xl] md:text-[84px] leading-none tracking-widest whitespace-pre-wrap">
+            <h1 className="font-display text-[#F57C00] text-[32px] sm:text-[48px] md:text-[84px] leading-none tracking-widest whitespace-pre-wrap">
               <span className="hero-title"></span><span className="hero-cursor opacity-0 cursor-blink font-mono">_</span>
             </h1>
           </div>
