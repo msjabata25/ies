@@ -1,14 +1,18 @@
 import Hero from '@/components/sections/Hero';
-import About from '@/components/sections/About';
-import Events from '@/components/sections/Events';
+import AboutSnippet from '@/components/sections/AboutSnippet';
+import StatsTicker from '@/components/sections/StatsTicker';
+import EventsPreview from '@/components/sections/EventsPreview';
+import TeamPreview from '@/components/sections/TeamPreview';
 import Join from '@/components/sections/Join';
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col overflow-hidden">
       <Hero />
-      <About />
-      <Events />
+      <AboutSnippet />
+      <StatsTicker />
+      <EventsPreview />
+      <TeamPreview />
       <Join />
     </main>
   );
