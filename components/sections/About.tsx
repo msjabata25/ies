@@ -9,8 +9,8 @@ if (typeof window !== 'undefined') {
 }
 
 export default function About() {
-  const container = useRef();
-  
+  const container = useRef<HTMLElement>(null);
+
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -18,13 +18,13 @@ export default function About() {
         start: 'top 80%',
       }
     });
-    
+
     tl.to('.about-title-wrap', { y: 0, opacity: 1, duration: 0.5 });
     tl.from('.about-title', { text: "", duration: 1, ease: "none" });
     tl.to('.about-text', { x: 0, opacity: 1, duration: 0.6 }, '-=0.3');
     tl.to('.terminal-window', { x: 0, opacity: 1, duration: 0.6 }, '-=0.5');
     tl.to('.terminal-line', { opacity: 1, duration: 0.1, stagger: 0.15 });
-    
+
   }, { scope: container });
 
   return (
@@ -46,7 +46,7 @@ export default function About() {
             Focusing on automation, embedded systems, and industrial electronics, we empower students with hands-on experience and industry networking.
           </p>
         </div>
-        
+
         <div className="md:col-span-6 terminal-window opacity-0 translate-x-12 border-2 border-[#1E88E5] bg-[#0e0e0e] shadow-[0_0_15px_rgba(245,124,0,0.2)]">
           <div className="bg-[#0A0A0A] border-b-2 border-[#1E88E5] p-2 flex justify-between items-center text-[#1E88E5] font-mono text-[14px]">
             <span>C:\SYSTEM\IES_ABOUT</span>
