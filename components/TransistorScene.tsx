@@ -1,37 +1,30 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, Environment, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 
 function Model({ progressRef }: { progressRef: { current: number } }) {
   const { scene } = useGLTF('/models/transistor.gltf');
-  const meshRef = useRef<THREE.Group>(null);
-
-  useEffect(() => {
-    if (scene) {
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material = child.material.clone();
-          child.material.metalness = 0.3;
-          child.material.roughness = 0.5;
-        }
-      });
-    }
-  }, [scene]);
+  const tiltRef = useRef<THREE.Group>(null);
+  const spinRef = useRef<THREE.Group>(null);
 
   useFrame(() => {
-    if (meshRef.current) {
-      const p = Math.min(1, Math.max(0, progressRef.current));
-      meshRef.current.rotation.x = -0.4 * (1 - Math.pow(p, 3));
-      meshRef.current.rotation.y = p * Math.PI * 4;
+    const p = Math.min(1, Math.max(0, progressRef.current));
+    if (tiltRef.current) {
+      tiltRef.current.rotation.z = -0.5 * (1 - Math.pow(p, 3));
+    }
+    if (spinRef.current) {
+      spinRef.current.rotation.y = p * Math.PI * 4;
     }
   });
 
   return (
-    <group ref={meshRef} scale={1.2} position={[0, 0, 0]}>
-      <primitive object={scene} />
+    <group ref={tiltRef} scale={1.2} position={[0, 0, 0]}>
+      <group ref={spinRef}>
+        <primitive object={scene} />
+      </group>
     </group>
   );
 }

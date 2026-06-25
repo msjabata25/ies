@@ -70,37 +70,48 @@ export default function AboutPage() {
   const progressRef = useRef(0);
 
   useGSAP(() => {
-    const transistorContainer = document.getElementById('transistor-container');
     const page = containerRef.current;
     if (!page) return;
 
-    /* Rotation + tilt progress across full page (header + 4 sections, excluding footer) */
+    const totalVH = 6;
+    const headerFraction = 1 / totalVH;
+    const footerFraction = 1 / totalVH;
+    const activeFraction = (totalVH - 2) / totalVH;
+    const fadeOutStart = (totalVH - 1) / totalVH;
+
     ScrollTrigger.create({
       trigger: page,
       start: 'top top',
       end: 'bottom bottom',
       scrub: 0.5,
       onUpdate: (self) => {
-        const totalVH = 6; /* header + 4 quadrants + footer */
-        const activeVH = 5; /* rotation active over header + 4 quadrants */
-        const rotationProgress = Math.min(1, self.progress * (totalVH / activeVH));
-        progressRef.current = rotationProgress;
+        const sp = self.progress;
 
-        /* Fade transistor out during the last 1/6 (footer section) */
-        if (transistorContainer) {
-          if (self.progress > activeVH / totalVH) {
-            const fadeProgress = (self.progress - activeVH / totalVH) * totalVH;
-            transistorContainer.style.opacity = String(Math.max(0, 1 - fadeProgress));
-          } else {
-            transistorContainer.style.opacity = '1';
-          }
+        /* Rotation progress — active only during the 4 quadrant sections */
+        const rotProgress = sp < headerFraction
+          ? 0
+          : Math.min(1, (sp - headerFraction) / activeFraction);
+        progressRef.current = rotProgress;
+
+        /* Fade entire scene content (model + text) in and out */
+        const sceneWrapper = document.getElementById('about-scene');
+        if (!sceneWrapper) return;
+
+        if (sp < headerFraction) {
+          /* Fade in during header */
+          sceneWrapper.style.opacity = String(sp / headerFraction);
+        } else if (sp < fadeOutStart) {
+          /* Fully visible */
+          sceneWrapper.style.opacity = '1';
+        } else {
+          /* Fade out into footer */
+          sceneWrapper.style.opacity = String(Math.max(0, 1 - (sp - fadeOutStart) * totalVH));
         }
       },
     });
 
-    /* Each quadrant fades in ONCE when its trigger enters view — never fades out */
+    /* Each quadrant fades in ONCE when its trigger enters — never fades out */
     revealOrder.forEach((id) => {
-      const q = quadrants.find((x) => x.id === id)!;
       ScrollTrigger.create({
         trigger: `#${id}-trigger`,
         start: 'top bottom-=5%',
@@ -120,20 +131,20 @@ export default function AboutPage() {
 
   return (
     <main ref={containerRef} className="relative bg-[#0A0A0A]">
-      {/* Fixed 3D canvas — center of viewport */}
+      {/* ===== Scene content — fades in/out as one unit ===== */}
       <div
-        id="transistor-container"
-        className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-500"
+        id="about-scene"
+        className="fixed inset-0 z-10 pointer-events-none"
+        style={{ opacity: 0 }}
       >
+        {/* Transistor */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-[280px] h-[280px] md:w-[380px] md:h-[380px]">
             <TransistorCanvas progressRef={progressRef} />
           </div>
         </div>
-      </div>
 
-      {/* Fixed quadrant text */}
-      <div className="fixed inset-0 z-10 pointer-events-none">
+        {/* Quadrant text */}
         <div className="relative w-full h-full max-w-7xl mx-auto px-4">
           {quadrants.map((q) => (
             <div
@@ -157,9 +168,9 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* == Scroll spacers == */}
+      {/* ===== Scroll sections ===== */}
 
-      {/* Header */}
+      {/* Header — model is hidden here, fades in as user scrolls */}
       <section className="relative z-20 h-screen flex flex-col items-center justify-center px-4">
         <div className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
@@ -169,6 +180,7 @@ export default function AboutPage() {
             </h1>
           </div>
           <p className="font-mono text-[13px] md:text-[16px] text-[#1E88E5]">{`C:\\> loading chapter profile... [OK]`}</p>
+          <p className="font-mono text-[11px] text-gray-600 mt-6 animate-pulse">scroll to initialize —</p>
         </div>
       </section>
 
@@ -178,7 +190,7 @@ export default function AboutPage() {
       <div id="q2-trigger" className="h-screen relative z-20" />
       <div id="q4-trigger" className="h-screen relative z-20" />
 
-      {/* CTA */}
+      {/* CTA — scene is fully faded out by this point */}
       <section className="relative z-20 h-screen flex flex-col items-center justify-center px-4">
         <div className="text-center">
           <div className="inline-block border border-[#F57C00] px-8 py-4 hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 cursor-pointer font-mono text-[15px] md:text-[16px] text-[#F57C00]">
