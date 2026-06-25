@@ -14,7 +14,7 @@ const leaders = [
 
 export default function TeamPreview() {
   return (
-    <section className="px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-hidden border-t border-[#1E88E5]/20">
+    <section className="px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-visible border-t border-[#1E88E5]/20">
       <div className="flex items-center gap-4 mb-12">
         <span className="material-symbols-outlined text-[#F57C00] text-3xl">group</span>
         <h2 className="text-[32px] md:text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">

@@ -60,8 +60,12 @@ export default function Navbar() {
   }, [isLightMode]);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      const timer = setTimeout(() => { document.body.style.overflow = ''; }, 350);
+      return () => clearTimeout(timer);
+    }
   }, [mobileOpen]);
 
   const togglePower = () => setIsLightMode(!isLightMode);
@@ -111,58 +115,64 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile drawer overlay */}
-      {mobileOpen && (
+      {/* Mobile drawer overlay — always mounted, CSS transitions */}
+      <div
+        className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ease-in-out ${
+          mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'
+        }`}
+        onClick={() => setMobileOpen(false)}
+      >
         <div
-          className="fixed inset-0 z-50 md:hidden"
-          onClick={() => setMobileOpen(false)}
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${
+            mobileOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+        <div
+          className={`absolute top-0 right-0 h-full w-72 bg-[#131313] border-l-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
+            mobileOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div
-            className="absolute top-0 right-0 h-full w-72 bg-[#131313] border-l-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center mb-8">
-              <span className="font-mono text-[#F57C00] text-[14px]">NAV_CONSOLE</span>
-              <button
-                className="text-[#F57C00] p-1"
+          <div className="flex justify-between items-center mb-8">
+            <span className="font-mono text-[#F57C00] text-[14px]">NAV_CONSOLE</span>
+            <button
+              className="text-[#F57C00] p-1"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+            >
+              <span className="material-symbols-outlined text-2xl">close</span>
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-4 font-mono text-[16px]">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
                 onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
+                className={
+                  pathname === link.href
+                    ? "text-[#F57C00] border-l-2 border-[#F57C00] pl-3 py-1"
+                    : "text-[#dec1af] hover:text-[#F57C00] transition-colors pl-3 py-1 border-l-2 border-transparent"
+                }
               >
-                <span className="material-symbols-outlined text-2xl">close</span>
-              </button>
-            </div>
+                {pathname === link.href ? '> ' : ''}{link.name}
+              </Link>
+            ))}
+          </div>
 
-            <div className="flex flex-col gap-4 font-mono text-[16px]">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={
-                    pathname === link.href
-                      ? "text-[#F57C00] border-l-2 border-[#F57C00] pl-3 py-1"
-                      : "text-[#dec1af] hover:text-[#F57C00] transition-colors pl-3 py-1 border-l-2 border-transparent"
-                  }
-                >
-                  {pathname === link.href ? '> ' : ''}{link.name}
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-auto flex gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
-              <span className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer" style={{ fontVariationSettings: "'FILL' 1" }}>settings_input_component</span>
-              <span
-                className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-                onClick={togglePower}
-              >
-                power_settings_new
-              </span>
-            </div>
+          <div className="mt-auto flex gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
+            <span className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer" style={{ fontVariationSettings: "'FILL' 1" }}>settings_input_component</span>
+            <span
+              className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+              onClick={togglePower}
+            >
+              power_settings_new
+            </span>
           </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 }
