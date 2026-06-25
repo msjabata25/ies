@@ -7,7 +7,10 @@
 @theme {
   --color-primary: #F57C00;
   --color-accent: #1E88E5;
-  --color-bg-dark: #0A0A0A;
+  --color-surface: #0A0A0A;
+  --color-card: #0e0e0e;
+  --color-nav: #131313;
+  --color-body: #dec1af;
 
   --font-display: var(--font-bebas-neue);
   --font-mono: var(--font-space-mono);
@@ -77,7 +80,12 @@ html {
 }
 
 html.light-mode {
-  filter: invert(1) hue-rotate(180deg);
+  --color-primary: #c46000;
+  --color-accent: #1565a0;
+  --color-surface: #f5f5f0;
+  --color-card: #ffffff;
+  --color-nav: #e8e4dc;
+  --color-body: #2c241e;
 }
 
 html.light-mode img {

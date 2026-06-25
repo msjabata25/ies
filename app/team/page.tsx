@@ -39,8 +39,8 @@ function InitialsAvatar({ name }: { name: string }) {
         disabled={false}
         className="rounded-full"
       />
-      <div className="w-full h-full rounded-full bg-[#131313] border border-[#F57C00]/30 flex items-center justify-center">
-        <span className="font-mono text-[#F57C00] text-[18px] font-bold">{initials}</span>
+      <div className="w-full h-full rounded-full bg-nav border border-primary/30 flex items-center justify-center">
+        <span className="font-mono text-primary text-[18px] font-bold">{initials}</span>
       </div>
     </div>
   );
@@ -58,15 +58,15 @@ function MemberCard({ member, dimmed }: { member: TeamMember; dimmed: boolean })
       }}
     >
       <CardContainer containerClassName="py-0" className="!py-0">
-        <CardBody className="bg-[#0e0e0e] border border-[#1E88E5]/20 hover:border-[#F57C00]/40 w-[180px] p-4 rounded-sm transition-colors cursor-pointer"
+        <CardBody className="bg-card border border-accent/20 hover:border-primary/40 w-[180px] p-4 rounded-sm transition-colors cursor-pointer"
           onClick={() => setExpanded(!expanded)}
         >
           <CardItem translateZ={20}>
             <InitialsAvatar name={member.name} />
           </CardItem>
           <CardItem translateZ={30} className="text-center">
-            <p className="font-display text-[16px] text-[#F57C00] tracking-wider leading-tight">{member.name}</p>
-            <p className="font-mono text-[11px] text-[#1E88E5] mt-1">{member.role}</p>
+            <p className="font-display text-[16px] text-primary tracking-wider leading-tight">{member.name}</p>
+            <p className="font-mono text-[11px] text-accent mt-1">{member.role}</p>
           </CardItem>
           <CardItem translateZ={10} className="text-center mt-2">
             <span className="font-mono text-[10px] text-gray-500 border border-gray-700 px-2 py-0.5">
@@ -82,12 +82,12 @@ function MemberCard({ member, dimmed }: { member: TeamMember; dimmed: boolean })
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-[#0e0e0e] border border-[#F57C00]/30 p-4 mt-2 w-[180px]"
+            className="bg-card border border-primary/30 p-4 mt-2 w-[180px]"
             style={{
               transform: `rotate(${member.scatter.rotate}deg) translate(${member.scatter.tx}px, ${member.scatter.ty}px)`,
             }}
           >
-            <p className="font-mono text-[12px] text-[#dec1af] leading-[160%]">{member.bio}</p>
+            <p className="font-mono text-[12px] text-body leading-[160%]">{member.bio}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -106,13 +106,13 @@ export default function TeamPage() {
       <section className="px-4 md:px-14 max-w-7xl mx-auto w-full py-12">
         <BlurFade inView delay={0.1}>
           <div className="flex items-center gap-4 mb-4">
-            <span className="material-symbols-outlined text-[#F57C00] text-3xl">group</span>
-            <h1 className="text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+            <span className="material-symbols-outlined text-primary text-3xl">group</span>
+            <h1 className="text-[48px] leading-[110%] tracking-[0.02em] text-primary font-display">
               DIRECTORY.LOG<span className="cursor-blink font-mono">_</span>
             </h1>
-            <div className="h-px bg-[#1E88E5]/30 flex-grow ml-4"></div>
+            <div className="h-px bg-accent/30 flex-grow ml-4"></div>
           </div>
-          <p className="font-mono text-[14px] text-[#1E88E5] ml-14">{`> ${team.length} members registered across 4 committees`}</p>
+          <p className="font-mono text-[14px] text-accent ml-14">{`> ${team.length} members registered across 4 committees`}</p>
         </BlurFade>
 
         {/* Filter Bar */}
@@ -124,8 +124,8 @@ export default function TeamPage() {
                 onClick={() => setActiveFilter(c.value)}
                 className={`text-[12px] font-mono px-4 py-2 ${
                   activeFilter === c.value
-                    ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
-                    : 'bg-transparent text-[#dec1af] border-[#1E88E5]/30'
+                    ? 'bg-primary text-surface border-primary'
+                    : 'bg-transparent text-body border-accent/30'
                 }`}
               >
                 {c.label}

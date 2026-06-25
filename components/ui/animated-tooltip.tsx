@@ -73,12 +73,12 @@ export const AnimatedTooltip = ({
                   rotate: rotate,
                   whiteSpace: "nowrap",
                 }}
-                className="absolute -top-16 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-sm bg-[#0e0e0e] border border-[#F57C00]/30 px-4 py-2 text-xs shadow-xl max-w-[240px]"
+                className="absolute -top-16 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-sm bg-card border border-primary/30 px-4 py-2 text-xs shadow-xl max-w-[240px]"
               >
-                <div className="relative z-30 text-sm font-bold text-[#F57C00] font-display text-center leading-tight">
+                <div className="relative z-30 text-sm font-bold text-primary font-display text-center leading-tight">
                   {item.name}
                 </div>
-                <div className="text-[11px] text-[#dec1af] font-mono text-center">{item.designation}</div>
+                <div className="text-[11px] text-body font-mono text-center">{item.designation}</div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -94,9 +94,9 @@ export const AnimatedTooltip = ({
           ) : (
             <div
               onMouseMove={handleMouseMove}
-              className="relative !m-0 h-14 w-14 rounded-full border-2 border-[#F57C00] bg-[#131313] flex items-center justify-center !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105"
+              className="relative !m-0 h-14 w-14 rounded-full border-2 border-primary bg-nav flex items-center justify-center !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105"
             >
-              <span className="font-mono text-[#F57C00] text-sm font-bold">
+              <span className="font-mono text-primary text-sm font-bold">
                 {item.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
               </span>
             </div>

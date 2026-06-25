@@ -74,8 +74,8 @@ export function Terminal({ children, className }: TerminalProps) {
   }, []);
 
   return (
-    <div className={cn('border border-[#1E88E5]/30 bg-[#0e0e0e] z-0 h-full max-h-100 w-full max-w-lg rounded-xl', className)}>
-      <div className="flex flex-col gap-y-2 border-b border-[#1E88E5]/30 p-4">
+    <div className={cn('border border-accent/30 bg-card z-0 h-full max-h-100 w-full max-w-lg rounded-xl', className)}>
+      <div className="flex flex-col gap-y-2 border-b border-accent/30 p-4">
         <div className="flex flex-row gap-x-2">
           <div className="h-2 w-2 rounded-full bg-red-500"></div>
           <div className="h-2 w-2 rounded-full bg-yellow-500"></div>

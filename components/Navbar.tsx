@@ -104,9 +104,9 @@ export default function Navbar() {
   const togglePower = () => setIsLightMode(!isLightMode);
 
   return (
-    <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-[#131313]/80 backdrop-blur-xl border-b-2 border-[#F57C00] shadow-[0_0_15px_rgba(245,124,0,0.3)]">
+    <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-nav/80 backdrop-blur-xl border-b-2 border-primary shadow-[0_0_15px_rgba(245,124,0,0.3)]">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
-        <Link href="/" className="font-display tracking-widest text-[#F57C00] text-[18px] md:text-[32px] font-normal leading-[120%] hover:text-white transition whitespace-nowrap">
+        <Link href="/" className="font-display tracking-widest text-primary text-[18px] md:text-[32px] font-normal leading-[120%] hover:text-white transition whitespace-nowrap">
           IES JUST
         </Link>
 
@@ -118,8 +118,8 @@ export default function Navbar() {
               href={link.href}
               className={
                 pathname === link.href
-                  ? "text-[#F57C00] border-b-2 border-[#F57C00] pb-1"
-                  : "text-[#dec1af] hover:text-[#F57C00] transition-colors duration-200"
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-body hover:text-primary transition-colors duration-200"
               }
             >
               {pathname === link.href ? '> ' : ''}{link.name}
@@ -129,7 +129,7 @@ export default function Navbar() {
 
         <div className="hidden md:flex gap-4 text-white">
           <span
-            className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
+            className="material-symbols-outlined hover:text-primary transition-colors cursor-pointer"
             style={{ fontVariationSettings: "'FILL' 1" }}
             onClick={togglePower}
           >
@@ -139,7 +139,7 @@ export default function Navbar() {
 
         {/* Hamburger — mobile only */}
         <button
-          className="md:hidden text-[#F57C00] p-2"
+          className="md:hidden text-primary p-2"
           onClick={() => setMobileOpen(true)}
           aria-label="Open menu"
         >
@@ -160,15 +160,15 @@ export default function Navbar() {
           }`}
         />
         <div
-          className={`absolute top-0 right-0 h-full w-72 bg-[#131313] border-l-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
+          className={`absolute top-0 right-0 h-full w-72 bg-nav border-l-2 border-primary shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
             mobileOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-8">
-            <span className="font-mono text-[#F57C00] text-[14px]">NAV_CONSOLE</span>
+            <span className="font-mono text-primary text-[14px]">NAV_CONSOLE</span>
             <button
-              className="text-[#F57C00] p-1"
+              className="text-primary p-1"
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
@@ -184,8 +184,8 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className={
                   pathname === link.href
-                    ? "text-[#F57C00] border-l-2 border-[#F57C00] pl-3 py-1"
-                    : "text-[#dec1af] hover:text-[#F57C00] transition-colors pl-3 py-1 border-l-2 border-transparent"
+                    ? "text-primary border-l-2 border-primary pl-3 py-1"
+                    : "text-body hover:text-primary transition-colors pl-3 py-1 border-l-2 border-transparent"
                 }
               >
                 {pathname === link.href ? '> ' : ''}{link.name}
@@ -193,9 +193,9 @@ export default function Navbar() {
             ))}
           </div>
 
-            <div className="mt-auto flex gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
+            <div className="mt-auto flex gap-4 text-white pt-8 border-t border-accent/20">
               <span
-                className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
+                className="material-symbols-outlined hover:text-primary transition-colors cursor-pointer"
                 style={{ fontVariationSettings: "'FILL' 1" }}
                 onClick={togglePower}
               >

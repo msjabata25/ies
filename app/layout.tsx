@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-[#0A0A0A] text-white antialiased min-h-screen selection:bg-[#F57C00] selection:text-[#0A0A0A]">
+      <body className="bg-surface text-white antialiased min-h-screen selection:bg-primary selection:text-surface">
         <div className="fixed inset-0 pointer-events-none z-[-1] bg-grid"></div>
         <ClientLayout>{children}</ClientLayout>
       </body>

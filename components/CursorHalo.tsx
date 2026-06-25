@@ -49,7 +49,7 @@ export default function CursorHalo() {
   return (
     <div
       ref={haloRef}
-      className="pointer-events-none fixed top-0 left-0 w-10 h-10 rounded-full border border-[#F57C00] bg-[#F57C00]/10 shadow-[0_0_15px_rgba(245,124,0,0.5)] z-[9999] opacity-0"
+      className="pointer-events-none fixed top-0 left-0 w-10 h-10 rounded-full border border-primary bg-primary/10 shadow-[0_0_15px_rgba(245,124,0,0.5)] z-[9999] opacity-0"
       style={{ transform: 'translate(-50%, -50%)' }}
     />
   );

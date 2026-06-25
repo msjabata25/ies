@@ -20,20 +20,20 @@ function getStatusColor(status: string) {
 function EventCard({ event, index }: { event: ChapterEvent; index: number }) {
   return (
     <CardSpotlight
-      className="!p-6 !border-[#1E88E5]/30 hover:!border-[#F57C00]/50 transition-colors bg-[#0e0e0e]"
+      className="!p-6 !border-accent/30 hover:!border-primary/50 transition-colors bg-card"
       color="rgba(245,124,0,0.05)"
     >
       <div className="flex items-start justify-between mb-4">
-        <span className="font-display text-[48px] text-[#F57C00]/20 leading-none">
+        <span className="font-display text-[48px] text-primary/20 leading-none">
           {String(index + 1).padStart(2, '0')}
         </span>
         <span className={`font-mono text-[12px] ${getStatusColor(event.status)} border border-current px-2 py-1`}>
           {event.status.toUpperCase()}
         </span>
       </div>
-      <h3 className="font-display text-[24px] text-[#F57C00] mb-2 tracking-wider">{event.title}</h3>
-      <p className="font-mono text-[13px] text-[#dec1af] leading-[170%] mb-4 min-h-[60px]">{event.description}</p>
-      <div className="flex justify-between items-center font-mono text-[12px] text-[#1E88E5] border-t border-[#1E88E5]/20 pt-3">
+      <h3 className="font-display text-[24px] text-primary mb-2 tracking-wider">{event.title}</h3>
+      <p className="font-mono text-[13px] text-body leading-[170%] mb-4 min-h-[60px]">{event.description}</p>
+      <div className="flex justify-between items-center font-mono text-[12px] text-accent border-t border-accent/20 pt-3">
         <span>{event.type}</span>
         <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
       </div>
@@ -93,8 +93,8 @@ function CalendarView() {
         const key = `${currentYear}-${i}`;
         const monthEvents = eventsByMonth[key] || [];
         return (
-          <div key={i} className="border border-[#1E88E5]/20 p-4 bg-[#0e0e0e] min-h-[120px]">
-            <div className="font-mono text-[12px] text-[#F57C00] mb-3">{month}</div>
+          <div key={i} className="border border-accent/20 p-4 bg-card min-h-[120px]">
+            <div className="font-mono text-[12px] text-primary mb-3">{month}</div>
             <div className="flex flex-wrap gap-2">
               {monthEvents.map((event) => (
                 <ExpandableCard
@@ -103,10 +103,10 @@ function CalendarView() {
                     <div className={`w-3 h-3 rounded-full cursor-pointer ${getStatusColor(event.status)}`} />
                   }
                 >
-                  <div className="bg-[#0e0e0e] border border-[#F57C00]/30 p-4 w-64 shadow-lg">
-                    <div className="font-display text-[16px] text-[#F57C00] mb-1">{event.title}</div>
-                    <div className="font-mono text-[12px] text-[#dec1af] mb-2">{event.description}</div>
-                    <div className="font-mono text-[11px] text-[#1E88E5]">
+                  <div className="bg-card border border-primary/30 p-4 w-64 shadow-lg">
+                    <div className="font-display text-[16px] text-primary mb-1">{event.title}</div>
+                    <div className="font-mono text-[12px] text-body mb-2">{event.description}</div>
+                    <div className="font-mono text-[11px] text-accent">
                       {event.type} — {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
                   </div>
@@ -128,11 +128,11 @@ export default function EventsPage() {
       <section className="px-4 md:px-14 max-w-7xl mx-auto w-full py-12">
         <BlurFade inView delay={0.1}>
           <div className="flex items-center gap-4 mb-4">
-            <span className="material-symbols-outlined text-[#F57C00] text-3xl">terminal</span>
-            <h1 className="text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+            <span className="material-symbols-outlined text-primary text-3xl">terminal</span>
+            <h1 className="text-[48px] leading-[110%] tracking-[0.02em] text-primary font-display">
               ACTIVE_INITIATIVES.LOG<span className="cursor-blink font-mono">_</span>
             </h1>
-            <div className="h-px bg-[#1E88E5]/30 flex-grow ml-4"></div>
+            <div className="h-px bg-accent/30 flex-grow ml-4"></div>
           </div>
         </BlurFade>
 
@@ -145,8 +145,8 @@ export default function EventsPage() {
                 onClick={() => setView(mode)}
                 className={`px-4 py-2 border transition-colors ${
                   view === mode
-                    ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
-                    : 'bg-transparent text-[#dec1af] border-[#1E88E5]/30 hover:border-[#F57C00]/50'
+                    ? 'bg-primary text-surface border-primary'
+                    : 'bg-transparent text-body border-accent/30 hover:border-primary/50'
                 }`}
               >
                 [{mode.toUpperCase()}]

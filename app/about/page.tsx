@@ -124,7 +124,7 @@ export default function AboutPage() {
   }, { scope: containerRef });
 
   return (
-    <main ref={containerRef} className="relative bg-[#0A0A0A]">
+    <main ref={containerRef} className="relative bg-surface">
       {/* ===== Scene content — fades in/out as one unit ===== */}
       <div
         id="about-scene"
@@ -145,12 +145,12 @@ export default function AboutPage() {
               className={`absolute ${q.position} opacity-0`}
               style={{ transform: `translateY(${q.enterDir.y}px)` }}
             >
-              <h3 className="font-display text-[22px] md:text-[32px] text-[#F57C00] mb-3 tracking-wider">
+              <h3 className="font-display text-[22px] md:text-[32px] text-primary mb-3 tracking-wider">
                 {q.title}
               </h3>
-              <div className="font-mono text-[12px] md:text-[15px] leading-[170%] text-[#dec1af] space-y-1">
+              <div className="font-mono text-[12px] md:text-[15px] leading-[170%] text-body space-y-1">
                 {q.lines.map((line, j) => (
-                  <p key={j} className={j === 0 ? 'text-[#1E88E5]' : ''}>
+                  <p key={j} className={j === 0 ? 'text-accent' : ''}>
                     {line}
                   </p>
                 ))}
@@ -166,12 +166,12 @@ export default function AboutPage() {
       <section className="relative z-20 h-screen flex flex-col items-center justify-center px-4">
         <div className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <span className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
-            <h1 className="text-[36px] md:text-[64px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+            <span className="material-symbols-outlined text-primary text-3xl">folder_open</span>
+            <h1 className="text-[36px] md:text-[64px] leading-[110%] tracking-[0.02em] text-primary font-display">
               ABOUT_IES.EXE<span className="cursor-blink font-mono">_</span>
             </h1>
           </div>
-          <p className="font-mono text-[13px] md:text-[16px] text-[#1E88E5]">{`C:\\> loading chapter profile... [OK]`}</p>
+          <p className="font-mono text-[13px] md:text-[16px] text-accent">{`C:\\> loading chapter profile... [OK]`}</p>
           <p className="font-mono text-[11px] text-gray-600 mt-6 animate-pulse">scroll to initialize —</p>
         </div>
       </section>
