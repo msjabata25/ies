@@ -35,12 +35,12 @@ function Model({ progressRef }: { progressRef: { current: number } }) {
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color('#1a1a1a'),
-          metalness: 0.7,
-          roughness: 0.25,
-          clearcoat: 0.15,
-          clearcoatRoughness: 0.3,
-          envMapIntensity: 1.8,
+          color: new THREE.Color('#2a2a2a'),
+          metalness: 0.6,
+          roughness: 0.3,
+          clearcoat: 0.1,
+          clearcoatRoughness: 0.4,
+          envMapIntensity: 1.2,
         });
       }
     });
@@ -51,7 +51,7 @@ function Model({ progressRef }: { progressRef: { current: number } }) {
       <group ref={spinRef}>
         <primitive object={scene} />
       </group>
-      <pointLight ref={glintLightRef} intensity={0.6} distance={6} color="#F57C00" />
+      <pointLight ref={glintLightRef} intensity={0.4} distance={5} color="#F57C00" />
     </group>
   );
 }
@@ -64,15 +64,16 @@ export default function TransistorCanvas({ progressRef }: { progressRef: { curre
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}
     >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 5, 5]} intensity={0.6} color="#F57C00" />
-      <directionalLight position={[-5, -5, -5]} intensity={0.3} color="#1E88E5" />
+      <ambientLight intensity={1.2} />
+      <directionalLight position={[5, 5, 5]} intensity={0.8} color="#F57C00" />
+      <directionalLight position={[-5, 3, -5]} intensity={0.5} color="#1E88E5" />
+      <directionalLight position={[0, -4, 3]} intensity={0.3} color="#ffffff" />
       <Model progressRef={progressRef} />
       <ContactShadows
         position={[0, -1.5, 0]}
-        opacity={0.35}
-        scale={5}
-        blur={2}
+        opacity={0.2}
+        scale={6}
+        blur={3}
         far={4}
       />
       <Environment preset="city" />

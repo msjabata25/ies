@@ -18,7 +18,6 @@ const quadrants = [
       'advancing industrial electronics since 2023',
       '60+ active members across 4 committees',
     ],
-    color: '#F57C00',
     position: 'top-[14%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: -24 },
   },
@@ -31,7 +30,6 @@ const quadrants = [
       'pcb design / industrial iot / control theory',
       'power electronics / digital signal processing',
     ],
-    color: '#1E88E5',
     position: 'bottom-[14%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: 24 },
   },
@@ -44,7 +42,6 @@ const quadrants = [
       'hands-on projects in automation, embedded',
       'systems, and industrial control engineering.',
     ],
-    color: '#F57C00',
     position: 'top-[14%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: -24 },
   },
@@ -57,7 +54,6 @@ const quadrants = [
       'host jordan\'s largest student engineering expo',
       'build open-source industrial automation tools',
     ],
-    color: '#1E88E5',
     position: 'bottom-[14%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: 24 },
   },
@@ -73,10 +69,8 @@ export default function AboutPage() {
     const page = containerRef.current;
     if (!page) return;
 
-    const totalVH = 5;
-    const headerFraction = 1 / totalVH;
-    const activeFraction = (totalVH - 1) / totalVH;
-    const fadeOutStart = (totalVH - 1) / totalVH;
+    /* Discrete sections: 0=header, 1=q1, 2=q3, 3=q2, 4=q4 */
+    let lastSection = -1;
 
     ScrollTrigger.create({
       trigger: page,
@@ -85,50 +79,43 @@ export default function AboutPage() {
       scrub: 0.5,
       onUpdate: (self) => {
         const sp = self.progress;
+        const totalVH = 5;
+        const headerFraction = 1 / totalVH;
+        const activeFraction = (totalVH - 1) / totalVH;
+        const fadeOutStart = 0.85;
 
-        /* Rotation progress — active only during the 4 quadrant sections */
-        const rotProgress = sp < headerFraction
-          ? 0
-          : Math.min(1, (sp - headerFraction) / activeFraction);
-        progressRef.current = rotProgress;
+        /* Rotation: linear from 0 at header-end to 1 at 70% */
+        const rotP = sp < headerFraction ? 0 : Math.min(1, (sp - headerFraction) / 0.5);
+        progressRef.current = rotP;
 
-        /* Fade entire scene content (model + text) in and out */
+        /* Scene opacity */
         const sceneWrapper = document.getElementById('about-scene');
         if (!sceneWrapper) return;
 
         if (sp < headerFraction) {
-          /* Fade in during header */
           sceneWrapper.style.opacity = String(sp / headerFraction);
         } else if (sp < fadeOutStart) {
-          /* Fully visible */
           sceneWrapper.style.opacity = '1';
         } else {
-          /* Fade out into footer */
-          sceneWrapper.style.opacity = String(Math.max(0, 1 - (sp - fadeOutStart) * totalVH));
+          sceneWrapper.style.opacity = String(Math.max(0, 1 - (sp - fadeOutStart) / (1 - fadeOutStart)));
         }
-      },
-    });
 
-    /* Each quadrant fades in when scrolled into view, out when scrolled past */
-    revealOrder.forEach((id) => {
-      const q = quadrants.find((x) => x.id === id)!;
-      ScrollTrigger.create({
-        trigger: `#${id}-trigger`,
-        start: 'top bottom-=5%',
-        end: 'bottom top+=5%',
-        onEnter: () => {
-          gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
-        },
-        onLeave: () => {
-          gsap.to(`#${id}-text`, { opacity: 0, y: q.enterDir.y, duration: 0.4, ease: 'power2.in' });
-        },
-        onEnterBack: () => {
-          gsap.to(`#${id}-text`, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' });
-        },
-        onLeaveBack: () => {
-          gsap.to(`#${id}-text`, { opacity: 0, y: q.enterDir.y, duration: 0.4, ease: 'power2.in' });
-        },
-      });
+        /* Discrete section tracking — only update GSAP on section change */
+        const section = sp < headerFraction ? 0 : Math.min(4, Math.floor((sp - headerFraction) / activeFraction * 4) + 1);
+        if (section === lastSection) return;
+        lastSection = section;
+
+        revealOrder.forEach((id, i) => {
+          const q = quadrants.find((x) => x.id === id)!;
+          const visible = i + 1 <= section;
+          gsap.to(`#${id}-text`, {
+            opacity: visible ? 1 : 0,
+            y: visible ? 0 : q.enterDir.y,
+            duration: 0.5,
+            ease: 'power2.out',
+          });
+        });
+      },
     });
 
     return () => {
@@ -177,7 +164,7 @@ export default function AboutPage() {
 
       {/* ===== Scroll sections ===== */}
 
-      {/* Header — model is hidden here, fades in as user scrolls */}
+      {/* Header */}
       <section className="relative z-20 h-screen flex flex-col items-center justify-center px-4">
         <div className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
@@ -191,7 +178,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4 scroll triggers — Q1 → Q3 → Q2 → Q4 */}
+      {/* 4 scroll triggers */}
       <div id="q1-trigger" className="h-screen relative z-20" />
       <div id="q3-trigger" className="h-screen relative z-20" />
       <div id="q2-trigger" className="h-screen relative z-20" />
