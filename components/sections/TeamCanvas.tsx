@@ -51,7 +51,7 @@ function BubbleCircle({
     return (
       <div
         className={`rounded-full overflow-hidden flex-shrink-0 ${className ?? ''}`}
-        style={{ width: size, height: size, borderColor: `${color}60}`, borderWidth: 2 }}
+        style={{ width: size, height: size, border: `2px solid ${color}60` }}
       >
         <img
           src={member.photo}
@@ -69,8 +69,7 @@ function BubbleCircle({
       style={{
         width: size,
         height: size,
-        borderColor: `${color}60`,
-        borderWidth: 2,
+        border: `2px solid ${color}60`,
         backgroundColor: '#131313',
       }}
     >
@@ -85,21 +84,54 @@ interface BubbleProps {
   member: TeamMember;
   left: number;
   top: number;
+  index: number;
   onClick: () => void;
 }
 
-function Bubble({ member, left, top, onClick }: BubbleProps) {
+function Bubble({ member, left, top, index, onClick }: BubbleProps) {
   return (
     <motion.div
       layoutId={`team-bubble-${member.id}`}
       className="absolute cursor-pointer"
       style={{ left, top, width: BUBBLE_SIZE, height: BUBBLE_SIZE }}
+      data-bubble
+      data-bubble-index={index}
       onClick={onClick}
       whileHover={{ scale: 1.08 }}
+      exit={{ scale: 0, opacity: 0 }}
     >
       <BubbleCircle member={member} size={BUBBLE_SIZE} />
     </motion.div>
   );
+}
+
+function separatePositions(positions: { left: number; top: number }[], minDist: number, iterations: number) {
+  const result = positions.map((p) => ({ ...p }));
+  const minDistSq = minDist * minDist;
+
+  for (let iter = 0; iter < iterations; iter++) {
+    let moved = false;
+    for (let i = 0; i < result.length; i++) {
+      for (let j = i + 1; j < result.length; j++) {
+        const dx = result[i].left - result[j].left;
+        const dy = result[i].top - result[j].top;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < minDistSq && distSq > 0.01) {
+          const dist = Math.sqrt(distSq);
+          const overlap = minDist - dist;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          result[i].left += nx * overlap * 0.5;
+          result[i].top += ny * overlap * 0.5;
+          result[j].left -= nx * overlap * 0.5;
+          result[j].top -= ny * overlap * 0.5;
+          moved = true;
+        }
+      }
+    }
+    if (!moved) break;
+  }
+  return result;
 }
 
 export default function TeamCanvas() {
@@ -107,6 +139,8 @@ export default function TeamCanvas() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: -9999, y: -9999, inside: false });
+  const bubblePositionsRef = useRef<{ left: number; top: number }[]>([]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -121,17 +155,97 @@ export default function TeamCanvas() {
   const bubblePositions = useMemo(() => {
     if (containerWidth === 0) return [];
     const cols = containerWidth < 640 ? 3 : containerWidth < 1024 ? 4 : 5;
-    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.6);
+    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.8);
     const startX = (containerWidth - spacing * cols) / 2;
 
-    return team.map((m, i) => {
+    const raw = team.map((m, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
       const left = startX + col * spacing + (m.scatter?.tx ?? 0);
       const top = row * spacing * 0.85 + (m.scatter?.ty ?? 0) + 40;
       return { left, top };
     });
+
+    return separatePositions(raw, BUBBLE_SIZE * 0.9, 8);
   }, [containerWidth]);
+
+  bubblePositionsRef.current = bubblePositions;
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      mouseRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        inside: true,
+      };
+    };
+
+    const onMouseLeave = () => {
+      mouseRef.current = { ...mouseRef.current, inside: false };
+    };
+
+    container.addEventListener('mousemove', onMouseMove);
+    container.addEventListener('mouseleave', onMouseLeave);
+
+    return () => {
+      container.removeEventListener('mousemove', onMouseMove);
+      container.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    let time = 0;
+
+    const loop = () => {
+      time += 0.016;
+      const mouse = mouseRef.current;
+      const container = containerRef.current;
+      if (!container) { rafId = requestAnimationFrame(loop); return; }
+
+      const bubbles = container.querySelectorAll<HTMLElement>('[data-bubble]');
+      const containerRect = container.getBoundingClientRect();
+      const positions = bubblePositionsRef.current;
+
+      bubbles.forEach((el) => {
+        const idx = parseInt(el.getAttribute('data-bubble-index') || '0', 10);
+        const base = positions[idx];
+        if (!base) return;
+
+        const floatY =
+          Math.sin(time * 0.9 + idx * 0.7) * 3 +
+          Math.sin(time * 1.4 + idx * 1.3) * 2;
+
+        let repelX = 0;
+        let repelY = 0;
+
+        if (mouse.inside) {
+          const bx = base.left + BUBBLE_SIZE / 2;
+          const by = base.top + BUBBLE_SIZE / 2;
+          const dx = bx - mouse.x;
+          const dy = by - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const radius = 130;
+          if (dist < radius && dist > 1) {
+            const force = (1 - dist / radius) * 35;
+            repelX = (dx / dist) * force;
+            repelY = (dy / dist) * force;
+          }
+        }
+
+        el.style.transform = `translate3d(${repelX}px, ${floatY + repelY}px, 0)`;
+      });
+
+      rafId = requestAnimationFrame(loop);
+    };
+
+    let rafId = requestAnimationFrame(loop);
+
+    return () => cancelAnimationFrame(rafId);
+  }, []);
 
   const expandedMember = useMemo(() => {
     if (!expandedId) return null;
@@ -154,7 +268,7 @@ export default function TeamCanvas() {
   const canvasHeight = useMemo(() => {
     if (containerWidth === 0) return 600;
     const cols = containerWidth < 640 ? 3 : containerWidth < 1024 ? 4 : 5;
-    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.6);
+    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.8);
     const rows = Math.ceil(team.length / cols);
     return rows * spacing * 0.85 + 120;
   }, [containerWidth]);
@@ -181,6 +295,7 @@ export default function TeamCanvas() {
                   member={member}
                   left={pos.left}
                   top={pos.top}
+                  index={i}
                   onClick={() => handleExpand(member.id)}
                 />
               )}
