@@ -106,8 +106,8 @@ export default function Navbar() {
   return (
     <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-[#131313]/80 backdrop-blur-xl border-b-2 border-[#F57C00] shadow-[0_0_15px_rgba(245,124,0,0.3)]">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
-        <Link href="/" className="font-display tracking-widest text-[#F57C00] text-[18px] md:text-[32px] font-normal leading-[120%] hover:text-white transition whitespace-nowrap">
-          IES JUST
+        <Link href="/" className="flex-shrink-0">
+          <img src="/logo.png" alt="IES JUST" className="h-10 md:h-14 w-auto" />
         </Link>
 
         {/* Desktop nav */}

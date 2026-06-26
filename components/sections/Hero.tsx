@@ -20,7 +20,6 @@ export default function Hero() {
     tl.to('.hero-cursor', { opacity: 1, duration: 0.1 }, 'letters');
     tl.to('.hero-title', { text: "SYSTEM BOOT\nSEQUENCE", duration: 1.5, ease: 'none' }, 'letters');
     tl.to('.hero-terminal', { opacity: 1, y: 0, duration: 0.4 }, 'letters+=1.6');
-    tl.to('.hero-logo', { opacity: 1, scale: 1, rotation: 360, duration: 0.8, ease: 'back.out(1.7, 0.3)' }, 'letters+=1.8');
     tl.to('.boot-line', { opacity: 1, stagger: 0.25, duration: 0.1 }, 'letters+=2.0');
     tl.to('.status-strip', { opacity: 1, duration: 0.3 }, 'letters+=3.0');
     tl.to('.sys-coord', { opacity: 0.5, duration: 0.5 }, 'letters+=3.0');
@@ -37,9 +36,6 @@ export default function Hero() {
       <div className="flex items-center w-full max-w-7xl mx-auto z-10">
         <div className="w-full z-10 text-left">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-4">
-            <div className="hero-logo opacity-0 scale-50 w-24 h-24 md:w-32 md:h-32 flex-shrink-0 drop-shadow-[0_0_15px_rgba(245,124,0,0.5)]">
-              <img src="/ies-logo.jpg" alt="IES JUST Logo" className="w-full h-full object-contain mix-blend-screen" />
-            </div>
             <h1 className="font-display text-[#F57C00] text-[32px] sm:text-[48px] md:text-[84px] leading-none tracking-widest whitespace-pre-wrap">
               <span className="hero-title"></span><span className="hero-cursor opacity-0 cursor-blink font-mono">_</span>
             </h1>
