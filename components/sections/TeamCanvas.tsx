@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { team, type Committee, type TeamMember } from '@/data/team';
 import { AnimatePresence, motion } from 'motion/react';
-import AnimatedGrid from './AnimatedGrid';
+import StaticGrid from './StaticGrid';
 
 const committees: { label: string; value: Committee | 'All' }[] = [
   { label: 'ALL', value: 'All' },
@@ -97,7 +97,6 @@ function Bubble({ member, left, top, index, onClick }: BubbleProps) {
       data-bubble
       data-bubble-index={index}
       onClick={onClick}
-      whileHover={{ scale: 1.08 }}
       exit={{ scale: 0, opacity: 0 }}
     >
       <BubbleCircle member={member} size={BUBBLE_SIZE} />
@@ -197,6 +196,8 @@ export default function TeamCanvas() {
     };
   }, []);
 
+  const repelCurrent = useRef<Float64Array>(new Float64Array(team.length * 2));
+
   useEffect(() => {
     let time = 0;
 
@@ -207,20 +208,20 @@ export default function TeamCanvas() {
       if (!container) { rafId = requestAnimationFrame(loop); return; }
 
       const bubbles = container.querySelectorAll<HTMLElement>('[data-bubble]');
-      const containerRect = container.getBoundingClientRect();
       const positions = bubblePositionsRef.current;
+      const repel = repelCurrent.current;
 
       bubbles.forEach((el) => {
         const idx = parseInt(el.getAttribute('data-bubble-index') || '0', 10);
         const base = positions[idx];
-        if (!base) return;
+        if (base === undefined) return;
 
         const floatY =
           Math.sin(time * 0.9 + idx * 0.7) * 3 +
           Math.sin(time * 1.4 + idx * 1.3) * 2;
 
-        let repelX = 0;
-        let repelY = 0;
+        let targetX = 0;
+        let targetY = 0;
 
         if (mouse.inside) {
           const bx = base.left + BUBBLE_SIZE / 2;
@@ -231,12 +232,16 @@ export default function TeamCanvas() {
           const radius = 130;
           if (dist < radius && dist > 1) {
             const force = (1 - dist / radius) * 35;
-            repelX = (dx / dist) * force;
-            repelY = (dy / dist) * force;
+            targetX = (dx / dist) * force;
+            targetY = (dy / dist) * force;
           }
         }
 
-        el.style.transform = `translate3d(${repelX}px, ${floatY + repelY}px, 0)`;
+        repel[idx * 2] += (targetX - repel[idx * 2]) * 0.04;
+        repel[idx * 2 + 1] += (targetY - repel[idx * 2 + 1]) * 0.04;
+
+        const hoverScale = el.matches(':hover') ? 1.08 : 1;
+        el.style.transform = `translate3d(${repel[idx * 2]}px, ${floatY + repel[idx * 2 + 1]}px, 0) scale(${hoverScale})`;
       });
 
       rafId = requestAnimationFrame(loop);
@@ -280,7 +285,7 @@ export default function TeamCanvas() {
       style={{ minHeight: canvasHeight }}
     >
       <div className="absolute inset-0 z-0">
-        <AnimatedGrid width={containerWidth} height={canvasHeight} />
+        <StaticGrid />
       </div>
 
       <div className="absolute inset-0 z-[1]">
