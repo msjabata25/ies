@@ -8,9 +8,9 @@ import { useGSAP } from '@gsap/react';
 
 const navLinks = [
   { name: 'TERMINAL.EXE', href: '/' },
-  { name: 'MODULES_', href: '/about' },
-  { name: 'NET_OPS_', href: '/events' },
-  { name: 'ARCHIVE_', href: '/team' },
+  { name: 'ABOUT', href: '/about' },
+  { name: 'EVENTS', href: '/events' },
+  { name: 'TEAM', href: '/team' },
 ];
 
 export default function Navbar() {
