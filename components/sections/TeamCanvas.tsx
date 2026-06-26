@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { team, type Committee, type TeamMember } from '@/data/team';
 import { AnimatePresence, motion } from 'motion/react';
 import StaticGrid from './StaticGrid';
@@ -94,10 +94,18 @@ function Bubble({ member, left, top, index, onClick }: BubbleProps) {
       layoutId={`team-bubble-${member.id}`}
       className="absolute cursor-pointer"
       style={{ left, top, width: BUBBLE_SIZE, height: BUBBLE_SIZE }}
-      data-bubble
-      data-bubble-index={index}
       onClick={onClick}
       exit={{ scale: 0, opacity: 0 }}
+      animate={{
+        y: [0, -5, 0],
+        transition: {
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: index * 0.15,
+        },
+      }}
+      whileHover={{ scale: 1.08 }}
     >
       <BubbleCircle member={member} size={BUBBLE_SIZE} />
     </motion.div>
@@ -137,16 +145,11 @@ export default function TeamCanvas() {
   const [activeFilter, setActiveFilter] = useState<Committee | 'All'>('All');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: -9999, y: -9999, inside: false });
-  const bubblePositionsRef = useRef<{ left: number; top: number }[]>([]);
-
-  useEffect(() => {
-    const el = containerRef.current;
+  const containerRefCallback = useCallback((el: HTMLDivElement | null) => {
     if (!el) return;
-    const update = () => setContainerWidth(el.clientWidth);
-    update();
-    const ro = new ResizeObserver(update);
+    const ro = new ResizeObserver((entries) => {
+      setContainerWidth(entries[0].contentRect.width);
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -167,90 +170,6 @@ export default function TeamCanvas() {
 
     return separatePositions(raw, BUBBLE_SIZE * 0.9, 8);
   }, [containerWidth]);
-
-  bubblePositionsRef.current = bubblePositions;
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        inside: true,
-      };
-    };
-
-    const onMouseLeave = () => {
-      mouseRef.current = { ...mouseRef.current, inside: false };
-    };
-
-    container.addEventListener('mousemove', onMouseMove);
-    container.addEventListener('mouseleave', onMouseLeave);
-
-    return () => {
-      container.removeEventListener('mousemove', onMouseMove);
-      container.removeEventListener('mouseleave', onMouseLeave);
-    };
-  }, []);
-
-  const repelCurrent = useRef<Float64Array>(new Float64Array(team.length * 2));
-
-  useEffect(() => {
-    let time = 0;
-
-    const loop = () => {
-      time += 0.016;
-      const mouse = mouseRef.current;
-      const container = containerRef.current;
-      if (!container) { rafId = requestAnimationFrame(loop); return; }
-
-      const bubbles = container.querySelectorAll<HTMLElement>('[data-bubble]');
-      const positions = bubblePositionsRef.current;
-      const repel = repelCurrent.current;
-
-      bubbles.forEach((el) => {
-        const idx = parseInt(el.getAttribute('data-bubble-index') || '0', 10);
-        const base = positions[idx];
-        if (base === undefined) return;
-
-        const floatY =
-          Math.sin(time * 0.9 + idx * 0.7) * 3 +
-          Math.sin(time * 1.4 + idx * 1.3) * 2;
-
-        let targetX = 0;
-        let targetY = 0;
-
-        if (mouse.inside) {
-          const bx = base.left + BUBBLE_SIZE / 2;
-          const by = base.top + BUBBLE_SIZE / 2;
-          const dx = bx - mouse.x;
-          const dy = by - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const radius = 130;
-          if (dist < radius && dist > 1) {
-            const force = (1 - dist / radius) * 35;
-            targetX = (dx / dist) * force;
-            targetY = (dy / dist) * force;
-          }
-        }
-
-        repel[idx * 2] += (targetX - repel[idx * 2]) * 0.04;
-        repel[idx * 2 + 1] += (targetY - repel[idx * 2 + 1]) * 0.04;
-
-        const hoverScale = el.matches(':hover') ? 1.08 : 1;
-        el.style.transform = `translate3d(${repel[idx * 2]}px, ${floatY + repel[idx * 2 + 1]}px, 0) scale(${hoverScale})`;
-      });
-
-      rafId = requestAnimationFrame(loop);
-    };
-
-    let rafId = requestAnimationFrame(loop);
-
-    return () => cancelAnimationFrame(rafId);
-  }, []);
 
   const expandedMember = useMemo(() => {
     if (!expandedId) return null;
@@ -280,7 +199,7 @@ export default function TeamCanvas() {
 
   return (
     <div
-      ref={containerRef}
+      ref={containerRefCallback}
       className="relative w-full"
       style={{ minHeight: canvasHeight }}
     >

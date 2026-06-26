@@ -86,6 +86,13 @@ export function HyperText({
   const [isAnimating, setIsAnimating] = useState(false)
   const iterationCount = useRef(0)
   const elementRef = useRef<HTMLElement | null>(null)
+  const observerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    setDisplayText(children.split(""))
+  }, [children])
+
+  const safeCharacterSet = characterSet.length === 0 ? DEFAULT_CHARACTER_SET : characterSet
 
   const handleAnimationTrigger = () => {
     if (animateOnHover && !isAnimating) {
@@ -106,7 +113,7 @@ export function HyperText({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
+          observerTimerRef.current = setTimeout(() => {
             setIsAnimating(true)
           }, delay)
           observer.disconnect()
@@ -119,7 +126,10 @@ export function HyperText({
       observer.observe(elementRef.current)
     }
 
-    return () => observer.disconnect()
+    return () => {
+      if (observerTimerRef.current) clearTimeout(observerTimerRef.current)
+      observer.disconnect()
+    }
   }, [delay, startOnView])
 
   // Handle scramble animation
@@ -142,7 +152,7 @@ export function HyperText({
               ? letter
               : index <= iterationCount.current
                 ? children[index]
-                : characterSet[getRandomInt(characterSet.length)]
+                : safeCharacterSet[getRandomInt(safeCharacterSet.length)]
           )
         )
 

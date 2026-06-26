@@ -22,15 +22,17 @@ export default function ParticleText({
 }: ParticleTextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [width, setWidth] = useState(0);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const updateWidth = () => setWidth(container.clientWidth);
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+    const ro = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setDimensions({ width, height });
+    });
+    ro.observe(container);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
@@ -65,9 +67,10 @@ export default function ParticleText({
     const imageData = ctx.getImageData(0, 0, offscreen.width, offscreen.height);
     const data = imageData.data;
 
+    const res = Math.max(1, Math.floor(resolution));
     const rawPositions: number[] = [];
-    for (let y = 0; y < offscreen.height; y += resolution) {
-      for (let x = 0; x < offscreen.width; x += resolution) {
+    for (let y = 0; y < offscreen.height; y += res) {
+      for (let x = 0; x < offscreen.width; x += res) {
         const i = (y * offscreen.width + x) * 4;
         if (data[i + 3] > 128) {
           rawPositions.push(x - offscreen.width / 2, -(y - offscreen.height / 2), 0);
@@ -188,7 +191,7 @@ export default function ParticleText({
       geometry.dispose();
       material.dispose();
     };
-  }, [text, color, particleSize, dispersionRadius, dispersionStrength, resolution, width]);
+  }, [text, color, particleSize, dispersionRadius, dispersionStrength, resolution, dimensions]);
 
   return (
     <div

@@ -82,6 +82,7 @@ export default function Navbar() {
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
     } else {
       const timer = setTimeout(() => { document.body.style.overflow = ''; }, 350);
       return () => clearTimeout(timer);

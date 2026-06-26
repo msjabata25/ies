@@ -68,7 +68,7 @@ export function NumberTicker({
       )}
       {...props}
     >
-      {startValue}
+      {direction === "down" ? value : startValue}
     </span>
   )
 }

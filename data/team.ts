@@ -115,10 +115,7 @@ export const team: TeamMember[] = Array.from({ length: 28 }, (_, i) => {
     role,
     committee,
     bio,
-    socials: {
-      instagram: `#`,
-      linkedin: `#`,
-    },
+    socials: undefined,
     scatter: scatterPositions[i],
   };
 });

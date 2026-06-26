@@ -32,6 +32,7 @@ const GlowingEffect = memo(
     const containerRef = useRef<HTMLDivElement>(null);
     const lastPosition = useRef({ x: 0, y: 0 });
     const animationFrameRef = useRef<number>(0);
+    const currentAnimRef = useRef<{ stop: () => void } | null>(null);
 
     const handleMove = useCallback(
       (e?: MouseEvent | { x: number; y: number }) => {
@@ -82,16 +83,21 @@ const GlowingEffect = memo(
               Math.PI +
             90;
 
-          const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
+          const angleDiff = ((((targetAngle - currentAngle) % 360) + 540) % 360) - 180;
           const newAngle = currentAngle + angleDiff;
 
-          animate(currentAngle, newAngle, {
+          if (currentAnimRef.current) {
+            currentAnimRef.current.stop();
+          }
+
+          const anim = animate(currentAngle, newAngle, {
             duration: movementDuration,
             ease: [0.16, 1, 0.3, 1],
             onUpdate: (value) => {
               element.style.setProperty("--start", String(value));
             },
           });
+          currentAnimRef.current = anim;
         });
       },
       [inactiveZone, proximity, movementDuration]

@@ -56,7 +56,7 @@ export default function StackedEvents({ events }: StackedEventsProps) {
       });
     }
 
-    ScrollTrigger.create({
+    const st = ScrollTrigger.create({
       trigger: container,
       pin: true,
       start: 'top top',
@@ -66,7 +66,7 @@ export default function StackedEvents({ events }: StackedEventsProps) {
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
+      st.kill();
     };
   }, { scope: containerRef });
 

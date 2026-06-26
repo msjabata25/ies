@@ -30,21 +30,22 @@ export default function AboutSnippet() {
         </BlurFade>
 
         <BlurFade inView delay={0.35} direction="right" className="flex justify-center">
-          <Link href="/about">
-            <button className="relative group cursor-pointer bg-transparent border-2 border-[#F57C00] px-8 py-5 font-mono text-[16px] text-[#F57C00] hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300">
-              <span className="block group-hover:hidden">
-                <EncryptedText
-                  text="ACCESS DENIED — UNLOCK /about"
-                  className="text-[16px] font-mono text-[#F57C00] inline"
-                  revealDelayMs={30}
-                  encryptedClassName="text-gray-500"
-                  revealedClassName="text-[#F57C00]"
-                />
-              </span>
-              <span className="hidden group-hover:block text-[#0A0A0A] font-bold">
-                ACCESS GRANTED — ENTER
-              </span>
-            </button>
+          <Link
+            href="/about"
+            className="relative group cursor-pointer bg-transparent border-2 border-[#F57C00] px-8 py-5 font-mono text-[16px] text-[#F57C00] hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 inline-block"
+          >
+            <span className="block group-hover:hidden">
+              <EncryptedText
+                text="ACCESS DENIED — UNLOCK /about"
+                className="text-[16px] font-mono text-[#F57C00] inline"
+                revealDelayMs={30}
+                encryptedClassName="text-gray-500"
+                revealedClassName="text-[#F57C00]"
+              />
+            </span>
+            <span className="hidden group-hover:block text-[#0A0A0A] font-bold">
+              ACCESS GRANTED — ENTER
+            </span>
           </Link>
         </BlurFade>
       </div>

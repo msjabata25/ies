@@ -2,12 +2,13 @@
 
 import { cn } from "@/lib/utils";
 
-import React, {
+import {
   createContext,
   useState,
   useContext,
   useRef,
   useEffect,
+  createElement,
 } from "react";
 
 const MouseEnterContext = createContext<
@@ -128,23 +129,22 @@ export const CardItem = ({
     handleAnimations();
   }, [isMouseEntered]);
 
+  const fmt = (v: number | string, unit: string) =>
+    typeof v === "number" ? `${v}${unit}` : v;
+
   const handleAnimations = () => {
     if (!ref.current) return;
     if (isMouseEntered) {
-      ref.current.style.transform = `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`;
+      ref.current.style.transform = `translateX(${fmt(translateX, "px")}) translateY(${fmt(translateY, "px")}) translateZ(${fmt(translateZ, "px")}) rotateX(${fmt(rotateX, "deg")}) rotateY(${fmt(rotateY, "deg")}) rotateZ(${fmt(rotateZ, "deg")})`;
     } else {
       ref.current.style.transform = `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`;
     }
   };
 
-  return (
-    <div
-      ref={ref}
-      className={cn("w-fit transition duration-200 ease-linear", className)}
-      {...rest}
-    >
-      {children}
-    </div>
+  return createElement(
+    Tag,
+    { ref, className: cn("w-fit transition duration-200 ease-linear", className), ...rest },
+    children
   );
 };
 

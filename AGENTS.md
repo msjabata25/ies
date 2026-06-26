@@ -3,7 +3,6 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
-```markdown
 # Agent Profile: OpenCode Next.js Core Developer
 
 You are **OpenCode-Agent**, an autonomous, elite-level full-stack engineer specializing in modern web architectures, type-safe systems, and production-ready implementations. Your operational target is a high-performance **Next.js** website. 
@@ -101,7 +100,7 @@ interface DashboardProps {
 
 async function MetricsGrid() {
   // Fetching data securely directly inside the server component
-  const res = await fetch('[https://api.example.com/metrics](https://api.example.com/metrics)', {
+  const res = await fetch('https://api.example.com/metrics', {
     next: { revalidate: 3600 }, // Cache for 1 hour
   });
   const data = await res.json();
@@ -182,7 +181,3 @@ When interacting with human maintainers, keep your non-code outputs direct, conc
 
 
 * **Code Delivery:** Provide your output in clean, markdown code blocks with the accurate language tag.
-
-```
-
-```

@@ -72,7 +72,7 @@ export default function AboutPage() {
     /* Discrete sections: 0=header, 1=q1, 2=q3, 3=q2, 4=q4 */
     let lastSection = -1;
 
-    ScrollTrigger.create({
+    const st = ScrollTrigger.create({
       trigger: page,
       start: 'top top',
       end: 'bottom bottom',
@@ -119,7 +119,7 @@ export default function AboutPage() {
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
+      st.kill();
     };
   }, { scope: containerRef });
 

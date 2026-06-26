@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TerminalProps {
@@ -66,7 +66,7 @@ export function AnimatedSpan({ children, className, delay = 0 }: AnimatedSpanPro
 }
 
 export function Terminal({ children, className }: TerminalProps) {
-  const childrenArray = Array.isArray(children) ? children : [children];
+  const childrenArray = React.Children.toArray(children);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleComplete = useCallback((index: number) => {
@@ -102,16 +102,14 @@ function TerminalLine({ children, index, activeIndex, onComplete }: {
   onComplete: (index: number) => void;
 }) {
   const [visible, setVisible] = useState(false);
-  const notified = useRef(false);
+  const hasTriggered = useRef(false);
 
   useEffect(() => {
-    if (index <= activeIndex) {
+    if (index <= activeIndex && !hasTriggered.current) {
+      hasTriggered.current = true;
       const timer = setTimeout(() => {
         setVisible(true);
-        if (!notified.current) {
-          notified.current = true;
-          onComplete(index);
-        }
+        onComplete(index);
       }, index * 200);
       return () => clearTimeout(timer);
     }

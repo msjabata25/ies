@@ -15,7 +15,7 @@ function getStatusColor(status: string) {
 }
 
 const STATUS_FILTERS: (EventStatus | 'All')[] = ['All', 'Upcoming', 'Active', 'Past'];
-const TYPE_FILTERS: (EventType | 'All')[] = ['All', 'Workshop', 'Seminar', 'Hackathon'];
+const TYPE_FILTERS: (EventType | 'All')[] = ['All', 'Workshop', 'Seminar', 'Hackathon', 'Expo'];
 
 function EventCard({ event, index }: { event: ChapterEvent; index: number }) {
   return (
@@ -35,7 +35,7 @@ function EventCard({ event, index }: { event: ChapterEvent; index: number }) {
       <p className="font-mono text-[13px] text-[#dec1af] leading-[170%] mb-4 min-h-[60px]">{event.description}</p>
       <div className="flex justify-between items-center font-mono text-[12px] text-[#1E88E5] border-t border-[#1E88E5]/20 pt-3">
         <span>{event.type}</span>
-        <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+        <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
       </div>
     </CardSpotlight>
   );
