@@ -3,7 +3,7 @@
 React 19 + Vite, plain JavaScript (no TypeScript), Tailwind CSS v4 via `@tailwindcss/vite`, React Router v7.
 Ported from a Next.js App Router version in Oct 2026 — there is no server rendering, no `'use client'`, no `next/*` imports.
 
-- Routes live in `src/App.jsx`; pages are lazy-loaded so three.js (About page only) stays out of the main bundle.
+- Routes live in `src/App.jsx`; pages are lazy-loaded so three.js (Events page only) stays out of the main bundle.
 - `src/components/Layout.jsx` owns Lenis smooth scroll (driven by the GSAP ticker) and scroll-to-top on route change.
 - `@/` aliases `src/` (vite.config.js + jsconfig.json).
 - Site content is in `src/data/` — keep the field shapes documented at the top of each file.

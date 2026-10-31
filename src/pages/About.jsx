@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import TransistorCanvas from '@/components/TransistorScene';
+import CircuitScene from '@/components/CircuitScene';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -61,7 +61,7 @@ const revealOrder = ['q1', 'q3', 'q2', 'q4'];
 
 export default function AboutPage() {
   const containerRef = useRef(null);
-  const progressRef = useRef(0);
+  const circuitRef = useRef(null);
 
   useGSAP(() => {
     const page = containerRef.current;
@@ -82,9 +82,8 @@ export default function AboutPage() {
         const activeFraction = (totalVH - 1) / totalVH;
         const fadeOutStart = 0.85;
 
-        /* Rotation: linear from 0 at header-end to 1 at 70% */
-        const rotP = sp < headerFraction ? 0 : Math.min(1, (sp - headerFraction) / 0.5);
-        progressRef.current = rotP;
+        /* Transistor symbol draws itself while the header scrolls away */
+        circuitRef.current?.setCore(sp < headerFraction ? sp / headerFraction : 1);
 
         /* Scene opacity */
         const sceneWrapper = document.getElementById('about-scene');
@@ -102,6 +101,7 @@ export default function AboutPage() {
         const section = sp < headerFraction ? 0 : Math.min(4, Math.floor((sp - headerFraction) / activeFraction * 4) + 1);
         if (section === lastSection) return;
         lastSection = section;
+        circuitRef.current?.setSection(section);
 
         revealOrder.forEach((id, i) => {
           const q = quadrants.find((x) => x.id === id);
@@ -129,10 +129,8 @@ export default function AboutPage() {
         className="fixed inset-0 z-10 pointer-events-none"
         style={{ opacity: 0 }}
       >
-        {/* Transistor — fills viewport, model is centered in Canvas */}
-        <div className="absolute inset-0">
-          <TransistorCanvas progressRef={progressRef} />
-        </div>
+        {/* Circuit — traces route from the transistor to each quadrant */}
+        <CircuitScene ref={circuitRef} />
 
         {/* Quadrant text */}
         <div className="relative w-full h-full max-w-7xl mx-auto px-4">

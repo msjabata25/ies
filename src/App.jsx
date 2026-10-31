@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from '@/components/Layout';
 
 // Each page is loaded only when visited (Next.js did this automatically).
-// This keeps three.js, which only the About page uses, off the home page.
+// This keeps three.js, which only the Events page uses, off the home page.
 const Home = lazy(() => import('@/pages/Home'));
 const About = lazy(() => import('@/pages/About'));
 const Events = lazy(() => import('@/pages/Events'));
