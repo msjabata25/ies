@@ -133,6 +133,7 @@ export default {
     errPrefix: 'ERR:',
     labels: {
       fullName: 'FULL NAME',
+      fullNameAr: 'NAME IN ARABIC',
       email: 'EMAIL',
       phone: 'PHONE',
       studentId: 'STUDENT ID',
@@ -148,12 +149,14 @@ export default {
       link: 'GITHUB / PORTFOLIO / LINKEDIN',
     },
     hints: {
+      fullNameAr: 'how your name is written in Arabic',
       email: "university or personal — we'll reply here",
       studentId: "used to verify you're a JUST student",
       motivation: '{n}/{max} — what you want to learn, build or bring',
     },
     placeholders: {
       fullName: 'Ahmad Al-Khatib',
+      fullNameAr: 'أحمد الخطيب',
       email: 'you@just.edu.jo',
       phone: '07X XXX XXXX',
       studentId: '123456',
@@ -198,6 +201,7 @@ export default {
     },
     review: {
       fullName: 'NAME',
+      fullNameAr: 'ARABIC NAME',
       email: 'EMAIL',
       phone: 'PHONE',
       studentId: 'STUDENT ID',
@@ -211,6 +215,7 @@ export default {
     },
     errors: {
       fullName: 'enter your full name',
+      fullNameAr: 'Arabic letters only',
       email: 'enter a valid email address',
       phone: 'local mobile number, e.g. 0791234567 (no +962)',
       studentIdMissing: 'we need your student ID to verify you',

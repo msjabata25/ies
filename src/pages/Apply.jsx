@@ -16,11 +16,14 @@ const MOTIVATION_MIN = 40;
 const MOTIVATION_MAX = 600;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const ARABIC_NAME = /^[\u0600-\u06FF\s]+$/; // Arabic script and spaces
+
 /* Phone numbers may be typed with spaces or dashes; validate and send digits only. */
 const digits = (v) => v.replace(/[\s-]/g, '');
 
 const EMPTY = {
   fullName: '',
+  fullNameAr: '',
   email: '',
   phone: '',
   studentId: '',
@@ -70,6 +73,7 @@ function validate(step, d) {
   const e = {};
   if (step === 0) {
     if (d.fullName.trim().length < 3) e.fullName = { key: 'fullName' };
+    if (d.fullNameAr.trim() && !ARABIC_NAME.test(d.fullNameAr.trim())) e.fullNameAr = { key: 'fullNameAr' };
     if (!EMAIL.test(d.email.trim())) e.email = { key: 'email' };
     if (d.phone.trim() && !/^07[789]\d{7}$/.test(digits(d.phone))) e.phone = { key: 'phone' };
     if (!d.studentId.trim()) e.studentId = { key: 'studentIdMissing' };
@@ -94,6 +98,7 @@ function toPayload(d) {
   const optional = (v) => v.trim() || undefined;
   return {
     fullName: d.fullName.trim(),
+    fullNameAr: optional(d.fullNameAr),
     email: d.email.trim(),
     phone: optional(digits(d.phone)),
     studentId: d.studentId.trim(),
@@ -350,6 +355,9 @@ export default function ApplyPage() {
               <Field id="fullName" label={t('apply.labels.fullName')} error={errText('fullName')}>
                 <input id="fullName" autoComplete="name" className={inputClass(errors.fullName)} value={data.fullName} onChange={(e) => set('fullName')(e.target.value)} placeholder={t('apply.placeholders.fullName')} {...err('fullName')} />
               </Field>
+              <Field id="fullNameAr" label={t('apply.labels.fullNameAr')} optional hint={t('apply.hints.fullNameAr')} error={errText('fullNameAr')}>
+                <input id="fullNameAr" lang="ar" dir="rtl" className={`${inputClass(errors.fullNameAr)} text-start`} value={data.fullNameAr} onChange={(e) => set('fullNameAr')(e.target.value)} placeholder={t('apply.placeholders.fullNameAr')} {...err('fullNameAr')} />
+              </Field>
               <Field id="email" label={t('apply.labels.email')} hint={t('apply.hints.email')} error={errText('email')}>
                 <input id="email" type="email" inputMode="email" autoComplete="email" dir="ltr" className={`${inputClass(errors.email)} text-start`} value={data.email} onChange={(e) => set('email')(e.target.value)} placeholder={t('apply.placeholders.email')} {...err('email')} />
               </Field>
@@ -466,6 +474,7 @@ export default function ApplyPage() {
           {step === 4 && (
             <dl>
               <ReviewRow label={t('apply.review.fullName')} value={data.fullName} onEdit={() => goTo(0)} />
+              <ReviewRow label={t('apply.review.fullNameAr')} value={data.fullNameAr} onEdit={() => goTo(0)} />
               <ReviewRow label={t('apply.review.email')} value={data.email} onEdit={() => goTo(0)} />
               <ReviewRow label={t('apply.review.phone')} value={data.phone} onEdit={() => goTo(0)} />
               <ReviewRow label={t('apply.review.studentId')} value={data.studentId} onEdit={() => goTo(0)} />

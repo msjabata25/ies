@@ -117,6 +117,7 @@ export default function Navbar() {
   );
 
   return (
+    <>
     <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-[#131313]/80 backdrop-blur-xl border-b-2 border-[#F57C00] shadow-[0_0_15px_rgba(245,124,0,0.3)]">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
         <Link to="/" className="flex-shrink-0">
@@ -162,8 +163,11 @@ export default function Navbar() {
           <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>menu</span>
         </button>
       </div>
+    </nav>
 
-      {/* Mobile drawer overlay — always mounted, CSS transitions */}
+      {/* Mobile drawer overlay — always mounted, CSS transitions. It lives outside <nav> on purpose:
+          the nav's backdrop-blur makes it the containing block for fixed children, which squeezed
+          the drawer into the 64px bar. */}
       <div
         className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ease-in-out ${
           mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'
@@ -176,7 +180,7 @@ export default function Navbar() {
           }`}
         />
         <div
-          className={`absolute top-0 end-0 h-full w-72 bg-[#131313] border-s-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
+          className={`absolute top-0 end-0 h-full w-72 bg-[#131313] border-s-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] rtl:shadow-[10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
             mobileOpen ? 'translate-x-0' : 'translate-x-full rtl:-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -215,14 +219,14 @@ export default function Navbar() {
                 className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
                 style={{ fontVariationSettings: "'FILL' 1" }}
                 onClick={togglePower}
-            role="button"
-            aria-label={t('nav.lightMode')}
+                role="button"
+                aria-label={t('nav.lightMode')}
               >
                 power_settings_new
               </span>
             </div>
         </div>
       </div>
-    </nav>
+    </>
   );
 }

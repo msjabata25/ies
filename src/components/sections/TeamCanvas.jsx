@@ -25,7 +25,8 @@ function BubbleCircle({
 }) {
   const [imgError, setImgError] = useState(false);
   const color = committeeColor(member.committee);
-  const initials = initialsOf(member.name);
+  const { pick } = useI18n();
+  const initials = initialsOf(pick(member, 'name'));
 
   if (member.photo && !imgError) {
     return (

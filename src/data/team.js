@@ -13,11 +13,18 @@
  * }
  */
 
-/** Two Latin initials for avatar bubbles (used in both languages). */
+/**
+ * Two initials for avatar bubbles: "Ahmad Al-Khatib" → "AK", "أحمد الخطيب" → "أ.خ".
+ * The article is skipped in both scripts (Al- / ال), and the dot keeps the two
+ * Arabic letters from joining into a word.
+ */
 export function initialsOf(name) {
-  return name
-    .split(' ')
-    .map((n) => n[0])
+  const words = name.trim().split(/\s+/);
+  if (/[؀-ۿ]/.test(name)) {
+    return words.slice(0, 2).map((w) => (w.length > 2 ? w.replace(/^ال/, '') : w)[0]).join('.');
+  }
+  return words
+    .map((n) => n.replace(/^al-/i, '')[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);

@@ -2,6 +2,7 @@
  * A membership application, as sent from /apply:
  * {
  *   fullName: string,
+ *   fullNameAr?: string,         // name in Arabic script, if they gave it
  *   email: string,
  *   phone?: string,              // local Jordanian mobile, digits only, no country code (07XXXXXXXX)
  *   studentId: string,           // exactly 6 digits; used to verify enrolment

@@ -12,7 +12,7 @@ export default function TeamPreview() {
     id: m.id,
     name: pick(m, 'name'),
     designation: pick(m, 'role'),
-    initials: initialsOf(m.name),
+    initials: initialsOf(pick(m, 'name')),
     image: m.photo ?? '',
   }));
 

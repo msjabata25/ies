@@ -137,7 +137,8 @@ export default {
     listSep: '، ',
     errPrefix: 'خطأ:',
     labels: {
-      fullName: 'اسمك الكامل',
+      fullName: 'اسمك الكامل (بالإنجليزي)',
+      fullNameAr: 'اسمك بالعربي',
       email: 'الإيميل',
       phone: 'رقم الموبايل',
       studentId: 'الرقم الجامعي',
@@ -153,12 +154,14 @@ export default {
       link: 'GitHub / بورتفوليو / LinkedIn',
     },
     hints: {
+      fullNameAr: 'زي ما بينكتب اسمك بالعربي',
       email: 'إيميل الجامعة أو الشخصي — رح نردّ عليك عليه',
       studentId: 'عشان نتأكد إنك طالب بالتكنو',
       motivation: '{n}/{max} — شو حابب تتعلم، تبني، أو تضيف',
     },
     placeholders: {
-      fullName: 'أحمد الخطيب',
+      fullName: 'Ahmad Al-Khatib',
+      fullNameAr: 'أحمد الخطيب',
       email: 'you@just.edu.jo',
       phone: '07X XXX XXXX',
       studentId: '123456',
@@ -203,6 +206,7 @@ export default {
     },
     review: {
       fullName: 'الاسم',
+      fullNameAr: 'الاسم بالعربي',
       email: 'الإيميل',
       phone: 'الموبايل',
       studentId: 'الرقم الجامعي',
@@ -216,6 +220,7 @@ export default {
     },
     errors: {
       fullName: 'اكتب اسمك الكامل',
+      fullNameAr: 'حروف عربية بس',
       email: 'اكتب إيميل صحيح',
       phone: 'رقم موبايل محلي، مثلًا 0791234567 (بدون +962)',
       studentIdMissing: 'بدنا رقمك الجامعي عشان نتأكد منك',
