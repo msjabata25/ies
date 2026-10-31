@@ -19,7 +19,7 @@ function loadCrtFont() {
   const link = document.createElement('link');
   link.id = 'crt-font';
   link.rel = 'stylesheet';
-  link.href = 'https://fonts.googleapis.com/css2?family=VT323&display=swap';
+  link.href = 'https://fonts.googleapis.com/css2?family=VT323&family=Reem+Kufi:wght@400..700&display=swap';
   document.head.appendChild(link);
 }
 

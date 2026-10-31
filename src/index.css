@@ -256,16 +256,17 @@ html.light-mode img {
   to { transform: translateY(100vh); }
 }
 
-/* Every font token becomes VT323 (loaded on demand by EasterEggs.jsx) — blocky pixel type */
+/* Every font token becomes VT323 (loaded on demand by EasterEggs.jsx) — blocky pixel type.
+   Arabic falls back to Reem Kufi: square Kufic is the closest Arabic match to pixel lettering. */
 html.crt {
-  --font-display: 'VT323', 'IBM Plex Sans Arabic', monospace;
-  --font-mono: 'VT323', 'IBM Plex Sans Arabic', monospace;
-  --font-ui: 'VT323', 'IBM Plex Sans Arabic', monospace;
-  --font-sans: 'VT323', 'IBM Plex Sans Arabic', monospace;
+  --font-display: 'VT323', 'Reem Kufi', monospace;
+  --font-mono: 'VT323', 'Reem Kufi', monospace;
+  --font-ui: 'VT323', 'Reem Kufi', monospace;
+  --font-sans: 'VT323', 'Reem Kufi', monospace;
 }
 
 html.crt body {
-  font-family: 'VT323', 'IBM Plex Sans Arabic', monospace;
+  font-family: 'VT323', 'Reem Kufi', monospace;
   /* phosphor bloom + slight RGB misconvergence */
   text-shadow:
     0 0 4px rgba(245, 124, 0, 0.55),
@@ -326,4 +327,9 @@ html[lang='ar'] :is(h1, h2, h3, h4) {
 
 html[lang='ar'] body {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+/* CRT mode in Arabic: beat the Arabic body font rule above */
+html.crt[lang='ar'] body {
+  font-family: 'VT323', 'Reem Kufi', monospace;
 }

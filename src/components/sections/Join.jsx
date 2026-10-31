@@ -12,6 +12,7 @@ if (typeof window !== 'undefined') {
 export default function Join() {
   const container = useRef(null);
   const { t, lang } = useI18n();
+  const title = t('join.title');
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -21,7 +22,9 @@ export default function Join() {
       }
     });
 
-    tl.from('.join-title', { text: "X!&_S$#%@*", duration: 1, ease: 'none' });
+    // GSAP owns this span's text (React renders it empty): TextPlugin swaps the node's
+    // contents, so React-managed text there would stop updating when the language changes.
+    tl.fromTo('.join-title', { text: 'X!&_S$#%@*' }, { text: title, duration: 1, ease: 'none' });
 
     gsap.to('.ticker-content', {
       xPercent: -50,
@@ -53,8 +56,8 @@ export default function Join() {
       </div>
 
       <div className="z-10 px-4 mt-8">
-        <h2 className="text-[84px] md:text-[120px] text-[#F57C00] tracking-[0.05em] font-display leading-none mb-6">
-          <span className="join-title">{t('join.title')}</span><span className="cursor-blink font-mono">_</span>
+        <h2 aria-label={title} className="text-[84px] md:text-[120px] text-[#F57C00] tracking-[0.05em] font-display leading-none mb-6">
+          <span aria-hidden="true" className="join-title" /><span aria-hidden="true" className="cursor-blink font-mono">_</span>
         </h2>
         <p className="font-mono text-[16px] leading-[150%] text-[#dec1af] mb-12 max-w-2xl mx-auto">
           {t('join.subtitle')}
