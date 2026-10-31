@@ -7,5 +7,6 @@ Ported from a Next.js App Router version in Oct 2026 — there is no server rend
 - `src/components/Layout.jsx` owns Lenis smooth scroll (driven by the GSAP ticker) and scroll-to-top on route change.
 - `@/` aliases `src/` (vite.config.js + jsconfig.json).
 - Site content is in `src/data/` — keep the field shapes documented at the top of each file.
+- `/apply` (membership form) submits through `src/lib/applications.js`. Set `VITE_APPLICATION_ENDPOINT` to a URL that accepts a JSON POST; without it, dev only logs submissions and production shows applications as closed.
 - Exact dependency versions match the live site on purpose (Tailwind 4.3.3 changed the default sans font stack); upgrade deliberately and check visuals.
 - Verify with `npm run lint` and `npm run build` before committing.

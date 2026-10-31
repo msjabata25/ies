@@ -2,13 +2,11 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { TextPlugin } from 'gsap/TextPlugin';
+import { Link } from 'react-router-dom';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(TextPlugin);
 }
-
-// Where the join button sends people. Swap for a sign-up form link when there is one.
-const JOIN_URL = 'https://www.instagram.com/ieeeiesjust/';
 
 export default function Join() {
   const container = useRef(null);
@@ -60,13 +58,11 @@ export default function Join() {
           IES is currently recruiting new members. Don&apos;t miss the chance.
         </p>
 
-        <a
-          href={JOIN_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/apply"
           className="join-btn inline-block bg-[#0e0e0e] text-[#F57C00] border-2 border-[#1E88E5] px-8 py-4 font-ui text-[16px] font-bold hover:bg-[#F57C00] hover:text-[#0A0A0A] hover:border-[#F57C00] hover:shadow-[0_0_25px_rgba(245,124,0,0.7)] cursor-pointer transition-all duration-300">
           INITIALIZE_APPLICATION.EXE
-        </a>
+        </Link>
 
         <p className="font-mono text-[14px] text-[#1E88E5] mt-8 text-shadow-glitch">
           {`C:\\>CONNECT_ALLIANCE => @IES_JUST`}
