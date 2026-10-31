@@ -29,7 +29,7 @@ export default function AboutSnippet() {
 
         <BlurFade inView delay={0.35} direction="right" className="flex justify-center">
           <Link
-            href="/about"
+            to="/about"
             className="relative group cursor-pointer bg-transparent border-2 border-[#F57C00] px-8 py-5 font-mono text-[16px] text-[#F57C00] hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 inline-block"
           >
             <span className="block group-hover:hidden">

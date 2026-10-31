@@ -1,25 +1,30 @@
 import { Link } from 'react-router-dom';
 import { HoverEffect } from '@/components/ui/card-hover-effect';
+import { events } from '@/data/events';
 
-const previewEvents = [
-  {
-    title: 'PLC_PROGRAMMING_01',
-    description: 'intro to ladder logic and plc programming for industrial automation. bring your laptop.',
-    link: '/events',
-  },
-  {
-    title: 'HACKATHON_24H',
-    description: '24-hour embedded systems challenge. teams build a smart sensor node from scratch.',
-    link: '/events',
-  },
-  {
-    title: '???',
-    description: '',
-    link: '/events',
-  },
-];
+/* Local date as 'YYYY-MM-DD', comparable with event dates as plain strings. */
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/* The two most relevant events: soonest upcoming first, topped up with the latest past ones. */
+function pickPreview() {
+  const now = today();
+  const upcoming = events.filter((e) => e.date >= now).sort((a, b) => a.date.localeCompare(b.date));
+  const past = events.filter((e) => e.date < now).sort((a, b) => b.date.localeCompare(a.date));
+  return [...upcoming.map((e) => ({ ...e, when: 'NEXT' })), ...past.map((e) => ({ ...e, when: 'LOGGED' }))]
+    .slice(0, 2)
+    .map((e) => ({
+      title: e.title,
+      description: `[${e.when} // ${e.date}] ${e.description}`,
+      link: '/events',
+    }));
+}
 
 export default function EventsPreview() {
+  const previewEvents = pickPreview();
+
   return (
     <section className="px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-hidden">
       <div className="flex items-center gap-4 mb-8">
@@ -31,12 +36,7 @@ export default function EventsPreview() {
       </div>
 
       <div className="relative">
-        <HoverEffect items={previewEvents.slice(0, 2).map(e => ({
-          ...e,
-          title: e.title,
-          description: e.description,
-          link: e.link,
-        }))} />
+        <HoverEffect items={previewEvents} />
 
         <div className="relative mt-[-100px] pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#0A0A0A]/60 to-[#0A0A0A] z-10"></div>

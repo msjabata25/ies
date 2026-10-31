@@ -1,14 +1,11 @@
 import { Link } from 'react-router-dom';
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
+import { team } from '@/data/team';
 
-const leaders = [
-  { id: 1, name: 'Ahmad Al-Khatib', designation: 'Chair', image: '' },
-  { id: 2, name: 'Layla Mansour', designation: 'Vice Chair', image: '' },
-  { id: 3, name: 'Omar Haddad', designation: 'Lead Engineer', image: '' },
-  { id: 4, name: 'Sara Nassar', designation: 'Content Lead', image: '' },
-  { id: 5, name: 'Mohammad Obeidat', designation: 'Treasurer', image: '' },
-  { id: 6, name: 'Noor Shamma', designation: 'Frontend Dev', image: '' },
-];
+/* Board members lead the preview; fill up to six with the rest of the team. */
+const leaders = [...team.filter((m) => m.committee === 'Board'), ...team.filter((m) => m.committee !== 'Board')]
+  .slice(0, 6)
+  .map((m) => ({ id: m.id, name: m.name, designation: m.role, image: m.photo ?? '' }));
 
 export default function TeamPreview() {
   return (
