@@ -16,7 +16,7 @@ const quadrants = [
       'advancing industrial electronics since 2023',
       '60+ active members across 4 committees',
     ],
-    position: 'top-[14%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
+    position: 'top-[14%] [@media(max-height:720px)]:top-[10%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: -24 },
   },
   {
@@ -28,7 +28,7 @@ const quadrants = [
       'pcb design / industrial iot / control theory',
       'power electronics / digital signal processing',
     ],
-    position: 'bottom-[14%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
+    position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: 24 },
   },
   {
@@ -40,7 +40,7 @@ const quadrants = [
       'hands-on projects in automation, embedded',
       'systems, and industrial control engineering.',
     ],
-    position: 'top-[14%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
+    position: 'top-[14%] [@media(max-height:720px)]:top-[10%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: -24 },
   },
   {
@@ -52,7 +52,7 @@ const quadrants = [
       'host jordan\'s largest student engineering expo',
       'build open-source industrial automation tools',
     ],
-    position: 'bottom-[14%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
+    position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
     enterDir: { y: 24 },
   },
 ];
@@ -141,10 +141,10 @@ export default function AboutPage() {
               className={`absolute ${q.position} opacity-0`}
               style={{ transform: `translateY(${q.enterDir.y}px)` }}
             >
-              <h3 className="font-display text-[22px] md:text-[32px] text-[#F57C00] mb-3 tracking-wider">
+              <h3 className="font-display text-[22px] md:text-[32px] [@media(max-height:720px)]:text-[22px] text-[#F57C00] mb-3 [@media(max-height:720px)]:mb-1.5 tracking-wider">
                 {q.title}
               </h3>
-              <div className="font-mono text-[12px] md:text-[15px] leading-[170%] text-[#dec1af] space-y-1">
+              <div className="font-mono text-[12px] md:text-[15px] [@media(max-height:720px)]:text-[12px] leading-[170%] [@media(max-height:720px)]:leading-[150%] text-[#dec1af] space-y-1">
                 {q.lines.map((line, j) => (
                   <p key={j} className={j === 0 ? 'text-[#1E88E5]' : ''}>
                     {line}

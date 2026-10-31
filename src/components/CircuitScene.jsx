@@ -37,15 +37,35 @@ function offsetRect(el) {
   return { x, y, w: el.offsetWidth, h: el.offsetHeight };
 }
 
-/* Vertical run, 45° chamfer, horizontal run. */
-function route(from, to, chamfer = 28) {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const k = Math.min(chamfer, Math.abs(dx), Math.abs(dy));
-  const sx = Math.sign(dx);
-  const sy = Math.sign(dy);
-  return `M${f(from.x)} ${f(from.y)} V${f(to.y - sy * k)} L${f(from.x + sx * k)} ${f(to.y)} H${f(to.x)}`;
+/* Polyline through `points` with each corner cut at 45° (PCB style). */
+function trace(points, chamfer = 28) {
+  const pts = points.filter((p, i) => i === 0 || Math.hypot(p.x - points[i - 1].x, p.y - points[i - 1].y) > 0.5);
+  let d = `M${f(pts[0].x)} ${f(pts[0].y)}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [a, b, c] = [pts[i - 1], pts[i], pts[i + 1]];
+    const l1 = Math.hypot(b.x - a.x, b.y - a.y);
+    const l2 = Math.hypot(c.x - b.x, c.y - b.y);
+    const k = Math.min(chamfer, l1 / 2, l2 / 2);
+    d += ` L${f(b.x - ((b.x - a.x) / l1) * k)} ${f(b.y - ((b.y - a.y) / l1) * k)}`;
+    d += ` L${f(b.x + ((c.x - b.x) / l2) * k)} ${f(b.y + ((c.y - b.y) / l2) * k)}`;
+  }
+  const last = pts[pts.length - 1];
+  return `${d} L${f(last.x)} ${f(last.y)}`;
 }
+
+/*
+ * Collector/emitter leave the device outward (dir -1 = up, +1 = down). When the
+ * pad isn't far enough that way — short screens, where text sits level with the
+ * symbol — step sideways at `detourX` instead of doubling back through it.
+ */
+function legPoints(start, pad, dir, detourX) {
+  const stub = 14;
+  if ((pad.y - start.y) * dir >= stub) return [start, { x: start.x, y: pad.y }, pad];
+  const y = start.y + dir * stub;
+  return [start, { x: start.x, y }, { x: detourX, y }, { x: detourX, y: pad.y }, pad];
+}
+
+const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
 function computeLayout(wrapper) {
   const origin = offsetRect(wrapper);
@@ -61,9 +81,14 @@ function computeLayout(wrapper) {
 
   const w = wrapper.clientWidth;
   const h = wrapper.clientHeight;
+  /* Free space between the text: a horizontal band (tall screens) and/or a
+     vertical gutter (wide, short screens). Size the symbol to whichever is roomier. */
   const gapTop = Math.max(rects.q1.bottom, rects.q2.bottom);
   const gapBottom = Math.min(rects.q3.top, rects.q4.top);
-  const r = clamp((gapBottom - gapTop) * 0.32, 36, Math.min(120, w * 0.14));
+  const gutterLeft = Math.max(rects.q1.right, rects.q3.right);
+  const gutterRight = Math.min(rects.q2.left, rects.q4.left);
+  const room = Math.max((gapBottom - gapTop) * 0.32, (gutterRight - gutterLeft) * 0.4);
+  const r = clamp(room, 28, Math.min(120, w * 0.14, h * 0.14));
   const cx = w / 2;
   const cy = (gapTop + gapBottom) / 2;
 
@@ -72,11 +97,9 @@ function computeLayout(wrapper) {
   const legX = cx + 0.35 * r;
   const legY = 0.937 * r; // where x = legX meets the circle
   const junction = { x: cx - r - clamp(r * 0.8, 24, 80), y: cy };
-  const starts = {
-    base: junction,
-    collector: { x: legX, y: cy - legY },
-    emitter: { x: legX, y: cy + legY },
-  };
+  const collector = { x: legX, y: cy - legY };
+  const emitter = { x: legX, y: cy + legY };
+  const detourX = gutterRight > cx + r ? clamp(cx + r + 16, legX + 20, gutterRight - 10) : cx + r + 16;
 
   const symbol = [
     { key: 'base', d: `M${f(junction.x)} ${f(cy)} H${f(barX)}`, width: 2 },
@@ -99,16 +122,26 @@ function computeLayout(wrapper) {
     { x: back.x + u.y * a * 0.55, y: back.y - u.x * a * 0.55 },
   ].map((p) => `${f(p.x)},${f(p.y)}`).join(' ');
 
+  const runs = [];
   const branches = BRANCHES.map((b) => {
     const rect = rects[b.id];
     const pad = {
       x: b.side === 'left' ? rect.left + 6 : rect.right - 6,
       y: b.row === 'top' ? rect.bottom + 18 : rect.top - 18,
     };
-    return { id: b.id, pad, d: route(starts[b.terminal], pad) };
+    const points =
+      b.terminal === 'base' ? [junction, { x: junction.x, y: pad.y }, pad]
+        : b.terminal === 'collector' ? legPoints(collector, pad, -1, detourX)
+          : legPoints(emitter, pad, 1, detourX);
+    if (points.length > 3) runs.push({ left: detourX - 4, right: detourX + 4, top: -Infinity, bottom: Infinity });
+    return { id: b.id, pad, d: trace(points) };
   });
 
-  return { w, h, cx, cy, r, junction, legX, legY, symbol, arrow, branches };
+  /* The Q1/NPN tag only shows where it won't sit on text or a detour run. */
+  const tag = { left: cx + r + 8, right: cx + r + 48, top: cy - 14, bottom: cy + 16 };
+  const showTag = tag.right < w && ![...Object.values(rects), ...runs].some((box) => overlaps(tag, box));
+
+  return { w, h, cx, cy, r, junction, legX, legY, symbol, arrow, branches, showTag };
 }
 
 function drawCore(svg, core) {
@@ -239,8 +272,12 @@ export default function CircuitScene({ ref }) {
                 <text x={layout.junction.x + 8} y={layout.cy - 8}>B</text>
                 <text x={layout.legX + 8} y={layout.cy - layout.legY + 4}>C</text>
                 <text x={layout.legX + 8} y={layout.cy + layout.legY + 4}>E</text>
-                <text x={layout.cx + layout.r + 12} y={layout.cy - 2} fill={ORANGE} fillOpacity="0.9">Q1</text>
-                <text x={layout.cx + layout.r + 12} y={layout.cy + 12}>NPN</text>
+                {layout.showTag && (
+                  <>
+                    <text x={layout.cx + layout.r + 12} y={layout.cy - 2} fill={ORANGE} fillOpacity="0.9">Q1</text>
+                    <text x={layout.cx + layout.r + 12} y={layout.cy + 12}>NPN</text>
+                  </>
+                )}
               </g>
             </g>
           </>
