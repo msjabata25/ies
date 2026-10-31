@@ -83,10 +83,6 @@ html.light-mode img {
   filter: invert(1) hue-rotate(180deg);
 }
 
-html.light-mode #about-scene {
-  filter: invert(1) hue-rotate(180deg);
-}
-
 @theme inline {
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
