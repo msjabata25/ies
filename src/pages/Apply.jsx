@@ -15,6 +15,9 @@ const MOTIVATION_MIN = 40;
 const MOTIVATION_MAX = 600;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/* Phone numbers may be typed with spaces or dashes; validate and send digits only. */
+const digits = (v) => v.replace(/[\s-]/g, '');
+
 const EMPTY = {
   fullName: '',
   email: '',
@@ -66,9 +69,9 @@ function validate(step, d) {
   if (step === 0) {
     if (d.fullName.trim().length < 3) e.fullName = 'enter your full name';
     if (!EMAIL.test(d.email.trim())) e.email = 'enter a valid email address';
-    if (d.phone.trim() && !/^\+?[\d\s-]{7,20}$/.test(d.phone.trim())) e.phone = 'digits, spaces, + and - only';
+    if (d.phone.trim() && !/^07[789]\d{7}$/.test(digits(d.phone))) e.phone = 'local mobile number, e.g. 0791234567 (no +962)';
     if (!d.studentId.trim()) e.studentId = 'we need your student ID to verify you';
-    else if (!/^\d{5,12}$/.test(d.studentId.trim())) e.studentId = 'digits only';
+    else if (!/^\d{6}$/.test(d.studentId.trim())) e.studentId = 'student IDs are 6 digits';
   }
   if (step === 1) {
     if (!d.major) e.major = 'pick your major';
@@ -89,7 +92,7 @@ function toPayload(d) {
   return {
     fullName: d.fullName.trim(),
     email: d.email.trim(),
-    phone: optional(d.phone),
+    phone: optional(digits(d.phone)),
     studentId: d.studentId.trim(),
     major: d.major === 'Other' ? d.otherMajor.trim() : d.major,
     year: d.year,
@@ -332,10 +335,10 @@ export default function ApplyPage() {
               </Field>
               <div className="grid md:grid-cols-2 gap-6">
                 <Field id="phone" label="PHONE" optional error={errors.phone}>
-                  <input id="phone" type="tel" inputMode="tel" autoComplete="tel" className={inputClass(errors.phone)} value={data.phone} onChange={(e) => set('phone')(e.target.value)} placeholder="+962 7X XXX XXXX" {...err('phone')} />
+                  <input id="phone" type="tel" inputMode="tel" autoComplete="tel" className={inputClass(errors.phone)} value={data.phone} onChange={(e) => set('phone')(e.target.value)} placeholder="07X XXX XXXX" {...err('phone')} />
                 </Field>
                 <Field id="studentId" label="STUDENT ID" hint="used to verify you're a JUST student" error={errors.studentId}>
-                  <input id="studentId" inputMode="numeric" className={inputClass(errors.studentId)} value={data.studentId} onChange={(e) => set('studentId')(e.target.value)} placeholder="1234567" {...err('studentId')} />
+                  <input id="studentId" inputMode="numeric" className={inputClass(errors.studentId)} value={data.studentId} onChange={(e) => set('studentId')(e.target.value)} placeholder="123456" maxLength={6} {...err('studentId')} />
                 </Field>
               </div>
             </>

@@ -3,8 +3,8 @@
  * {
  *   fullName: string,
  *   email: string,
- *   phone?: string,
- *   studentId: string,           // digits only; used to verify enrolment
+ *   phone?: string,              // local Jordanian mobile, digits only, no country code (07XXXXXXXX)
+ *   studentId: string,           // exactly 6 digits; used to verify enrolment
  *   major: string,               // one of MAJORS, or free text when 'Other'
  *   year: string,                // one of YEARS
  *   committees: string[],        // subset of COMMITTEES
