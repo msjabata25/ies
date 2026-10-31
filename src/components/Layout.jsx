@@ -4,6 +4,7 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import CursorHalo from './CursorHalo';
+import EasterEggs from './EasterEggs';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
@@ -47,6 +48,7 @@ export default function Layout() {
   return (
     <>
       <CursorHalo />
+      <EasterEggs lenisRef={lenisRef} />
       <Navbar />
       <Outlet />
       <Footer />
