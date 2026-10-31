@@ -183,14 +183,7 @@ export default function PcbBackground({ className = '' }) {
 
       for (const p of pulses) {
         const head = pointAt(p.pts, p.pos);
-        const tail = pointAt(p.pts, p.pos - p.dir * 1.6);
         const fade = Math.min(1, p.dir > 0 ? p.pts.length - 1 - p.pos : p.pos);
-        ctx.strokeStyle = `rgba(${ORANGE},${0.6 * fade})`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(tail.x, tail.y);
-        ctx.lineTo(head.x, head.y);
-        ctx.stroke();
         ctx.fillStyle = `rgba(${ORANGE},${0.28 * fade})`;
         ctx.beginPath();
         ctx.arc(head.x, head.y, 6, 0, Math.PI * 2);
