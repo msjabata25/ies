@@ -59,6 +59,17 @@ const quadrants = [
 
 const revealOrder = ['q1', 'q3', 'q2', 'q4'];
 
+/* Scroll timeline, in screens scrolled past the top of the page */
+const CORE_END = 0.8; // symbol finishes drawing, scene fully faded in
+const BRANCH_STEP = 0.9; // gap between one wire starting and the next
+const BRANCH_DRAW = 0.6; // screens of scroll to draw one wire
+const HOLD = 1; // everything stays on screen after the last wire lands
+const FADE = 0.7;
+const FADE_START = CORE_END + (revealOrder.length - 1) * BRANCH_STEP + BRANCH_DRAW + HOLD;
+const SCROLL_SCREENS = Math.ceil(FADE_START + FADE);
+
+const clamp01 = (n) => Math.min(1, Math.max(0, n));
+
 export default function AboutPage() {
   const containerRef = useRef(null);
   const circuitRef = useRef(null);
@@ -67,7 +78,7 @@ export default function AboutPage() {
     const page = containerRef.current;
     if (!page) return;
 
-    /* Discrete sections: 0=header, 1=q1, 2=q3, 3=q2, 4=q4 */
+    /* Quadrants whose wire has landed — text only animates when this changes */
     let lastSection = -1;
 
     const st = ScrollTrigger.create({
@@ -76,32 +87,26 @@ export default function AboutPage() {
       end: 'bottom bottom',
       scrub: 0.5,
       onUpdate: (self) => {
-        const sp = self.progress;
-        const totalVH = 5;
-        const headerFraction = 1 / totalVH;
-        const activeFraction = (totalVH - 1) / totalVH;
-        const fadeOutStart = 0.85;
+        const s = self.progress * SCROLL_SCREENS;
 
         /* Transistor symbol draws itself while the header scrolls away */
-        circuitRef.current?.setCore(sp < headerFraction ? sp / headerFraction : 1);
+        circuitRef.current?.setCore(clamp01(s / CORE_END));
+
+        /* Each wire grows with scroll, one after another */
+        const branches = revealOrder.map((_, i) => clamp01((s - CORE_END - i * BRANCH_STEP) / BRANCH_DRAW));
+        circuitRef.current?.setBranches(branches);
 
         /* Scene opacity */
         const sceneWrapper = document.getElementById('about-scene');
         if (!sceneWrapper) return;
+        sceneWrapper.style.opacity = String(
+          s < FADE_START ? clamp01(s / CORE_END) : clamp01(1 - (s - FADE_START) / FADE),
+        );
 
-        if (sp < headerFraction) {
-          sceneWrapper.style.opacity = String(sp / headerFraction);
-        } else if (sp < fadeOutStart) {
-          sceneWrapper.style.opacity = '1';
-        } else {
-          sceneWrapper.style.opacity = String(Math.max(0, 1 - (sp - fadeOutStart) / (1 - fadeOutStart)));
-        }
-
-        /* Discrete section tracking — only update GSAP on section change */
-        const section = sp < headerFraction ? 0 : Math.min(4, Math.floor((sp - headerFraction) / activeFraction * 4) + 1);
+        /* A quadrant's text appears as its wire reaches it */
+        const section = branches.filter((p) => p >= 1).length;
         if (section === lastSection) return;
         lastSection = section;
-        circuitRef.current?.setSection(section);
 
         revealOrder.forEach((id, i) => {
           const q = quadrants.find((x) => x.id === id);
@@ -172,11 +177,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4 scroll triggers */}
-      <div id="q1-trigger" className="h-screen relative z-20" />
-      <div id="q3-trigger" className="h-screen relative z-20" />
-      <div id="q2-trigger" className="h-screen relative z-20" />
-      <div id="q4-trigger" className="h-screen relative z-20" />
+      {/* Scroll runway for the circuit timeline (header above is the first screen) */}
+      <div className="relative z-20" style={{ height: `${SCROLL_SCREENS * 100}vh` }} />
     </main>
   );
 }

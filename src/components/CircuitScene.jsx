@@ -9,8 +9,8 @@ import gsap from 'gsap';
  * the page reveals them in.
  *
  * Driven through `ref`:
- *   setCore(p)     0–1, draws the symbol itself
- *   setSection(n)  0–4, powers the first n branches
+ *   setCore(p)            0–1, draws the symbol itself
+ *   setBranches([p, …])   0–1 per branch, in BRANCHES order
  */
 const BRANCHES = [
   { id: 'q1', terminal: 'base', side: 'left', row: 'top' },
@@ -154,18 +154,27 @@ function drawCore(svg, core) {
   });
 }
 
-function powerBranches(svg, section, immediate) {
+/* Traces follow scroll directly (eased in and out); pads and pulses switch on
+   once a trace reaches its pad. `lit` remembers that state between calls. */
+function drawBranches(svg, progress, lit, immediate) {
   if (!svg) return;
   BRANCHES.forEach((b, i) => {
     const g = svg.querySelector(`[data-branch="${b.id}"]`);
     if (!g) return;
-    const on = i < section;
-    const vars = { duration: immediate ? 0 : 0.7, ease: 'power2.inOut', overwrite: true };
-    gsap.to(g.querySelectorAll('[data-trace]'), { ...vars, strokeDashoffset: on ? 0 : 1 });
+    const p = progress[i];
+    const eased = 0.5 - Math.cos(p * Math.PI) / 2;
+    g.querySelectorAll('[data-trace]').forEach((el) => {
+      el.style.strokeDashoffset = String(1 - eased);
+    });
+
+    const on = p >= 1;
+    if (!immediate && lit[i] === on) return;
+    lit[i] = on;
     gsap.to(g.querySelectorAll('[data-lit]'), {
-      ...vars,
       opacity: on ? 1 : 0,
-      delay: on && !immediate ? 0.5 : 0,
+      duration: immediate ? 0 : 0.4,
+      ease: 'power2.out',
+      overwrite: true,
     });
   });
 }
@@ -173,7 +182,7 @@ function powerBranches(svg, section, immediate) {
 export default function CircuitScene({ ref }) {
   const wrapperRef = useRef(null);
   const svgRef = useRef(null);
-  const stateRef = useRef({ core: 0, section: 0 });
+  const stateRef = useRef({ core: 0, branches: BRANCHES.map(() => 0), lit: BRANCHES.map(() => false) });
   const [layout, setLayout] = useState(null);
 
   useImperativeHandle(ref, () => ({
@@ -181,9 +190,9 @@ export default function CircuitScene({ ref }) {
       stateRef.current.core = p;
       drawCore(svgRef.current, p);
     },
-    setSection(n) {
-      stateRef.current.section = n;
-      powerBranches(svgRef.current, n, false);
+    setBranches(progress) {
+      stateRef.current.branches = progress;
+      drawBranches(svgRef.current, progress, stateRef.current.lit, false);
     },
   }), []);
 
@@ -202,7 +211,7 @@ export default function CircuitScene({ ref }) {
   /* Fresh paths start undrawn — catch them up to the current scroll state. */
   useLayoutEffect(() => {
     drawCore(svgRef.current, stateRef.current.core);
-    powerBranches(svgRef.current, stateRef.current.section, true);
+    drawBranches(svgRef.current, stateRef.current.branches, stateRef.current.lit, true);
   }, [layout]);
 
   return (
