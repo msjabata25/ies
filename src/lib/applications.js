@@ -17,11 +17,21 @@
  *   source: 'website',
  * }
  *
- * Where submissions are stored isn't decided yet. Set VITE_APPLICATION_ENDPOINT
- * (in .env.local, or the host's env settings) to any URL that accepts a JSON POST
- * — a serverless function, Formspree, Google Apps Script, Supabase, etc. — and
- * the form starts sending there. A JSON `{ reference }` in the response is shown
- * to the applicant; anything else falls back to a local reference.
+ * Submissions go to a Google Sheet through a Google Apps Script web app (script
+ * not written yet). Set VITE_APPLICATION_ENDPOINT — in .env.local, or Netlify's
+ * environment variables — to the web app's /exec URL and the form starts sending.
+ *
+ * What the script has to do (doPost):
+ *   - read the application with JSON.parse(e.postData.contents)
+ *   - append it as a row (arrays like committees/skills joined into one cell)
+ *   - reply with ContentService JSON:
+ *       { ok: true, reference: 'IES-…' }   — reference is shown to the applicant
+ *       { ok: false, error: '…' }          — shown as a failed submit; answers stay saved
+ *   - be deployed as "Execute as: me", "Who has access: Anyone"
+ *
+ * The body is JSON but sent as text/plain on purpose: Apps Script doesn't answer
+ * CORS preflight requests, and a text/plain POST doesn't trigger one. The script
+ * reads it the same way either way.
  *
  * Without an endpoint, dev builds fake a successful submit (and log the payload)
  * so the form can be worked on, while production builds show applications as
@@ -68,10 +78,12 @@ export async function submitApplication(application) {
 
   const res = await fetch(ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // see note above: avoids a CORS preflight
     body: JSON.stringify(application),
   });
   if (!res.ok) throw new Error(`Server responded ${res.status}`);
   const body = await res.json().catch(() => ({}));
+  /* Apps Script always answers 200, so a script-side failure comes back as { ok: false } */
+  if (body.ok === false) throw new Error(body.error || 'the sheet rejected the application');
   return { reference: body.reference ?? localReference() };
 }
