@@ -11,6 +11,16 @@ const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'ar
 const SUDO_JOIN = 'sudo join';
 const CRT_KEY = 'ies-crt';
 
+/* The pixel font is only fetched once someone actually turns CRT mode on. */
+function loadCrtFont() {
+  if (document.getElementById('crt-font')) return;
+  const link = document.createElement('link');
+  link.id = 'crt-font';
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=VT323&display=swap';
+  document.head.appendChild(link);
+}
+
 function isTyping(target) {
   return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
 }
@@ -21,7 +31,10 @@ export default function EasterEggs({ lenisRef }) {
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(CRT_KEY) === '1') document.documentElement.classList.add('crt');
+      if (localStorage.getItem(CRT_KEY) === '1') {
+        loadCrtFont();
+        document.documentElement.classList.add('crt');
+      }
     } catch {
       /* storage blocked — CRT mode just won't persist */
     }
@@ -42,6 +55,7 @@ export default function EasterEggs({ lenisRef }) {
       keys = [...keys, key].slice(-KONAMI.length);
       if (keys.join() === KONAMI.join()) {
         keys = [];
+        loadCrtFont();
         const on = document.documentElement.classList.toggle('crt');
         try {
           localStorage.setItem(CRT_KEY, on ? '1' : '0');

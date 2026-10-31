@@ -254,24 +254,65 @@ html.light-mode #about-scene {
   50% { opacity: 0.94; }
 }
 
-html.crt body {
-  text-shadow: 0.6px 0 rgba(255, 40, 80, 0.35), -0.6px 0 rgba(0, 200, 255, 0.35);
+@keyframes crtRoll {
+  from { transform: translateY(-25vh); }
+  to { transform: translateY(100vh); }
 }
 
+/* Every font token becomes VT323 (loaded on demand by EasterEggs.jsx) — blocky pixel type */
+html.crt {
+  --font-display: 'VT323', monospace;
+  --font-mono: 'VT323', monospace;
+  --font-ui: 'VT323', monospace;
+  --font-sans: 'VT323', monospace;
+}
+
+html.crt body {
+  font-family: 'VT323', monospace;
+  /* phosphor bloom + slight RGB misconvergence */
+  text-shadow:
+    0 0 4px rgba(245, 124, 0, 0.55),
+    1px 0 rgba(255, 40, 80, 0.4),
+    -1px 0 rgba(0, 200, 255, 0.4);
+}
+
+/* VT323 runs small; scale it to roughly the x-height of the normal fonts (icons keep theirs) */
+html.crt body :not(.material-symbols-outlined) {
+  font-size-adjust: 0.56;
+}
+
+/* Heavier scanlines than the site's default overlay, plus a tube vignette */
 html.crt body::after {
+  inset: 0;
+  width: auto;
+  height: auto;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0, 0, 0, 0.45) 2px, rgba(0, 0, 0, 0.45) 4px),
+    radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.75) 100%);
+  background-size: auto;
+  animation: crtFlicker 0.12s steps(2) infinite;
+}
+
+/* Bright band rolling down the screen */
+html.crt body::before {
   content: '';
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22vh;
   z-index: 9998;
   pointer-events: none;
-  background:
-    repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0, 0, 0, 0.28) 3px),
-    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
-  animation: crtFlicker 0.12s steps(2) infinite;
+  background: linear-gradient(to bottom, transparent, rgba(245, 124, 0, 0.07), transparent);
+  animation: crtRoll 7s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html.crt body::after {
     animation: none;
+  }
+
+  html.crt body::before {
+    display: none;
   }
 }
