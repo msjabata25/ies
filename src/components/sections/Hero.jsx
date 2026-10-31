@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { TextPlugin } from 'gsap/TextPlugin';
+import PcbBackground from './PcbBackground';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(TextPlugin);
@@ -26,6 +27,8 @@ export default function Hero() {
 
   return (
     <section ref={container} className="relative min-h-[819px] flex flex-col justify-center mb-24 px-4 md:px-14 overflow-hidden">
+      <PcbBackground className="z-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]" />
+
       <div className="absolute inset-0 pointer-events-none opacity-[0.15] mix-blend-overlay z-[5]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }}></div>
 
       <div className="sys-coord absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 -translate-x-full md:translate-x-0 origin-left -rotate-90 text-[#1E88E5] font-mono text-[14px] leading-[160%] opacity-0 tracking-widest hidden lg:block">
