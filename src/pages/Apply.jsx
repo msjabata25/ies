@@ -67,7 +67,8 @@ function validate(step, d) {
     if (d.fullName.trim().length < 3) e.fullName = 'enter your full name';
     if (!EMAIL.test(d.email.trim())) e.email = 'enter a valid email address';
     if (d.phone.trim() && !/^\+?[\d\s-]{7,20}$/.test(d.phone.trim())) e.phone = 'digits, spaces, + and - only';
-    if (d.studentId.trim() && !/^\d{5,12}$/.test(d.studentId.trim())) e.studentId = 'digits only';
+    if (!d.studentId.trim()) e.studentId = 'we need your student ID to verify you';
+    else if (!/^\d{5,12}$/.test(d.studentId.trim())) e.studentId = 'digits only';
   }
   if (step === 1) {
     if (!d.major) e.major = 'pick your major';
@@ -89,7 +90,7 @@ function toPayload(d) {
     fullName: d.fullName.trim(),
     email: d.email.trim(),
     phone: optional(d.phone),
-    studentId: optional(d.studentId),
+    studentId: d.studentId.trim(),
     major: d.major === 'Other' ? d.otherMajor.trim() : d.major,
     year: d.year,
     committees: d.committees,
@@ -333,7 +334,7 @@ export default function ApplyPage() {
                 <Field id="phone" label="PHONE" optional error={errors.phone}>
                   <input id="phone" type="tel" inputMode="tel" autoComplete="tel" className={inputClass(errors.phone)} value={data.phone} onChange={(e) => set('phone')(e.target.value)} placeholder="+962 7X XXX XXXX" {...err('phone')} />
                 </Field>
-                <Field id="studentId" label="STUDENT ID" optional error={errors.studentId}>
+                <Field id="studentId" label="STUDENT ID" hint="used to verify you're a JUST student" error={errors.studentId}>
                   <input id="studentId" inputMode="numeric" className={inputClass(errors.studentId)} value={data.studentId} onChange={(e) => set('studentId')(e.target.value)} placeholder="1234567" {...err('studentId')} />
                 </Field>
               </div>

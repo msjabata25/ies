@@ -4,7 +4,7 @@
  *   fullName: string,
  *   email: string,
  *   phone?: string,
- *   studentId?: string,          // digits only
+ *   studentId: string,           // digits only; used to verify enrolment
  *   major: string,               // one of MAJORS, or free text when 'Other'
  *   year: string,                // one of YEARS
  *   committees: string[],        // subset of COMMITTEES
