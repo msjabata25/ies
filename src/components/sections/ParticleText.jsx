@@ -34,7 +34,7 @@ export default function ParticleText({
     if (w === 0 || h === 0) return;
 
     const fontSize = w < 640 ? 56 : 120;
-    const font = `bold ${fontSize}px "Space Mono", "Courier New", monospace`;
+    const font = `bold ${fontSize}px "Space Mono", "IBM Plex Sans Arabic", "Courier New", monospace`;
 
     const measureCtx = document.createElement('canvas').getContext('2d');
     measureCtx.font = font;

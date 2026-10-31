@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { TextPlugin } from 'gsap/TextPlugin';
 import { Link } from 'react-router-dom';
+import { useI18n } from '@/i18n/context';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(TextPlugin);
@@ -10,6 +11,7 @@ if (typeof window !== 'undefined') {
 
 export default function Join() {
   const container = useRef(null);
+  const { t, lang } = useI18n();
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -35,7 +37,7 @@ export default function Join() {
       repeat: -1,
       ease: 'sine.inOut'
     });
-  }, { scope: container });
+  }, { scope: container, dependencies: [lang], revertOnUpdate: true });
 
   const tickerText = "01001010 01000101 01010011 00100000 HEX:0x9A SYS.OP NULL // ";
   const fullTicker = Array(10).fill(tickerText).join("");
@@ -44,7 +46,7 @@ export default function Join() {
     <section id="join" ref={container} className="relative min-h-[80vh] flex flex-col justify-center items-center text-center overflow-hidden border-t-2 border-[#F57C00]/30 mb-24 mt-24">
 
       <div className="absolute top-0 w-full overflow-hidden bg-[#1E88E5]/10 border-b border-[#1E88E5]/30 py-2 z-0">
-        <div className="ticker-content whitespace-nowrap text-[#1E88E5] font-mono text-[12px] tracking-widest opacity-50 flex w-max">
+        <div dir="ltr" className="ticker-content whitespace-nowrap text-[#1E88E5] font-mono text-[12px] tracking-widest opacity-50 flex w-max">
           <span>{fullTicker}</span>
           <span>{fullTicker}</span>
         </div>
@@ -52,19 +54,19 @@ export default function Join() {
 
       <div className="z-10 px-4 mt-8">
         <h2 className="text-[84px] md:text-[120px] text-[#F57C00] tracking-[0.05em] font-display leading-none mb-6">
-          <span className="join-title">WANT_TO_JOIN?</span><span className="cursor-blink font-mono">_</span>
+          <span className="join-title">{t('join.title')}</span><span className="cursor-blink font-mono">_</span>
         </h2>
         <p className="font-mono text-[16px] leading-[150%] text-[#dec1af] mb-12 max-w-2xl mx-auto">
-          IES is currently recruiting new members. Don&apos;t miss the chance.
+          {t('join.subtitle')}
         </p>
 
         <Link
           to="/apply"
           className="join-btn inline-block bg-[#0e0e0e] text-[#F57C00] border-2 border-[#1E88E5] px-8 py-4 font-ui text-[16px] font-bold hover:bg-[#F57C00] hover:text-[#0A0A0A] hover:border-[#F57C00] hover:shadow-[0_0_25px_rgba(245,124,0,0.7)] cursor-pointer transition-all duration-300">
-          INITIALIZE_APPLICATION.EXE
+          {t('join.button')}
         </Link>
 
-        <p className="font-mono text-[14px] text-[#1E88E5] mt-8 text-shadow-glitch">
+        <p dir="ltr" className="font-mono text-[14px] text-[#1E88E5] mt-8 text-shadow-glitch">
           {`C:\\>CONNECT_ALLIANCE => @IES_JUST`}
         </p>
       </div>

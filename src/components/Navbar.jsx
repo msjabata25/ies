@@ -2,17 +2,19 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useI18n } from '@/i18n/context';
 
 const navLinks = [
-  { name: 'TERMINAL.EXE', href: '/' },
-  { name: 'ABOUT', href: '/about' },
-  { name: 'EVENTS', href: '/events' },
-  { name: 'TEAM', href: '/team' },
+  { key: 'home', href: '/' },
+  { key: 'about', href: '/about' },
+  { key: 'events', href: '/events' },
+  { key: 'team', href: '/team' },
 ];
 
 export default function Navbar() {
   const containerRef = useRef(null);
   const { pathname } = useLocation();
+  const { t, toggleLang } = useI18n();
   const [isLightMode, setIsLightMode] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const lastScrollY = useRef(0);
@@ -101,6 +103,19 @@ export default function Navbar() {
 
   const togglePower = () => setIsLightMode(!isLightMode);
 
+  /* Shows the language you'd switch to: "ع" on the English site, "EN" on the Arabic one */
+  const langToggle = (
+    <button
+      type="button"
+      onClick={toggleLang}
+      aria-label={t('nav.switchLang')}
+      title={t('nav.switchLang')}
+      className="min-w-9 h-8 px-2 border border-[#F57C00]/60 text-[#F57C00] font-mono text-[14px] font-bold leading-none hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-colors cursor-pointer"
+    >
+      {t('nav.langLabel')}
+    </button>
+  );
+
   return (
     <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-[#131313]/80 backdrop-blur-xl border-b-2 border-[#F57C00] shadow-[0_0_15px_rgba(245,124,0,0.3)]">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
@@ -120,16 +135,19 @@ export default function Navbar() {
                   : "text-[#dec1af] hover:text-[#F57C00] transition-colors duration-200"
               }
             >
-              {pathname === link.href ? '> ' : ''}{link.name}
+              {pathname === link.href ? '> ' : ''}{t(`nav.${link.key}`)}
             </Link>
           ))}
         </div>
 
-        <div className="hidden md:flex gap-4 text-white">
+        <div className="hidden md:flex items-center gap-4 text-white">
+          {langToggle}
           <span
             className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
             style={{ fontVariationSettings: "'FILL' 1" }}
             onClick={togglePower}
+            role="button"
+            aria-label={t('nav.lightMode')}
           >
             power_settings_new
           </span>
@@ -139,7 +157,7 @@ export default function Navbar() {
         <button
           className="md:hidden text-[#F57C00] p-2"
           onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
+          aria-label={t('nav.openMenu')}
         >
           <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>menu</span>
         </button>
@@ -158,17 +176,17 @@ export default function Navbar() {
           }`}
         />
         <div
-          className={`absolute top-0 right-0 h-full w-72 bg-[#131313] border-l-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
-            mobileOpen ? 'translate-x-0' : 'translate-x-full'
+          className={`absolute top-0 end-0 h-full w-72 bg-[#131313] border-s-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
+            mobileOpen ? 'translate-x-0' : 'translate-x-full rtl:-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-8">
-            <span className="font-mono text-[#F57C00] text-[14px]">NAV_CONSOLE</span>
+            <span className="font-mono text-[#F57C00] text-[14px]">{t('nav.console')}</span>
             <button
               className="text-[#F57C00] p-1"
               onClick={() => setMobileOpen(false)}
-              aria-label="Close menu"
+              aria-label={t('nav.closeMenu')}
             >
               <span className="material-symbols-outlined text-2xl">close</span>
             </button>
@@ -182,20 +200,23 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className={
                   pathname === link.href
-                    ? "text-[#F57C00] border-l-2 border-[#F57C00] pl-3 py-1"
-                    : "text-[#dec1af] hover:text-[#F57C00] transition-colors pl-3 py-1 border-l-2 border-transparent"
+                    ? "text-[#F57C00] border-s-2 border-[#F57C00] ps-3 py-1"
+                    : "text-[#dec1af] hover:text-[#F57C00] transition-colors ps-3 py-1 border-s-2 border-transparent"
                 }
               >
-                {pathname === link.href ? '> ' : ''}{link.name}
+                {pathname === link.href ? '> ' : ''}{t(`nav.${link.key}`)}
               </Link>
             ))}
           </div>
 
-            <div className="mt-auto flex gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
+            <div className="mt-auto flex items-center gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
+              {langToggle}
               <span
                 className="material-symbols-outlined hover:text-[#F57C00] transition-colors cursor-pointer"
                 style={{ fontVariationSettings: "'FILL' 1" }}
                 onClick={togglePower}
+            role="button"
+            aria-label={t('nav.lightMode')}
               >
                 power_settings_new
               </span>

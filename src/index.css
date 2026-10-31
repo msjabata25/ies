@@ -8,9 +8,10 @@
   --color-accent: #1E88E5;
   --color-bg-dark: #0A0A0A;
 
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  --font-ui: 'Sora', sans-serif;
+  /* Arabic glyphs fall back to Lalezar / IBM Plex Sans Arabic; Latin text keeps the original fonts */
+  --font-display: 'Bebas Neue', 'Lalezar', sans-serif;
+  --font-mono: 'Space Mono', 'IBM Plex Sans Arabic', monospace;
+  --font-ui: 'Sora', 'IBM Plex Sans Arabic', sans-serif;
 }
 
 body::after {
@@ -257,14 +258,14 @@ html.light-mode img {
 
 /* Every font token becomes VT323 (loaded on demand by EasterEggs.jsx) — blocky pixel type */
 html.crt {
-  --font-display: 'VT323', monospace;
-  --font-mono: 'VT323', monospace;
-  --font-ui: 'VT323', monospace;
-  --font-sans: 'VT323', monospace;
+  --font-display: 'VT323', 'IBM Plex Sans Arabic', monospace;
+  --font-mono: 'VT323', 'IBM Plex Sans Arabic', monospace;
+  --font-ui: 'VT323', 'IBM Plex Sans Arabic', monospace;
+  --font-sans: 'VT323', 'IBM Plex Sans Arabic', monospace;
 }
 
 html.crt body {
-  font-family: 'VT323', monospace;
+  font-family: 'VT323', 'IBM Plex Sans Arabic', monospace;
   /* phosphor bloom + slight RGB misconvergence */
   text-shadow:
     0 0 4px rgba(245, 124, 0, 0.55),
@@ -311,4 +312,18 @@ html.crt body::before {
   html.crt body::before {
     display: none;
   }
+}
+
+/* Arabic: letter-spacing breaks up joined letters, and Lalezar needs more line height than Bebas */
+html[lang='ar'] body,
+html[lang='ar'] body * {
+  letter-spacing: 0 !important;
+}
+
+html[lang='ar'] :is(h1, h2, h3, h4) {
+  line-height: 1.35;
+}
+
+html[lang='ar'] body {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
 }

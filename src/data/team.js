@@ -9,8 +9,19 @@
  *   photo?: string,                                // optional, e.g. '/team/ahmad.jpg'
  *   socials?: { instagram?: string, linkedin?: string },
  *   scatter: { rotate: number, tx: number, ty: number }, // bubble offset on the team page
+ *   ar?: { name?: string, role?: string, bio?: string },  // Arabic copy; missing fields fall back to English
  * }
  */
+
+/** Two Latin initials for avatar bubbles (used in both languages). */
+export function initialsOf(name) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 // 28 members with deterministic scatter positions
 const scatterPositions = [
@@ -85,6 +96,87 @@ const projects = [
   'digital twin framework', 'wireless sensor array',
 ];
 
+/* ---- Arabic (Jordanian, casual) copies of the placeholder data, index-aligned with the lists above ---- */
+
+const firstNamesAr = [
+  'أحمد', 'ليلى', 'عمر', 'سارة', 'محمد', 'نور', 'علي', 'هالة',
+  'يوسف', 'دانا', 'حسن', 'رنا', 'إبراهيم', 'ميرا', 'خالد', 'لينا',
+  'زيد', 'تالا', 'بشار', 'يارا', 'فادي', 'سلمى', 'حسين', 'آية',
+  'طارق', 'ريما', 'سمير', 'لين',
+];
+
+const lastNamesAr = [
+  'الخطيب', 'منصور', 'حداد', 'نصار', 'عبيدات', 'شمّا', 'الدجاني', 'قاسم',
+  'فريج', 'زريقات', 'صبّاح', 'هلسة', 'طوقان', 'بركات', 'الخالدي', 'العناني',
+  'جرار', 'النابلسي', 'التميمي', 'قطب', 'الحسيني', 'ساكت', 'الدباغ', 'شاهين',
+  'معلوف', 'الرنتيسي', 'فارس', 'زهران',
+];
+
+/* m/f per member — the first-name list alternates male, female */
+const genders = firstNamesAr.map((_, i) => (i % 2 ? 'f' : 'm'));
+
+const rolesAr = {
+  Board: [
+    { m: 'رئيس الفرع', f: 'رئيسة الفرع' },
+    { m: 'نائب الرئيس', f: 'نائبة الرئيس' },
+    { m: 'أمين السر', f: 'أمينة السر' },
+    { m: 'أمين الصندوق', f: 'أمينة الصندوق' },
+    { m: 'الرئيس السابق', f: 'الرئيسة السابقة' },
+    { m: 'مستشار', f: 'مستشارة' },
+    { m: 'عضو هيئة', f: 'عضوة هيئة' },
+  ],
+  Scientific: [
+    { m: 'مهندس رئيسي', f: 'مهندسة رئيسية' },
+    { m: 'أخصائي بحث وتطوير', f: 'أخصائية بحث وتطوير' },
+    { m: 'مهندس أنظمة مدمجة', f: 'مهندسة أنظمة مدمجة' },
+    { m: 'مهندس أتمتة', f: 'مهندسة أتمتة' },
+    { m: 'مهندس تحكم', f: 'مهندسة تحكم' },
+    { m: 'مصمم أنظمة', f: 'مصممة أنظمة' },
+    { m: 'باحث', f: 'باحثة' },
+  ],
+  Media: [
+    { m: 'مسؤول المحتوى', f: 'مسؤولة المحتوى' },
+    { m: 'مصمم جرافيك', f: 'مصممة جرافيك' },
+    { m: 'مصوّر', f: 'مصوّرة' },
+    { m: 'مونتير', f: 'مونتيرة' },
+    { m: 'مسؤول السوشال ميديا', f: 'مسؤولة السوشال ميديا' },
+    { m: 'كاتب محتوى', f: 'كاتبة محتوى' },
+  ],
+  Web: [
+    { m: 'مطوّر فرونت إند', f: 'مطوّرة فرونت إند' },
+    { m: 'مطوّر باك إند', f: 'مطوّرة باك إند' },
+    { m: 'مهندس DevOps', f: 'مهندسة DevOps' },
+    { m: 'مصمم UI/UX', f: 'مصممة UI/UX' },
+    { m: 'مطوّر فل ستاك', f: 'مطوّرة فل ستاك' },
+    { m: 'مسؤول قواعد البيانات', f: 'مسؤولة قواعد البيانات' },
+  ],
+};
+
+const bioTemplatesAr = [
+  { m: 'مركّز على {area} وعنده خبرة بـ {tech}. اشتغل قبل على {project}.', f: 'مركّزة على {area} وعندها خبرة بـ {tech}. اشتغلت قبل على {project}.' },
+  { m: 'متخصص بـ {area} و{tech}. ماسك مبادرة {project}.', f: 'متخصصة بـ {area} و{tech}. ماسكة مبادرة {project}.' },
+  { m: 'مهووس بـ {area}. ببني حلول {tech} لـ {project}.', f: 'مهووسة بـ {area}. بتبني حلول {tech} لـ {project}.' },
+  { m: 'خلفيته {area} وعنده خبرة بـ {tech}. من الأساسيين بـ {project}.', f: 'خلفيتها {area} وعندها خبرة بـ {tech}. من الأساسيين بـ {project}.' },
+];
+
+const areasAr = [
+  'الأنظمة المدمجة', 'الأتمتة الصناعية', 'إلكترونيات القدرة', 'أنظمة التحكم',
+  'تصميم VLSI', 'الروبوتات', 'معالجة الإشارات', 'بنية إنترنت الأشياء',
+  'تصميم PCB', 'تطوير الـ firmware', 'شبكات الحساسات', 'التحكم بالمحركات',
+  'الطاقة المتجددة', 'التوائم الرقمية', 'بروتوكولات الـ fieldbus', 'أنظمة SCADA',
+];
+
+/* Tech names stay in English, like they're said in class; only the odd phrase needs Arabic */
+const techsAr = {
+  'python for automation': 'Python للأتمتة',
+};
+
+const projectsAr = [
+  'محاكاة المصنع الذكي', 'درون الفحص الذاتي', 'منصة الصيانة التنبؤية',
+  'متحكم الشبكة الشمسية الصغيرة', 'نظام الرؤية الصناعية', 'مسرّع الذكاء الاصطناعي على الطرف',
+  'إطار التوأم الرقمي', 'مصفوفة الحساسات اللاسلكية',
+];
+
 function seededRandom(seed) {
   const x = Math.sin(seed * 9301 + 49297) * 49297;
   return x - Math.floor(x);
@@ -104,11 +196,23 @@ export const team = Array.from({ length: 28 }, (_, i) => {
   const firstName = firstNames[i];
   const lastName = lastNames[i];
   const roleList = roles[committee];
-  const role = roleList[Math.floor(seededRandom(seed) * roleList.length)];
-  const bio = bioTemplates[Math.floor(seededRandom(seed + 100) * bioTemplates.length)]
-    .replace('{area}', areas[Math.floor(seededRandom(seed + 200) * areas.length)])
-    .replace('{tech}', techs[Math.floor(seededRandom(seed + 300) * techs.length)])
-    .replace('{project}', projects[Math.floor(seededRandom(seed + 400) * projects.length)]);
+  const roleIndex = Math.floor(seededRandom(seed) * roleList.length);
+  const role = roleList[roleIndex];
+  const bioIndex = Math.floor(seededRandom(seed + 100) * bioTemplates.length);
+  const areaIndex = Math.floor(seededRandom(seed + 200) * areas.length);
+  const tech = techs[Math.floor(seededRandom(seed + 300) * techs.length)];
+  const projectIndex = Math.floor(seededRandom(seed + 400) * projects.length);
+  const bio = bioTemplates[bioIndex]
+    .replace('{area}', areas[areaIndex])
+    .replace('{tech}', tech)
+    .replace('{project}', projects[projectIndex]);
+
+  /* Arabic copy — roles and bios agree with the member's gender (alternating in this placeholder list) */
+  const g = genders[i];
+  const bioAr = bioTemplatesAr[bioIndex][g]
+    .replace('{area}', areasAr[areaIndex])
+    .replace('{tech}', techsAr[tech] ?? tech)
+    .replace('{project}', projectsAr[projectIndex]);
 
   return {
     id: `member-${i + 1}`,
@@ -118,5 +222,10 @@ export const team = Array.from({ length: 28 }, (_, i) => {
     bio,
     socials: undefined,
     scatter: scatterPositions[i],
+    ar: {
+      name: `${firstNamesAr[i]} ${lastNamesAr[i]}`,
+      role: rolesAr[committee][roleIndex][g],
+      bio: bioAr,
+    },
   };
 });

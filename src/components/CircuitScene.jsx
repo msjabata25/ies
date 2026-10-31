@@ -1,4 +1,4 @@
-import { useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 
 /*
@@ -9,6 +9,10 @@ import gsap from 'gsap';
  * the page reveals them in.
  *
  * Driven through `ref`:
+ * With `mirror` (Arabic/RTL, where the quadrants swap sides) the circuit is laid
+ * out in mirrored coordinates and flipped back with a transform, so base still
+ * faces q1/q3; the B/C/E labels are placed separately so they stay readable.
+ *
  *   setCore(p)            0–1, draws the symbol itself
  *   setBranches([p, …])   0–1 per branch, in BRANCHES order
  */
@@ -67,8 +71,10 @@ function legPoints(start, pad, dir, detourX) {
 
 const overlaps = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
-function computeLayout(wrapper) {
+function computeLayout(wrapper, mirror) {
   const origin = offsetRect(wrapper);
+  const w = wrapper.clientWidth;
+  const h = wrapper.clientHeight;
   const rects = {};
   for (const b of BRANCHES) {
     const el = document.getElementById(`${b.id}-text`);
@@ -76,11 +82,11 @@ function computeLayout(wrapper) {
     const r = offsetRect(el);
     const left = r.x - origin.x;
     const top = r.y - origin.y;
-    rects[b.id] = { left, top, right: left + r.w, bottom: top + r.h };
+    rects[b.id] = mirror
+      ? { left: w - left - r.w, top, right: w - left, bottom: top + r.h }
+      : { left, top, right: left + r.w, bottom: top + r.h };
   }
 
-  const w = wrapper.clientWidth;
-  const h = wrapper.clientHeight;
   /* Free space between the text: a horizontal band (tall screens) and/or a
      vertical gutter (wide, short screens). Size the symbol to whichever is roomier. */
   const gapTop = Math.max(rects.q1.bottom, rects.q2.bottom);
@@ -141,7 +147,7 @@ function computeLayout(wrapper) {
   const tag = { left: cx + r + 8, right: cx + r + 48, top: cy - 14, bottom: cy + 16 };
   const showTag = tag.right < w && ![...Object.values(rects), ...runs].some((box) => overlaps(tag, box));
 
-  return { w, h, cx, cy, r, junction, legX, legY, symbol, arrow, branches, showTag };
+  return { w, h, mirror, cx, cy, r, junction, legX, legY, symbol, arrow, branches, showTag };
 }
 
 function drawCore(svg, core) {
@@ -179,8 +185,9 @@ function drawBranches(svg, progress, lit, immediate) {
   });
 }
 
-export default function CircuitScene({ ref }) {
+export default function CircuitScene({ ref, mirror = false }) {
   const wrapperRef = useRef(null);
+  const mirrorRef = useRef(mirror);
   const svgRef = useRef(null);
   const stateRef = useRef({ core: 0, branches: BRANCHES.map(() => 0), lit: BRANCHES.map(() => false) });
   const [layout, setLayout] = useState(null);
@@ -199,7 +206,7 @@ export default function CircuitScene({ ref }) {
   /* Re-route whenever the viewport or any text block changes size (incl. font load). */
   useLayoutEffect(() => {
     const wrapper = wrapperRef.current;
-    const ro = new ResizeObserver(() => setLayout(computeLayout(wrapper)));
+    const ro = new ResizeObserver(() => setLayout(computeLayout(wrapper, mirrorRef.current)));
     ro.observe(wrapper);
     BRANCHES.forEach((b) => {
       const el = document.getElementById(`${b.id}-text`);
@@ -207,6 +214,13 @@ export default function CircuitScene({ ref }) {
     });
     return () => ro.disconnect();
   }, []);
+
+  /* Switching direction moves the text blocks without always resizing them, so re-route explicitly */
+  useEffect(() => {
+    mirrorRef.current = mirror;
+    const id = requestAnimationFrame(() => setLayout(computeLayout(wrapperRef.current, mirror)));
+    return () => cancelAnimationFrame(id);
+  }, [mirror]);
 
   /* Fresh paths start undrawn — catch them up to the current scroll state. */
   useLayoutEffect(() => {
@@ -236,6 +250,7 @@ export default function CircuitScene({ ref }) {
 
         {layout && (
           <>
+          <g transform={layout.mirror ? `matrix(-1 0 0 1 ${layout.w} 0)` : undefined}>
             {/* Unpowered ghost of the whole circuit */}
             <g stroke={BLUE} strokeOpacity="0.14" strokeWidth="1.5" strokeLinejoin="round">
               {layout.branches.map((b) => (
@@ -277,18 +292,37 @@ export default function CircuitScene({ ref }) {
             <g data-core-fade opacity="0">
               <polygon points={layout.arrow} fill={ORANGE} />
               <circle cx={layout.junction.x} cy={layout.junction.y} r="4" fill={ORANGE} />
-              <g className="font-mono" fontSize="11" fill="#dec1af" fillOpacity="0.6">
-                <text x={layout.junction.x + 8} y={layout.cy - 8}>B</text>
-                <text x={layout.legX + 8} y={layout.cy - layout.legY + 4}>C</text>
-                <text x={layout.legX + 8} y={layout.cy + layout.legY + 4}>E</text>
-                {layout.showTag && (
-                  <>
-                    <text x={layout.cx + layout.r + 12} y={layout.cy - 2} fill={ORANGE} fillOpacity="0.9">Q1</text>
-                    <text x={layout.cx + layout.r + 12} y={layout.cy + 12}>NPN</text>
-                  </>
-                )}
-              </g>
             </g>
+          </g>
+
+          {/* Labels sit outside the mirror transform so the letters never read backwards */}
+          <g
+            data-core-fade
+            opacity="0"
+            className="font-mono"
+            fontSize="11"
+            fill="#dec1af"
+            fillOpacity="0.6"
+            direction="ltr"
+            textAnchor={layout.mirror ? 'end' : 'start'}
+          >
+            {(() => {
+              const x = (v) => (layout.mirror ? layout.w - v : v);
+              return (
+                <>
+                  <text x={x(layout.junction.x + 8)} y={layout.cy - 8}>B</text>
+                  <text x={x(layout.legX + 8)} y={layout.cy - layout.legY + 4}>C</text>
+                  <text x={x(layout.legX + 8)} y={layout.cy + layout.legY + 4}>E</text>
+                  {layout.showTag && (
+                    <>
+                      <text x={x(layout.cx + layout.r + 12)} y={layout.cy - 2} fill={ORANGE} fillOpacity="0.9">Q1</text>
+                      <text x={x(layout.cx + layout.r + 12)} y={layout.cy + 12}>NPN</text>
+                    </>
+                  )}
+                </>
+              );
+            })()}
+          </g>
           </>
         )}
       </svg>

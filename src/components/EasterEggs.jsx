@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { useI18n } from '@/i18n/context';
 
 /*
  * Keyboard easter eggs, site-wide:
  *   ↑ ↑ ↓ ↓ ← → ← → B A   toggles CRT mode (`html.crt`, styled in index.css), remembered per browser
  *   typing "sudo join"     grants access and scrolls to the home page's #join section
- * Keys typed into form fields never count.
+ * Keys typed into form fields never count. Letters are read from the physical key
+ * (KeyboardEvent.code), so both work with an Arabic keyboard layout too.
  */
 const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 const SUDO_JOIN = 'sudo join';
@@ -21,6 +23,13 @@ function loadCrtFont() {
   document.head.appendChild(link);
 }
 
+/* 'KeyB' -> 'b', 'Space' -> ' ', arrows stay 'arrowup' etc. */
+function keyName(e) {
+  if (e.code?.startsWith('Key')) return e.code.slice(3).toLowerCase();
+  if (e.code === 'Space') return ' ';
+  return e.key.toLowerCase();
+}
+
 function isTyping(target) {
   return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
 }
@@ -28,6 +37,7 @@ function isTyping(target) {
 export default function EasterEggs({ lenisRef }) {
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(0);
+  const { t } = useI18n();
 
   useEffect(() => {
     try {
@@ -50,7 +60,7 @@ export default function EasterEggs({ lenisRef }) {
 
     const onKeyDown = (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
-      const key = e.key.toLowerCase();
+      const key = keyName(e);
 
       keys = [...keys, key].slice(-KONAMI.length);
       if (keys.join() === KONAMI.join()) {
@@ -62,21 +72,21 @@ export default function EasterEggs({ lenisRef }) {
         } catch {
           /* ignore */
         }
-        say(`CRT_MODE: ${on ? 'ENABLED' : 'DISABLED'}`);
+        say(t(on ? 'eggs.crtOn' : 'eggs.crtOff'));
         return;
       }
 
-      if (e.key.length !== 1) return;
+      if (key.length !== 1) return;
       typed = (typed + key).slice(-SUDO_JOIN.length);
       if (typed !== SUDO_JOIN) return;
       typed = '';
 
       const join = document.getElementById('join');
       if (!join) {
-        say('[sudo] join portal lives on the home page — try it from /');
+        say(t('eggs.sudoElsewhere'));
         return;
       }
-      say('[sudo] permission granted — welcome, recruit.');
+      say(t('eggs.sudoGranted'));
       const flash = () => gsap.fromTo('.join-btn', { scale: 1.12 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.4)', repeat: 2 });
       if (lenisRef.current) lenisRef.current.scrollTo(join, { duration: 1.4, onComplete: flash });
       else {
@@ -90,7 +100,7 @@ export default function EasterEggs({ lenisRef }) {
       window.removeEventListener('keydown', onKeyDown);
       clearTimeout(toastTimer.current);
     };
-  }, [lenisRef]);
+  }, [lenisRef, t]);
 
   if (!toast) return null;
 

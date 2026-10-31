@@ -3,58 +3,16 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import CircuitScene from '@/components/CircuitScene';
+import { useI18n } from '@/i18n/context';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* Copy lives in the i18n dictionaries (about.quadrants.*); start/end positions mirror in Arabic */
 const quadrants = [
-  {
-    id: 'q1',
-    title: 'CORE_IDENTITY_',
-    lines: [
-      '> who we are',
-      'official IEEE IES student chapter at JUST',
-      'advancing industrial electronics since 2023',
-      '60+ active members across 4 committees',
-    ],
-    position: 'top-[14%] [@media(max-height:720px)]:top-[10%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
-    enterDir: { y: -24 },
-  },
-  {
-    id: 'q3',
-    title: 'DOMAIN_EXPERTISE_',
-    lines: [
-      '> our stack',
-      'PLC / SCADA / embedded firmware',
-      'pcb design / industrial iot / control theory',
-      'power electronics / digital signal processing',
-    ],
-    position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] left-[6%] md:left-[10%] max-w-[44vw] md:max-w-[32%]',
-    enterDir: { y: 24 },
-  },
-  {
-    id: 'q2',
-    title: 'MISSION_STATEMENT_',
-    lines: [
-      '> what we do',
-      'bridge academia and industry through',
-      'hands-on projects in automation, embedded',
-      'systems, and industrial control engineering.',
-    ],
-    position: 'top-[14%] [@media(max-height:720px)]:top-[10%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
-    enterDir: { y: -24 },
-  },
-  {
-    id: 'q4',
-    title: 'VISION_LOG_',
-    lines: [
-      '> where we\'re headed',
-      'launch an IEEE-recognized research lab',
-      'host jordan\'s largest student engineering expo',
-      'build open-source industrial automation tools',
-    ],
-    position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] right-[6%] md:right-[10%] max-w-[44vw] md:max-w-[32%]',
-    enterDir: { y: 24 },
-  },
+  { id: 'q1', position: 'top-[14%] [@media(max-height:720px)]:top-[10%] start-[6%] md:start-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: -24 } },
+  { id: 'q3', position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] start-[6%] md:start-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: 24 } },
+  { id: 'q2', position: 'top-[14%] [@media(max-height:720px)]:top-[10%] end-[6%] md:end-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: -24 } },
+  { id: 'q4', position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] end-[6%] md:end-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: 24 } },
 ];
 
 const revealOrder = ['q1', 'q3', 'q2', 'q4'];
@@ -73,6 +31,7 @@ const clamp01 = (n) => Math.min(1, Math.max(0, n));
 export default function AboutPage() {
   const containerRef = useRef(null);
   const circuitRef = useRef(null);
+  const { t, isArabic } = useI18n();
 
   useGSAP(() => {
     const page = containerRef.current;
@@ -135,7 +94,7 @@ export default function AboutPage() {
         style={{ opacity: 0 }}
       >
         {/* Circuit — traces route from the transistor to each quadrant */}
-        <CircuitScene ref={circuitRef} />
+        <CircuitScene ref={circuitRef} mirror={isArabic} />
 
         {/* Quadrant text */}
         <div className="relative w-full h-full max-w-7xl mx-auto px-4">
@@ -147,10 +106,10 @@ export default function AboutPage() {
               style={{ transform: `translateY(${q.enterDir.y}px)` }}
             >
               <h3 className="font-display text-[22px] md:text-[32px] [@media(max-height:720px)]:text-[22px] text-[#F57C00] mb-3 [@media(max-height:720px)]:mb-1.5 tracking-wider">
-                {q.title}
+                {t(`about.quadrants.${q.id}.title`)}
               </h3>
               <div className="font-mono text-[12px] md:text-[15px] [@media(max-height:720px)]:text-[12px] leading-[170%] [@media(max-height:720px)]:leading-[150%] text-[#dec1af] space-y-1">
-                {q.lines.map((line, j) => (
+                {t(`about.quadrants.${q.id}.lines`).map((line, j) => (
                   <p key={j} className={j === 0 ? 'text-[#1E88E5]' : ''}>
                     {line}
                   </p>
@@ -169,11 +128,11 @@ export default function AboutPage() {
           <div className="flex items-center justify-center gap-4 mb-4">
             <span className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
             <h1 className="text-[36px] md:text-[64px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
-              ABOUT_IES.EXE<span className="cursor-blink font-mono">_</span>
+              {t('about.title')}<span className="cursor-blink font-mono">_</span>
             </h1>
           </div>
-          <p className="font-mono text-[13px] md:text-[16px] text-[#1E88E5]">{`C:\\> loading chapter profile... [OK]`}</p>
-          <p className="font-mono text-[11px] text-gray-600 mt-6 animate-pulse">scroll to initialize —</p>
+          <p className="font-mono text-[13px] md:text-[16px] text-[#1E88E5]">{t('about.loading')}</p>
+          <p className="font-mono text-[11px] text-gray-600 mt-6 animate-pulse">{t('about.scroll')}</p>
         </div>
       </section>
 

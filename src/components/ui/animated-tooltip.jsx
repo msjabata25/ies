@@ -39,7 +39,7 @@ export const AnimatedTooltip = ({ items }) => {
     <>
       {items.map((item) => (
         <div
-          className="group relative -mr-4"
+          className="group relative -me-4"
           key={item.id}
           onMouseEnter={() => setHoveredIndex(item.id)}
           onMouseLeave={() => setHoveredIndex(null)}
@@ -88,7 +88,7 @@ export const AnimatedTooltip = ({ items }) => {
               className="relative !m-0 h-14 w-14 rounded-full border-2 border-[#F57C00] bg-[#131313] flex items-center justify-center !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105"
             >
               <span className="font-mono text-[#F57C00] text-sm font-bold">
-                {item.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                {item.initials ?? item.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
               </span>
             </div>
           )}

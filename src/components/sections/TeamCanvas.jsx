@@ -1,15 +1,10 @@
 import { useState, useMemo, useCallback, } from 'react';
-import { team } from '@/data/team';
+import { initialsOf, team } from '@/data/team';
+import { useI18n } from '@/i18n/context';
 import { AnimatePresence, motion } from 'motion/react';
 import StaticGrid from './StaticGrid';
 
-const committees = [
-  { label: 'ALL', value: 'All' },
-  { label: 'BOARD', value: 'Board' },
-  { label: 'SCIENTIFIC', value: 'Scientific' },
-  { label: 'MEDIA', value: 'Media' },
-  { label: 'WEB', value: 'Web' },
-];
+const committees = ['All', 'Board', 'Scientific', 'Media', 'Web'];
 
 const BUBBLE_SIZE = 88;
 
@@ -23,15 +18,6 @@ function committeeColor(committee) {
   }
 }
 
-function getInitials(name) {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 function BubbleCircle({
   member,
   size,
@@ -39,7 +25,7 @@ function BubbleCircle({
 }) {
   const [imgError, setImgError] = useState(false);
   const color = committeeColor(member.committee);
-  const initials = getInitials(member.name);
+  const initials = initialsOf(member.name);
 
   if (member.photo && !imgError) {
     return (
@@ -128,6 +114,7 @@ function separatePositions(positions, minDist, iterations) {
 }
 
 export default function TeamCanvas() {
+  const { t, pick } = useI18n();
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedId, setExpandedId] = useState(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -231,10 +218,11 @@ export default function TeamCanvas() {
             >
               <div className="flex justify-between items-start mb-4">
                 <span className="font-mono text-[11px] text-[#1E88E5]">
-                  {expandedMember.committee.toUpperCase()} &mdash; {expandedMember.role}
+                  {t(`team.committees.${expandedMember.committee}`)} &mdash; {pick(expandedMember, 'role')}
                 </span>
                 <button
                   onClick={handleCollapse}
+                  aria-label={t('team.close')}
                   className="text-[#dec1af] hover:text-[#F57C00] transition-colors font-mono text-[16px] leading-none"
                 >
                   ✕
@@ -245,10 +233,10 @@ export default function TeamCanvas() {
                 <BubbleCircle member={expandedMember} size={64} />
                 <div>
                   <h3 className="font-display text-[22px] text-[#F57C00] tracking-wider">
-                    {expandedMember.name}
+                    {pick(expandedMember, 'name')}
                   </h3>
                   <p className="font-mono text-[13px] text-[#dec1af] mt-1">
-                    {expandedMember.role}
+                    {pick(expandedMember, 'role')}
                   </p>
                   <span
                     className="inline-block font-mono text-[10px] mt-1 px-2 py-0.5 border"
@@ -257,13 +245,13 @@ export default function TeamCanvas() {
                       borderColor: `${committeeColor(expandedMember.committee)}40`,
                     }}
                   >
-                    {expandedMember.committee.toUpperCase()}
+                    {t(`team.committees.${expandedMember.committee}`)}
                   </span>
                 </div>
               </div>
 
               <p className="font-mono text-[13px] text-[#dec1af] leading-[170%]">
-                {expandedMember.bio}
+                {pick(expandedMember, 'bio')}
               </p>
             </motion.div>
           </motion.div>
@@ -273,15 +261,15 @@ export default function TeamCanvas() {
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 z-10">
         {committees.map((c) => (
           <button
-            key={c.value}
-            onClick={() => handleFilterChange(c.value)}
+            key={c}
+            onClick={() => handleFilterChange(c)}
             className={`px-4 py-1.5 rounded-full font-mono text-[11px] border transition-colors ${
-              activeFilter === c.value
+              activeFilter === c
                 ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
                 : 'bg-transparent text-[#dec1af] border-[#1E88E5]/30 hover:border-[#F57C00]/50'
             }`}
           >
-            {c.label}
+            {t(`team.committees.${c}`)}
           </button>
         ))}
       </div>
