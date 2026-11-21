@@ -64,6 +64,15 @@ export const applicationsOpen = Boolean(ENDPOINT) || import.meta.env.DEV;
 /** True when submits go nowhere (dev without an endpoint). */
 export const submissionsStubbed = !ENDPOINT;
 
+const SUBMIT_TIMEOUT_MS = 15000;
+
+/** Short language-neutral code (shown to the applicant) plus technical detail (for the console). */
+function submitError(code, detail) {
+  const err = new Error(detail || code);
+  err.code = code;
+  return err;
+}
+
 function localReference() {
   return `IES-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 }
@@ -76,14 +85,30 @@ export async function submitApplication(application) {
     return { reference: localReference() };
   }
 
-  const res = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // see note above: avoids a CORS preflight
-    body: JSON.stringify(application),
-  });
-  if (!res.ok) throw new Error(`Server responded ${res.status}`);
-  const body = await res.json().catch(() => ({}));
-  /* Apps Script always answers 200, so a script-side failure comes back as { ok: false } */
-  if (body.ok === false) throw new Error(body.error || 'the sheet rejected the application');
-  return { reference: body.reference ?? localReference() };
+  /* Fail loudly rather than leave the button on "sending" forever. */
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
+  try {
+    let res;
+    try {
+      res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // see note above: avoids a CORS preflight
+        body: JSON.stringify(application),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      throw submitError(controller.signal.aborted ? 'TIMEOUT' : 'NETWORK', err.message);
+    }
+    if (!res.ok) throw submitError(`HTTP_${res.status}`, `Server responded ${res.status}`);
+    /* Apps Script answers 200 even for its own error and login pages, so only an explicit
+       { ok: true } JSON body counts as saved. */
+    const body = await res.json().catch(() => null);
+    if (!body || body.ok !== true) {
+      throw submitError(body && body.ok === false ? 'REJECTED' : 'BAD_RESPONSE', body?.error || 'unexpected response from the server');
+    }
+    return { reference: body.reference || localReference() };
+  } finally {
+    clearTimeout(timer);
+  }
 }

@@ -108,9 +108,9 @@ export default function EasterEggs({ lenisRef }) {
     <div
       key={toast.id}
       role="status"
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-[#0e0e0e] border border-[#F57C00]/60 px-4 py-2 font-mono text-[13px] text-[#F57C00] shadow-[0_0_20px_rgba(245,124,0,0.25)] animate-in fade-in slide-in-from-bottom-2 duration-300 whitespace-nowrap max-w-[calc(100vw-32px)] overflow-hidden text-ellipsis"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-card border border-primary/60 px-4 py-2 font-mono text-[13px] text-primary shadow-[0_0_20px_color-mix(in_oklab,var(--color-primary)_25%,transparent)] animate-in fade-in slide-in-from-bottom-2 duration-300 whitespace-nowrap max-w-[calc(100vw-32px)] overflow-hidden text-ellipsis"
     >
-      <span className="text-[#1E88E5]">{'> '}</span>
+      <span className="text-accent">{'> '}</span>
       {toast.text}
     </div>
   );

@@ -1,18 +1,103 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme {
-  --color-primary: #F57C00;
-  --color-accent: #1E88E5;
-  --color-bg-dark: #0A0A0A;
+/* ------------------------------------------------------------------
+   Theme tokens
+   Dark values live in @theme static (emitted on :root); light values override
+   them on html.light-mode. CRT mode (html.crt) is a dark-only effect, so the
+   light override is skipped while it is active. Utilities: bg-surface,
+   text-body, border-accent/30, text-primary/70 ... (opacity modifiers work
+   because Tailwind builds them with color-mix on the variable).
+   ------------------------------------------------------------------ */
+@theme static {
+  --color-primary: #F57C00;   /* orange */
+  --color-accent: #1E88E5;    /* blue */
+  --color-surface: #0A0A0A;   /* page background */
+  --color-card: #0e0e0e;      /* cards, inputs, terminals */
+  --color-panel: #131313;     /* nav, drawer, modals */
+  --color-footer: #050505;
+  --color-body: #dec1af;      /* main warm text */
+  --color-fg: #FFFFFF;        /* strong text */
+  --color-muted: #9ca3af;     /* secondary text */
+  --color-faint: #586070;     /* tertiary / decorative separators */
+  --color-line: #111111;      /* hairlines */
+  --color-ok: #4ade80;        /* status text: active / success */
+  --color-warn: #facc15;      /* status text: upcoming / warning */
+  --color-idle: #7c8492;      /* status text: past / planned (>= 4.5:1 on card and panel) */
+  --color-err: #f87171;       /* error text */
+  --color-media: #10b981;     /* committee data colours (Board = primary, Scientific = accent) */
+  --color-web: #8b5cf6;
+  --color-led-ok: #22c55e;    /* LED fills */
+  --color-led-warn: #eab308;
+  --color-led-idle: #6b7280;
 
   /* Arabic glyphs fall back to Lalezar / IBM Plex Sans Arabic; Latin text keeps the original fonts */
   --font-display: 'Bebas Neue', 'Lalezar', sans-serif;
   --font-mono: 'Space Mono', 'IBM Plex Sans Arabic', monospace;
   --font-ui: 'Sora', 'IBM Plex Sans Arabic', sans-serif;
 }
+
+/* Radius scale and animations used by the ui/ components */
+@theme inline {
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% - var(--gap))); }
+  }
+  @keyframes marquee-vertical {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(-100% - var(--gap))); }
+  }
+}
+
+:root {
+  --radius: 0.625rem;
+  color-scheme: dark;
+  /* non-color theme variables */
+  --scanline: rgba(0, 0, 0, 0.25);
+  --grid-line: rgba(30, 136, 229, 0.04);
+  --glitch-a: blue;
+  --glitch-b: orange;
+}
+
+html.light-mode:not(.crt) {
+  color-scheme: light;
+  --color-primary: #A64B00;
+  --color-accent: #1565C0;
+  --color-surface: #F7F5F0;
+  --color-card: #FFFFFF;
+  --color-panel: #EDE9E1;
+  --color-footer: #EBE7DE;
+  --color-body: #2B231D;
+  --color-fg: #14110F;
+  --color-muted: #665F56;
+  --color-faint: #8A8279;
+  --color-line: #D8D2C6;
+  --color-ok: #13703a;
+  --color-warn: #855800;
+  --color-idle: #5f6672;
+  --color-err: #b01919;
+  --color-media: #047857;
+  --color-web: #6d28d9;
+  --color-led-ok: #16a34a;
+  --color-led-warn: #ca8a04;
+  --color-led-idle: #8b93a1;
+  --scanline: transparent; /* the CRT-style scanlines read as banding on a light page */
+  --grid-line: rgba(21, 101, 192, 0.07);
+  --glitch-a: color-mix(in oklab, #1565C0 35%, transparent);
+  --glitch-b: color-mix(in oklab, #A64B00 35%, transparent);
+}
+
+/* light: / dark: variants for per-theme tweaks (dark is the default; CRT counts as dark) */
+@custom-variant light (&:where(html.light-mode:not(.crt) *));
 
 body::after {
   content: "";
@@ -23,8 +108,8 @@ body::after {
   height: 100vh;
   background: linear-gradient(
     rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.25) 50%,
-    rgba(0, 0, 0, 0.25) 100%
+    var(--scanline) 50%,
+    var(--scanline) 100%
   );
   background-size: 100% 4px;
   pointer-events: none;
@@ -43,11 +128,11 @@ body::after {
 
 @layer utilities {
   .text-shadow-glitch {
-    text-shadow: -2px 0 blue, 2px 0 orange;
+    text-shadow: -2px 0 var(--glitch-a), 2px 0 var(--glitch-b);
   }
 
   .bg-grid {
-    background-image: linear-gradient(rgba(30,136,229,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(30,136,229,0.04) 1px, transparent 1px);
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
@@ -56,195 +141,68 @@ body::after {
   }
 
   .led-active {
-    color: #22c55e;
-    background-color: #22c55e;
+    color: var(--color-led-ok);
+    background-color: var(--color-led-ok);
     animation: ledPulse 2s infinite;
   }
   .led-upcoming {
-    color: #eab308;
-    background-color: #eab308;
+    color: var(--color-led-warn);
+    background-color: var(--color-led-warn);
     animation: ledPulse 2s infinite;
   }
   .led-planned {
-    color: #6b7280;
-    background-color: #6b7280;
+    color: var(--color-led-idle);
+    background-color: var(--color-led-idle);
     animation: ledPulse 2s infinite;
   }
 }
 
-html {
-  transition: filter 0.5s ease-in-out;
-}
-
-html.light-mode {
-  filter: invert(1) hue-rotate(180deg);
-}
-
-html.light-mode img {
-  filter: invert(1) hue-rotate(180deg);
-}
-
-@theme inline {
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-  --animate-marquee: marquee var(--duration) infinite linear;
-  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
-  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
-  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
-  @keyframes marquee {
-  from {
-    transform: translateX(0);
-    }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
-    }
-  }
-  @keyframes marquee-vertical {
-  from {
-    transform: translateY(0);
-    }
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
-    }
-  }
-  @keyframes shimmer-slide {
-  to {
-    transform: translate(calc(100cqw - 100%), 0);
-    }
-  }
-  @keyframes spin-around {
-  0% {
-    transform: translateZ(0) rotate(0);
-    }
-  15%, 35% {
-    transform: translateZ(0) rotate(90deg);
-    }
-  65%, 85% {
-    transform: translateZ(0) rotate(270deg);
-    }
-  100% {
-    transform: translateZ(0) rotate(360deg);
-    }
-  }
-}
-
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Short colour fade while the theme flips (Navbar adds .theme-fade to <html> for ~400ms) */
+html.theme-fade,
+html.theme-fade *,
+html.theme-fade *::before,
+html.theme-fade *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, fill 0.35s ease, stroke 0.35s ease !important;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  /* Keyboard focus only — primary-coloured ring that reads on the page background and on the filled buttons */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-surface text-fg;
   }
   html {
     @apply font-sans;
   }
 }
+
+/* Shared heading + chip styles. Apply with class="page-title" etc. */
+@layer components {
+  .page-title {
+    @apply font-display text-primary text-[36px] md:text-[56px] leading-[110%] tracking-[0.02em];
+  }
+  .section-title {
+    @apply font-display text-primary text-[32px] md:text-[48px] leading-[110%] tracking-[0.02em];
+  }
+  /* Filter chip (Events, Team). Add .pill-active for the selected one. */
+  .pill {
+    @apply inline-flex min-h-10 cursor-pointer items-center justify-center rounded-none border border-accent/30 bg-transparent px-4 font-mono text-[12px] uppercase whitespace-nowrap text-body transition-colors;
+  }
+  .pill:hover {
+    @apply border-primary/50;
+  }
+  .pill:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+  .pill-active,
+  .pill-active:hover {
+    @apply border-primary text-primary;
+  }
+}
+
 /* CRT mode — Konami code easter egg (see EasterEggs.jsx) */
 @keyframes crtFlicker {
   0%, 100% { opacity: 1; }
@@ -306,6 +264,14 @@ html.crt body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cursor-blink,
+  .animate-pulse,
+  .led-active,
+  .led-upcoming,
+  .led-planned {
+    animation: none;
+  }
+
   html.crt body::after {
     animation: none;
   }

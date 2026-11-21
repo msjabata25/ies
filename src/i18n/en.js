@@ -2,6 +2,14 @@
 export default {
   meta: {
     title: 'IES JUST Student Chapter',
+    /* Per-route <title>s, keyed by routeKey() in context.js */
+    titles: {
+      about: 'About — IES JUST',
+      events: 'Events — IES JUST',
+      team: 'Team — IES JUST',
+      apply: 'Apply — IES JUST',
+      notFound: '404 Not Found — IES JUST',
+    },
   },
 
   nav: {
@@ -15,6 +23,7 @@ export default {
     lightMode: 'Toggle light mode',
     switchLang: 'التبديل للعربية',
     langLabel: 'ع',
+    skip: 'Skip to content',
   },
 
   footer: {
@@ -27,6 +36,14 @@ export default {
     comingSoon: 'Coming soon',
     poweredBy: 'IES_JUST // POWERED BY IEEE',
     location: 'IRBID, JORDAN',
+    instagram: 'IG: @ies_just',
+  },
+
+  notFound: {
+    title: 'ERROR_404',
+    subtitle: '> route not found in filesystem_',
+    body: "C:\\> the page you asked for doesn't exist (or got moved).",
+    home: '< BACK TO TERMINAL',
   },
 
   hero: {
@@ -226,7 +243,7 @@ export default {
       committees: 'pick at least one committee',
       motivation: 'a little more please — {n} more characters',
       link: 'start the link with http:// or https://',
-      submit: 'ERR: submission failed ({reason}). Your answers are saved — try again in a moment.',
+      submit: 'ERR: submission failed. Your answers are saved — try again in a moment.',
     },
     back: '< BACK',
     next: 'NEXT >',

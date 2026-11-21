@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Button from '@/components/ui/Button';
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import { initialsOf, team } from '@/data/team';
 import { useI18n } from '@/i18n/context';
@@ -17,13 +17,13 @@ export default function TeamPreview() {
   }));
 
   return (
-    <section className="px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-visible border-t border-[#1E88E5]/20">
-      <div className="flex items-center gap-4 mb-12">
-        <span className="material-symbols-outlined text-[#F57C00] text-3xl">group</span>
-        <h2 className="text-[32px] md:text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+    <section className="w-full px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-visible">
+      <div className="flex items-center gap-4 mb-8">
+        <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">group</span>
+        <h2 className="section-title">
           {t('teamPreview.title')}<span className="cursor-blink font-mono">_</span>
         </h2>
-        <div className="h-px bg-[#1E88E5]/30 flex-grow ms-4"></div>
+        <div className="h-px bg-accent/30 flex-grow ms-4"></div>
       </div>
 
       <div className="flex justify-center mb-12">
@@ -31,11 +31,9 @@ export default function TeamPreview() {
       </div>
 
       <div className="text-center">
-        <Link to="/team">
-          <span className="font-mono text-[#1E88E5] text-[14px] border border-[#1E88E5] px-6 py-3 hover:bg-[#1E88E5] hover:text-[#0A0A0A] transition-all duration-300 inline-block">
-            {t('teamPreview.cta')}
-          </span>
-        </Link>
+        <Button to="/team" variant="secondary" className="max-w-full">
+          {t('teamPreview.cta')}
+        </Button>
       </div>
     </section>
   );

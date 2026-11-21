@@ -7,12 +7,14 @@ import CursorHalo from './CursorHalo';
 import EasterEggs from './EasterEggs';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { titleFor, useI18n } from '@/i18n/context';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Layout() {
   const lenisRef = useRef(null);
   const { pathname } = useLocation();
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     window.history.scrollRestoration = 'manual';
@@ -45,12 +47,26 @@ export default function Layout() {
     window.scrollTo(0, 0);
   }, [pathname]);
 
+  // Per-route <title>; LanguageProvider re-applies the same title on a language switch
+  useEffect(() => {
+    document.title = titleFor(lang, pathname);
+  }, [pathname, lang]);
+
   return (
     <>
+      {/* First focusable element: hidden until a keyboard user tabs to it */}
+      <a
+        href="#main-content"
+        className="fixed top-2 start-2 z-[10000] -translate-y-[200%] focus:translate-y-0 bg-primary text-surface font-mono text-sm font-bold px-4 py-2"
+      >
+        {t('nav.skip')}
+      </a>
       <CursorHalo />
       <EasterEggs lenisRef={lenisRef} />
       <Navbar />
-      <Outlet />
+      <div id="main-content" tabIndex={-1} className="outline-none">
+        <Outlet />
+      </div>
       <Footer />
     </>
   );

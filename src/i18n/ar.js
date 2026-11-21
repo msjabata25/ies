@@ -7,6 +7,13 @@
 export default {
   meta: {
     title: 'IES JUST — الفرع الطلابي',
+    titles: {
+      about: 'مين إحنا — IES JUST',
+      events: 'الفعاليات — IES JUST',
+      team: 'الفريق — IES JUST',
+      apply: 'قدّم طلبك — IES JUST',
+      notFound: '404 ما لقينا الصفحة — IES JUST',
+    },
   },
 
   nav: {
@@ -20,6 +27,7 @@ export default {
     lightMode: 'بدّل للوضع الفاتح',
     switchLang: 'Switch to English',
     langLabel: 'EN',
+    skip: 'قفز للمحتوى',
   },
 
   footer: {
@@ -30,8 +38,9 @@ export default {
     home: 'الرئيسية',
     linkOffline: '[الرابط لسا مش جاهز]',
     comingSoon: 'قريبًا',
-    poweredBy: 'IES_JUST // بدعم من IEEE',
+    poweredBy: '⁦IES_JUST⁩ // بدعم من ⁦IEEE⁩',
     location: 'إربد، الأردن',
+    instagram: 'IG: @ies_just',
   },
 
   hero: {
@@ -52,7 +61,7 @@ export default {
     title: 'مين إحنا؟',
     p1: 'إحنا IES JUST، الفرع الطلابي الرسمي لجمعية IEEE للإلكترونيات الصناعية هون بجامعة العلوم والتكنولوجيا (التكنو).',
     p2: 'بنبني، بنأتمت، وبنطلع بأفكار جديدة — من الأنظمة المدمجة للتحكم الصناعي، مشروع ورا مشروع.',
-    locked: 'ممنوع الدخول — افتح /about',
+    locked: 'ممنوع الدخول — افتح ⁦/about⁩',
     unlocked: 'تمام، تفضّل ادخل',
   },
 
@@ -229,9 +238,10 @@ export default {
       otherMajor: 'احكيلنا شو تخصصك',
       year: 'اختار سنتك',
       committees: 'اختار لجنة وحدة عالأقل',
-      motivation: 'زيد كمان شوي — ناقص {n} حرف',
+      /* Arabic count agreement: a function value, called by t() with the vars (see context.js) */
+      motivation: ({ n }) => `زيد كمان شوي — ناقص ${n === 1 ? 'حرف واحد' : n === 2 ? 'حرفين' : n <= 10 ? `${n} حروف` : `${n} حرف`}`,
       link: 'خلّي الرابط يبلّش بـ http:// أو https://',
-      submit: 'خطأ: ما زبط الإرسال ({reason}). إجاباتك محفوظة — جرّب كمان شوي.',
+      submit: 'خطأ: ما زبط الإرسال. إجاباتك محفوظة — جرّب كمان شوي.',
     },
     back: 'رجوع',
     next: 'التالي',
@@ -251,6 +261,13 @@ export default {
       title: 'التسجيل مسكّر حاليًا',
       body: 'باب التسجيل لسا ما فتح. تابعنا على إنستغرام عشان تعرف أول ما يفتح.',
     },
+  },
+
+  notFound: {
+    title: 'ERROR_404',
+    subtitle: '> الصفحة مش موجودة_',
+    body: '> الصفحة اللي بتدوّر عليها مش موجودة (أو اتنقلت).',
+    home: 'ارجع للرئيسية',
   },
 
   eggs: {
