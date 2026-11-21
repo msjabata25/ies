@@ -10,6 +10,7 @@ const About = lazy(() => import('@/pages/About'));
 const Events = lazy(() => import('@/pages/Events'));
 const Team = lazy(() => import('@/pages/Team'));
 const Apply = lazy(() => import('@/pages/Apply'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="/events" element={<Events />} />
               <Route path="/team" element={<Team />} />
               <Route path="/apply" element={<Apply />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
         </Suspense>

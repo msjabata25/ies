@@ -236,7 +236,12 @@ html.light-mode img {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+  }
+  /* Keyboard focus only — orange ring that reads on near-black and on the orange/blue buttons */
+  :focus-visible {
+    outline: 2px solid #F57C00;
+    outline-offset: 2px;
   }
   body {
     @apply bg-background text-foreground;
@@ -306,6 +311,14 @@ html.crt body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cursor-blink,
+  .animate-pulse,
+  .led-active,
+  .led-upcoming,
+  .led-planned {
+    animation: none;
+  }
+
   html.crt body::after {
     animation: none;
   }

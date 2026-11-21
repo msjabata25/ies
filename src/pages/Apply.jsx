@@ -18,8 +18,16 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const ARABIC_NAME = /^[\u0600-\u06FF\s]+$/; // Arabic script and spaces
 
-/* Phone numbers may be typed with spaces or dashes; validate and send digits only. */
-const digits = (v) => v.replace(/[\s-]/g, '');
+/* Arabic-Indic (٠-٩) and Persian (۰-۹) digits → ASCII, so validation and the payload see 0-9. */
+const asciiDigits = (v) =>
+  v.replace(/[٠-٩۰-۹]/g, (c) => String(c.charCodeAt(0) & 0xf));
+
+/* Phones may be typed with spaces, dashes or brackets, with or without +962 / 00962;
+   validate and send the local form (07XXXXXXXX). */
+const phoneDigits = (v) => asciiDigits(v).replace(/[\s\-().]/g, '').replace(/^(?:\+|00)?962/, '0');
+
+/* Student IDs: digits only, at most 6 (strips stray spaces from pasted values). */
+const studentIdDigits = (v) => asciiDigits(v).replace(/\D/g, '').slice(0, 6);
 
 const EMPTY = {
   fullName: '',
@@ -75,9 +83,9 @@ function validate(step, d) {
     if (d.fullName.trim().length < 3) e.fullName = { key: 'fullName' };
     if (d.fullNameAr.trim() && !ARABIC_NAME.test(d.fullNameAr.trim())) e.fullNameAr = { key: 'fullNameAr' };
     if (!EMAIL.test(d.email.trim())) e.email = { key: 'email' };
-    if (d.phone.trim() && !/^07[789]\d{7}$/.test(digits(d.phone))) e.phone = { key: 'phone' };
+    if (d.phone.trim() && !/^07[789]\d{7}$/.test(phoneDigits(d.phone))) e.phone = { key: 'phone' };
     if (!d.studentId.trim()) e.studentId = { key: 'studentIdMissing' };
-    else if (!/^\d{6}$/.test(d.studentId.trim())) e.studentId = { key: 'studentIdFormat' };
+    else if (!/^\d{6}$/.test(asciiDigits(d.studentId.trim()))) e.studentId = { key: 'studentIdFormat' };
   }
   if (step === 1) {
     if (!d.major) e.major = { key: 'major' };
@@ -100,8 +108,8 @@ function toPayload(d) {
     fullName: d.fullName.trim(),
     fullNameAr: optional(d.fullNameAr),
     email: d.email.trim(),
-    phone: optional(digits(d.phone)),
-    studentId: d.studentId.trim(),
+    phone: optional(phoneDigits(d.phone)),
+    studentId: asciiDigits(d.studentId.trim()),
     major: d.major === 'Other' ? d.otherMajor.trim() : d.major,
     year: d.year,
     committees: d.committees,
@@ -115,12 +123,12 @@ function toPayload(d) {
 }
 
 const inputClass = (error) =>
-  `w-full bg-[#0A0A0A] border ${error ? 'border-red-400/70' : 'border-[#1E88E5]/40'} focus:border-[#F57C00] outline-none px-3 py-2.5 font-mono text-[16px] text-[#dec1af] placeholder:text-gray-600 transition-colors`;
+  `w-full bg-[#0A0A0A] border ${error ? 'border-red-400/70' : 'border-[#1E88E5]/70'} focus:border-[#F57C00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F57C00] px-3 py-2.5 font-mono text-[16px] text-[#dec1af] placeholder:text-gray-400 transition-colors`;
 
 function ErrorText({ id, children }) {
   const { t } = useI18n();
   return (
-    <p id={id} className="font-mono text-[12px] text-red-400">
+    <p id={id} role="alert" className="font-mono text-[12px] text-red-400">
       {t('apply.errPrefix')} {children}
     </p>
   );
@@ -133,10 +141,10 @@ function Field({ id, label, optional, hint, error, children }) {
       <label htmlFor={id} className="block font-mono text-[13px] text-[#1E88E5]">
         {'> '}
         {label}
-        {optional && <span className="text-gray-500"> {t('apply.optional')}</span>}
+        {optional && <span className="text-gray-400"> {t('apply.optional')}</span>}
       </label>
       {children}
-      {error ? <ErrorText id={`${id}-error`}>{error}</ErrorText> : hint && <p className="font-mono text-[12px] text-gray-500">{hint}</p>}
+      {error ? <ErrorText id={`${id}-error`}>{error}</ErrorText> : hint && <p className="font-mono text-[12px] text-gray-400">{hint}</p>}
     </div>
   );
 }
@@ -148,7 +156,7 @@ function Chip({ on, onClick, children }) {
       aria-pressed={on}
       onClick={onClick}
       className={`font-mono text-[13px] px-3 py-2 border transition-colors cursor-pointer ${
-        on ? 'border-[#F57C00] bg-[#F57C00]/15 text-[#F57C00]' : 'border-[#1E88E5]/40 text-[#dec1af] hover:border-[#F57C00]/60'
+        on ? 'border-[#F57C00] bg-[#F57C00]/15 text-[#F57C00]' : 'border-[#1E88E5]/70 text-[#dec1af] hover:border-[#F57C00]/60'
       }`}
     >
       <span className="text-[#1E88E5]">{on ? '[x] ' : '[ ] '}</span>
@@ -179,8 +187,8 @@ function ReviewRow({ label, value, onEdit }) {
   return (
     <div className="flex gap-4 py-2.5 border-b border-[#1E88E5]/15 font-mono text-[14px]">
       <dt className="w-32 shrink-0 text-[#1E88E5]">{label}</dt>
-      <dd className="flex-1 text-[#dec1af] break-words min-w-0">{value || <span className="text-gray-600">—</span>}</dd>
-      <button type="button" onClick={onEdit} className="text-[12px] text-[#F57C00]/80 hover:text-[#F57C00] cursor-pointer shrink-0">
+      <dd className="flex-1 text-[#dec1af] break-words min-w-0">{value || <span className="text-gray-400">—</span>}</dd>
+      <button type="button" onClick={onEdit} aria-label={`${t('apply.review.edit')}: ${label}`} className="text-[12px] text-[#F57C00]/80 hover:text-[#F57C00] cursor-pointer shrink-0">
         {t('apply.review.edit')}
       </button>
     </div>
@@ -192,7 +200,7 @@ function Header() {
   return (
     <div className="mb-10">
       <div className="flex items-center gap-4 mb-3">
-        <span className="material-symbols-outlined text-[#F57C00] text-3xl">assignment_ind</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-[#F57C00] text-3xl">assignment_ind</span>
         <h1 className="text-[36px] md:text-[56px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
           {t('apply.title')}<span className="cursor-blink font-mono">_</span>
         </h1>
@@ -209,8 +217,9 @@ export default function ApplyPage() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [reference, setReference] = useState('');
-  const [failure, setFailure] = useState('');
   const stepRef = useRef(null);
+  const doneRef = useRef(null);
+  const focusErrorRef = useRef(false);
   const firstRender = useRef(true);
 
   useEffect(() => {
@@ -225,6 +234,20 @@ export default function ApplyPage() {
     }
     stepRef.current?.querySelector('input, select, textarea, button')?.focus({ preventScroll: true });
   }, [step]);
+
+  /* After a failed validation, move focus to the first invalid field (or chip group). */
+  useEffect(() => {
+    if (!focusErrorRef.current) return;
+    focusErrorRef.current = false;
+    stepRef.current?.querySelector('[aria-invalid="true"]')?.focus();
+  }, [errors]);
+
+  /* After a successful submit, bring the confirmation into view for keyboard and screen-reader users. */
+  useEffect(() => {
+    if (status !== 'done') return;
+    doneRef.current?.focus({ preventScroll: true });
+    doneRef.current?.scrollIntoView({ block: 'center' });
+  }, [status]);
 
   const set = (field) => (value) => {
     setData((d) => ({ ...d, [field]: value }));
@@ -250,7 +273,7 @@ export default function ApplyPage() {
       const found = validate(step, data);
       if (Object.values(found).some(Boolean)) {
         setErrors(found);
-        stepRef.current?.querySelector('[aria-invalid="true"]')?.focus();
+        focusErrorRef.current = true; // focus once the invalid state has rendered
         return;
       }
       goTo(step + 1);
@@ -258,7 +281,6 @@ export default function ApplyPage() {
     }
 
     setStatus('sending');
-    setFailure('');
     try {
       /* A filled honeypot means a bot: act as if it worked, send nothing. */
       const result = data.website
@@ -268,7 +290,7 @@ export default function ApplyPage() {
       setReference(result.reference);
       setStatus('done');
     } catch (err) {
-      setFailure(err.message || 'unknown error');
+      console.error('[apply] submit failed:', err);
       setStatus('error');
     }
   };
@@ -302,7 +324,7 @@ export default function ApplyPage() {
         <div className="bg-[#0e0e0e] border border-[#F57C00]/50 p-6 font-mono text-[14px] leading-[190%] text-[#dec1af] animate-in fade-in duration-500">
           <p className="text-[#1E88E5]">{t('apply.done.uploading')}</p>
           <p className="text-[#1E88E5]">{t('apply.done.notifying')}</p>
-          <p className="text-[#F57C00] mt-3">{t('apply.done.received', { ref: reference })}</p>
+          <h2 ref={doneRef} tabIndex={-1} className="text-[#F57C00] mt-3 text-[14px] font-normal outline-none">{t('apply.done.received', { ref: reference })}</h2>
           <p className="mt-3">
             {t('apply.done.thanks', { name: firstName ? t('apply.done.namePart', { name: firstName }) : '' })}{' '}
             <span className="text-[#F57C00]" dir="ltr">{data.email.trim()}</span>
@@ -341,8 +363,8 @@ export default function ApplyPage() {
         <div className="absolute top-0 end-0 px-2 py-0.5 text-[10px] font-mono bg-[#1E88E5] text-[#0A0A0A]">{t('apply.formBadge')}</div>
         <Progress step={step} />
 
-        {/* Honeypot — off-screen and skipped by keyboard and screen readers */}
-        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        {/* Honeypot — visually hidden (sr-only is direction-agnostic, unlike a -9999px offset) and skipped by keyboard and screen readers */}
+        <div aria-hidden="true" className="sr-only">
           <label>
             Website
             <input tabIndex={-1} autoComplete="off" value={data.website} onChange={(e) => set('website')(e.target.value)} />
@@ -366,7 +388,7 @@ export default function ApplyPage() {
                   <input id="phone" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" className={`${inputClass(errors.phone)} text-start`} value={data.phone} onChange={(e) => set('phone')(e.target.value)} placeholder={t('apply.placeholders.phone')} {...err('phone')} />
                 </Field>
                 <Field id="studentId" label={t('apply.labels.studentId')} hint={t('apply.hints.studentId')} error={errText('studentId')}>
-                  <input id="studentId" inputMode="numeric" dir="ltr" className={`${inputClass(errors.studentId)} text-start`} value={data.studentId} onChange={(e) => set('studentId')(e.target.value)} placeholder={t('apply.placeholders.studentId')} maxLength={6} {...err('studentId')} />
+                  <input id="studentId" inputMode="numeric" dir="ltr" className={`${inputClass(errors.studentId)} text-start`} value={data.studentId} onChange={(e) => set('studentId')(studentIdDigits(e.target.value))} placeholder={t('apply.placeholders.studentId')} {...err('studentId')} />
                 </Field>
               </div>
             </>
@@ -390,9 +412,9 @@ export default function ApplyPage() {
                   <input id="otherMajor" className={inputClass(errors.otherMajor)} value={data.otherMajor} onChange={(e) => set('otherMajor')(e.target.value)} {...err('otherMajor')} />
                 </Field>
               )}
-              <fieldset className="space-y-2">
+              <fieldset className="space-y-2" tabIndex={-1} aria-invalid={errors.year ? true : undefined} aria-describedby={errors.year ? 'year-error' : undefined}>
                 <legend className="font-mono text-[13px] text-[#1E88E5] mb-2">{'> '}{t('apply.labels.year')}</legend>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-describedby={errors.year ? 'year-error' : undefined}>
+                <div className="flex flex-wrap gap-2">
                   {YEARS.map((y) => (
                     <Chip key={y} on={data.year === y} onClick={() => set('year')(y)}>{t(`apply.years.${y}`)}</Chip>
                   ))}
@@ -404,9 +426,9 @@ export default function ApplyPage() {
 
           {step === 2 && (
             <>
-              <fieldset className="space-y-2">
+              <fieldset className="space-y-2" tabIndex={-1} aria-invalid={errors.committees ? true : undefined} aria-describedby={errors.committees ? 'committees-error' : undefined}>
                 <legend className="font-mono text-[13px] text-[#1E88E5] mb-2">
-                  {'> '}{t('apply.labels.committees')} <span className="text-gray-500">{t('apply.labels.committeesHint')}</span>
+                  {'> '}{t('apply.labels.committees')} <span className="text-gray-400">{t('apply.labels.committeesHint')}</span>
                 </legend>
                 <div className="grid sm:grid-cols-3 gap-3">
                   {COMMITTEES.map((c) => {
@@ -417,7 +439,7 @@ export default function ApplyPage() {
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggle('committees', c.id)}
-                        className={`text-start p-4 border transition-colors cursor-pointer ${on ? 'border-[#F57C00] bg-[#F57C00]/10' : 'border-[#1E88E5]/40 hover:border-[#F57C00]/60'}`}
+                        className={`text-start p-4 border transition-colors cursor-pointer ${on ? 'border-[#F57C00] bg-[#F57C00]/10' : 'border-[#1E88E5]/70 hover:border-[#F57C00]/60'}`}
                       >
                         <span className="block font-display text-[22px] tracking-wider text-[#F57C00]">
                           {on ? '[x] ' : '[ ] '}
@@ -428,11 +450,11 @@ export default function ApplyPage() {
                     );
                   })}
                 </div>
-                {errors.committees && <ErrorText>{errText('committees')}</ErrorText>}
+                {errors.committees && <ErrorText id="committees-error">{errText('committees')}</ErrorText>}
               </fieldset>
               <fieldset className="space-y-2">
                 <legend className="font-mono text-[13px] text-[#1E88E5] mb-2">
-                  {'> '}{t('apply.labels.skills')} <span className="text-gray-500">{t('apply.labels.skillsHint')}</span>
+                  {'> '}{t('apply.labels.skills')} <span className="text-gray-400">{t('apply.labels.skillsHint')}</span>
                 </legend>
                 <div className="flex flex-wrap gap-2">
                   {SKILLS.map((s) => (
@@ -494,7 +516,7 @@ export default function ApplyPage() {
 
         {status === 'error' && (
           <p role="alert" className="mt-6 font-mono text-[13px] text-red-400 border border-red-400/40 px-3 py-2">
-            {t('apply.errors.submit', { reason: failure })}
+            {t('apply.errors.submit')}
           </p>
         )}
 

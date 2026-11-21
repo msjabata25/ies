@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { events } from '@/data/events';
 import ParticleText from '@/components/sections/ParticleText';
 import { CardSpotlight } from '@/components/ui/card-spotlight';
@@ -55,10 +55,18 @@ export default function EventsPage() {
     });
   }, [statusFilter, typeFilter]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
   return (
     <main className="flex min-h-screen flex-col">
+      <h1 className="sr-only">{t('events.particle')}</h1>
       <section className="flex flex-col lg:flex-row w-full">
-        <div className="w-full lg:w-1/2 h-[50vh] lg:h-screen sticky top-0 lg:sticky lg:top-0 bg-[#0A0A0A] z-10">
+        <div className="w-full lg:w-1/2 h-[50vh] lg:h-screen lg:sticky lg:top-0 bg-[#0A0A0A] z-10">
           <ParticleText text={t('events.particle')} />
         </div>
         <div className="w-full lg:w-1/2 bg-[#0A0A0A] pt-28 pb-12 px-4 md:px-8 overflow-y-auto"
@@ -81,6 +89,7 @@ export default function EventsPage() {
                   <button
                     key={f}
                     onClick={() => setTypeFilter(f)}
+                    aria-pressed={typeFilter === f}
                     className={`px-3 py-1.5 border transition-colors ${
                       typeFilter === f
                         ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
@@ -96,6 +105,8 @@ export default function EventsPage() {
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
+                  aria-haspopup="listbox"
+                  aria-expanded={menuOpen}
                   className="px-3 py-1.5 border border-[#1E88E5]/30 text-[#dec1af] hover:border-[#F57C00]/50 transition-colors whitespace-nowrap"
                 >
                   {t('events.statusLabel')} {t(`events.statuses.${statusFilter}`)} ▼
@@ -103,10 +114,12 @@ export default function EventsPage() {
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute end-0 top-full mt-1 z-50 bg-[#0e0e0e] border border-[#1E88E5]/30 shadow-lg min-w-[140px]">
+                    <div className="absolute end-0 top-full mt-1 z-50 bg-[#0e0e0e] border border-[#1E88E5]/30 shadow-lg min-w-[140px]" role="listbox">
                       {STATUS_FILTERS.map((f) => (
                         <button
                           key={f}
+                          role="option"
+                          aria-selected={statusFilter === f}
                           onClick={() => { setStatusFilter(f); setMenuOpen(false); }}
                           className={`block w-full text-start px-3 py-2 transition-colors ${
                             statusFilter === f

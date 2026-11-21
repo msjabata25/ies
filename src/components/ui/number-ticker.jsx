@@ -1,5 +1,5 @@
 import { useEffect, useRef, } from "react"
-import { useInView, useMotionValue, useSpring } from "motion/react"
+import { useInView, useMotionValue, useReducedMotion, useSpring } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
@@ -10,10 +10,14 @@ export function NumberTicker({
   delay = 0,
   className,
   decimalPlaces = 0,
+  instant = false, // render the final value straight away, no count-up
   ...props
 }) {
   const ref = useRef(null)
-  const motionValue = useMotionValue(direction === "down" ? value : startValue)
+  const reducedMotion = useReducedMotion()
+  const showFinal = instant || reducedMotion
+  const finalValue = direction === "down" ? startValue : value
+  const motionValue = useMotionValue(showFinal ? finalValue : direction === "down" ? value : startValue)
   const springValue = useSpring(motionValue, {
     damping: 60,
     stiffness: 100,
@@ -58,7 +62,7 @@ export function NumberTicker({
       )}
       {...props}
     >
-      {direction === "down" ? value : startValue}
+      {showFinal ? finalValue : direction === "down" ? value : startValue}
     </span>
   )
 }

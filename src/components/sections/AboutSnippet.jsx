@@ -10,7 +10,7 @@ export default function AboutSnippet() {
     <section className="min-h-[60vh] flex flex-col justify-center px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-hidden">
       <BlurFade inView delay={0.1} direction="up">
         <div className="flex items-center gap-4 mb-8">
-          <span className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
+          <span aria-hidden="true" className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
           <h2 className="text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
             {t('aboutSnippet.title')}<span className="cursor-blink font-mono">_</span>
           </h2>
@@ -33,9 +33,10 @@ export default function AboutSnippet() {
         <BlurFade inView delay={0.35} direction="right" className="flex justify-center">
           <Link
             to="/about"
-            className="relative group cursor-pointer bg-transparent border-2 border-[#F57C00] px-8 py-5 font-mono text-[16px] text-[#F57C00] hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 inline-block"
+            className="relative group cursor-pointer bg-transparent border-2 border-[#F57C00] px-8 py-5 font-mono text-[16px] text-[#F57C00] hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 inline-grid"
           >
-            <span className="block group-hover:hidden">
+            {/* both labels share one grid cell, so the button keeps the wider width and never resizes on hover */}
+            <span className="[grid-area:1/1] group-hover:invisible group-focus-visible:invisible">
               {/* The per-letter scramble would split up Arabic's joined letters, so Arabic gets plain text */}
               {isArabic ? (
                 t('aboutSnippet.locked')
@@ -49,7 +50,7 @@ export default function AboutSnippet() {
                 />
               )}
             </span>
-            <span className="hidden group-hover:block text-[#0A0A0A] font-bold">
+            <span className="[grid-area:1/1] invisible group-hover:visible group-focus-visible:visible text-[#0A0A0A] font-bold">
               {t('aboutSnippet.unlocked')}
             </span>
           </Link>

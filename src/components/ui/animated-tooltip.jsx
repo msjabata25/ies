@@ -39,14 +39,25 @@ export const AnimatedTooltip = ({ items }) => {
     <>
       {items.map((item) => (
         <div
-          className="group relative -me-4"
+          className="group relative -me-4 rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F57C00]"
           key={item.id}
+          // focusable so keyboard and touch users get the tooltip too; a tap focuses, which opens it, and tapping elsewhere (blur) closes it
+          role="button"
+          tabIndex={0}
+          aria-label={`${item.name}, ${item.designation}`}
           onMouseEnter={() => setHoveredIndex(item.id)}
           onMouseLeave={() => setHoveredIndex(null)}
+          onFocus={() => setHoveredIndex(item.id)}
+          onBlur={() => setHoveredIndex(null)}
+          onClick={() => setHoveredIndex(item.id)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setHoveredIndex(null);
+          }}
         >
           <AnimatePresence>
             {hoveredIndex === item.id && (
               <motion.div
+                aria-hidden="true"
                 initial={{ opacity: 0, y: 20, scale: 0.6 }}
                 animate={{
                   opacity: 1,
@@ -79,7 +90,7 @@ export const AnimatedTooltip = ({ items }) => {
               height={100}
               width={100}
               src={item.image}
-              alt={item.name}
+              alt=""
               className="relative !m-0 h-14 w-14 rounded-full border-2 border-white object-cover object-top !p-0 transition duration-500 group-hover:z-30 group-hover:scale-105"
             />
           ) : (

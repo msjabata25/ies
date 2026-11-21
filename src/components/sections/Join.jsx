@@ -15,31 +15,58 @@ export default function Join() {
   const title = t('join.title');
 
   useGSAP(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container.current,
-        start: 'top 50%',
+    const mm = gsap.matchMedia();
+
+    mm.add(
+      { motion: '(prefers-reduced-motion: no-preference)', reduce: '(prefers-reduced-motion: reduce)' },
+      (ctx) => {
+        if (ctx.conditions.reduce) {
+          // final state, nothing moves: no scramble, no ticker, no glow pulse
+          container.current.querySelector('.join-title').textContent = title;
+          return;
+        }
+
+        // GSAP owns this span's text (React renders it empty): TextPlugin swaps the node's
+        // contents, so React-managed text there would stop updating when the language changes.
+        gsap.fromTo(
+          '.join-title',
+          { text: 'X!&_S$#%@*' },
+          {
+            text: title,
+            duration: 1,
+            ease: 'none',
+            scrollTrigger: { trigger: container.current, start: 'top 50%' },
+          }
+        );
+
+        // the infinite loops only run while the section is on screen
+        const loopTrigger = {
+          trigger: container.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          toggleActions: 'play pause resume pause',
+        };
+
+        gsap.to('.ticker-content', {
+          xPercent: -50,
+          ease: 'none',
+          duration: 15,
+          repeat: -1,
+          scrollTrigger: loopTrigger,
+        });
+
+        gsap.to('.join-btn', {
+          boxShadow: '0 0 20px rgba(245,124,0,0.8), inset 0 0 10px rgba(245,124,0,0.5)',
+          duration: 1.5,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+          scrollTrigger: loopTrigger,
+        });
       }
-    });
+    );
 
-    // GSAP owns this span's text (React renders it empty): TextPlugin swaps the node's
-    // contents, so React-managed text there would stop updating when the language changes.
-    tl.fromTo('.join-title', { text: 'X!&_S$#%@*' }, { text: title, duration: 1, ease: 'none' });
-
-    gsap.to('.ticker-content', {
-      xPercent: -50,
-      ease: 'none',
-      duration: 15,
-      repeat: -1
-    });
-
-    gsap.to('.join-btn', {
-      boxShadow: '0 0 20px rgba(245,124,0,0.8), inset 0 0 10px rgba(245,124,0,0.5)',
-      duration: 1.5,
-      yoyo: true,
-      repeat: -1,
-      ease: 'sine.inOut'
-    });
+    return () => mm.revert();
   }, { scope: container, dependencies: [lang], revertOnUpdate: true });
 
   const tickerText = "01001010 01000101 01010011 00100000 HEX:0x9A SYS.OP NULL // ";
@@ -55,8 +82,8 @@ export default function Join() {
         </div>
       </div>
 
-      <div className="z-10 px-4 mt-8">
-        <h2 aria-label={title} className="text-[84px] md:text-[120px] text-[#F57C00] tracking-[0.05em] font-display leading-none mb-6">
+      <div className="z-10 px-4 mt-8 max-w-full">
+        <h2 aria-label={title} className="text-[44px] sm:text-[64px] md:text-[120px] text-[#F57C00] tracking-[0.05em] font-display leading-none mb-6">
           <span aria-hidden="true" className="join-title" /><span aria-hidden="true" className="cursor-blink font-mono">_</span>
         </h2>
         <p className="font-mono text-[16px] leading-[150%] text-[#dec1af] mb-12 max-w-2xl mx-auto">
@@ -65,11 +92,11 @@ export default function Join() {
 
         <Link
           to="/apply"
-          className="join-btn inline-block bg-[#0e0e0e] text-[#F57C00] border-2 border-[#1E88E5] px-8 py-4 font-ui text-[16px] font-bold hover:bg-[#F57C00] hover:text-[#0A0A0A] hover:border-[#F57C00] hover:shadow-[0_0_25px_rgba(245,124,0,0.7)] cursor-pointer transition-all duration-300">
+          className="join-btn inline-block bg-[#0e0e0e] text-[#F57C00] border-2 border-[#1E88E5] px-4 sm:px-8 py-4 font-ui text-[14px] sm:text-[16px] font-bold max-w-full break-words hover:bg-[#F57C00] hover:text-[#0A0A0A] hover:border-[#F57C00] hover:shadow-[0_0_25px_rgba(245,124,0,0.7)] cursor-pointer transition-all duration-300">
           {t('join.button')}
         </Link>
 
-        <p dir="ltr" className="font-mono text-[14px] text-[#1E88E5] mt-8 text-shadow-glitch">
+        <p dir="ltr" className="font-mono text-[12px] sm:text-[14px] text-[#1E88E5] mt-8 text-shadow-glitch">
           {`C:\\>CONNECT_ALLIANCE => @IES_JUST`}
         </p>
       </div>

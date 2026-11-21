@@ -13,7 +13,7 @@ export function Marquee({
     <div
       {...props}
       className={cn(
-        "group flex gap-(--gap) overflow-hidden p-2 [--duration:40s] [--gap:1rem]",
+        "group flex gap-(--gap) overflow-hidden p-2 [--duration:40s] [--gap:1rem] motion-reduce:overflow-x-auto",
         {
           "flex-row": !vertical,
           "flex-col": vertical,
@@ -24,14 +24,17 @@ export function Marquee({
       {Array.from({ length: Math.max(0, Math.floor(repeat)) }).map((_, i) => (
           <div
             key={i}
-            className={cn("flex shrink-0 justify-around gap-(--gap)", {
+            // copies after the first only fill the loop: keep them out of the accessibility tree, and drop them when motion is off
+            aria-hidden={i > 0 ? true : undefined}
+            className={cn("flex shrink-0 justify-around gap-(--gap) motion-reduce:animate-none", {
+              "motion-reduce:hidden": i > 0,
               "animate-marquee flex-row": !vertical,
               "animate-marquee-vertical flex-col": vertical,
               "group-hover:[animation-play-state:paused]": pauseOnHover,
               "[animation-direction:reverse]": reverse,
             })}
           >
-            {children}
+            {typeof children === "function" ? children(i) : children}
           </div>
         ))}
     </div>

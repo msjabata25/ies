@@ -9,10 +9,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 /* Copy lives in the i18n dictionaries (about.quadrants.*); start/end positions mirror in Arabic */
 const quadrants = [
-  { id: 'q1', position: 'top-[14%] [@media(max-height:720px)]:top-[10%] start-[6%] md:start-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: -24 } },
-  { id: 'q3', position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] start-[6%] md:start-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: 24 } },
-  { id: 'q2', position: 'top-[14%] [@media(max-height:720px)]:top-[10%] end-[6%] md:end-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: -24 } },
-  { id: 'q4', position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] end-[6%] md:end-[10%] max-w-[44vw] md:max-w-[32%]', enterDir: { y: 24 } },
+  { id: 'q1', position: 'top-[14%] [@media(max-height:720px)]:top-[10%] start-[6%] md:start-[10%] max-w-[40vw] sm:max-w-[44vw] md:max-w-[32%]', enterDir: { y: -24 } },
+  { id: 'q3', position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] start-[6%] md:start-[10%] max-w-[40vw] sm:max-w-[44vw] md:max-w-[32%]', enterDir: { y: 24 } },
+  { id: 'q2', position: 'top-[14%] [@media(max-height:720px)]:top-[10%] end-[6%] md:end-[10%] max-w-[40vw] sm:max-w-[44vw] md:max-w-[32%]', enterDir: { y: -24 } },
+  { id: 'q4', position: 'bottom-[14%] [@media(max-height:720px)]:bottom-[8%] end-[6%] md:end-[10%] max-w-[40vw] sm:max-w-[44vw] md:max-w-[32%]', enterDir: { y: 24 } },
 ];
 
 const revealOrder = ['q1', 'q3', 'q2', 'q4'];
@@ -105,10 +105,10 @@ export default function AboutPage() {
               className={`absolute ${q.position} opacity-0`}
               style={{ transform: `translateY(${q.enterDir.y}px)` }}
             >
-              <h3 className="font-display text-[22px] md:text-[32px] [@media(max-height:720px)]:text-[22px] text-[#F57C00] mb-3 [@media(max-height:720px)]:mb-1.5 tracking-wider">
+              <h3 className="font-display text-[18px] sm:text-[22px] md:text-[32px] [@media(max-height:720px)]:text-[18px] sm:[@media(max-height:720px)]:text-[22px] break-words text-[#F57C00] mb-3 [@media(max-height:720px)]:mb-1.5 tracking-wider">
                 {t(`about.quadrants.${q.id}.title`)}
               </h3>
-              <div className="font-mono text-[12px] md:text-[15px] [@media(max-height:720px)]:text-[12px] leading-[170%] [@media(max-height:720px)]:leading-[150%] text-[#dec1af] space-y-1">
+              <div className="font-mono text-[11px] sm:text-[12px] md:text-[15px] [@media(max-height:720px)]:text-[11px] sm:[@media(max-height:720px)]:text-[12px] leading-[170%] [@media(max-height:720px)]:leading-[150%] text-[#dec1af] space-y-1">
                 {t(`about.quadrants.${q.id}.lines`).map((line, j) => (
                   <p key={j} className={j === 0 ? 'text-[#1E88E5]' : ''}>
                     {line}
@@ -126,7 +126,7 @@ export default function AboutPage() {
       <section className="relative z-20 h-screen flex flex-col items-center justify-center px-4">
         <div className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <span className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[#F57C00] text-3xl">folder_open</span>
             <h1 className="text-[36px] md:text-[64px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
               {t('about.title')}<span className="cursor-blink font-mono">_</span>
             </h1>

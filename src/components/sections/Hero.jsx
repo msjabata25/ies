@@ -16,17 +16,34 @@ export default function Hero() {
   const boot = t('hero.boot');
 
   useGSAP(() => {
-    gsap.set('.hero-title', { text: '' });
+    const mm = gsap.matchMedia();
 
-    const tl = gsap.timeline();
+    mm.add(
+      { motion: '(prefers-reduced-motion: no-preference)', reduce: '(prefers-reduced-motion: reduce)' },
+      (ctx) => {
+        if (ctx.conditions.reduce) {
+          // show the finished boot screen straight away
+          gsap.set('.hero-title', { text: title });
+          gsap.set('.hero-cursor, .boot-line, .status-strip', { opacity: 1 });
+          gsap.set('.hero-terminal', { opacity: 1, y: 0 });
+          gsap.set('.sys-coord', { opacity: 0.5 });
+          return;
+        }
 
-    tl.to('.status-bar', { width: '100%', duration: 0.3, ease: 'power2.inOut' });
-    tl.to('.hero-cursor', { opacity: 1, duration: 0.1 }, 'letters');
-    tl.to('.hero-title', { text: title, duration: 1.5, ease: 'none' }, 'letters');
-    tl.to('.hero-terminal', { opacity: 1, y: 0, duration: 0.4 }, 'letters+=1.6');
-    tl.to('.boot-line', { opacity: 1, stagger: 0.25, duration: 0.1 }, 'letters+=2.0');
-    tl.to('.status-strip', { opacity: 1, duration: 0.3 }, 'letters+=3.0');
-    tl.to('.sys-coord', { opacity: 0.5, duration: 0.5 }, 'letters+=3.0');
+        gsap.set('.hero-title', { text: '' });
+
+        const tl = gsap.timeline();
+
+        tl.to('.hero-cursor', { opacity: 1, duration: 0.1 }, 'letters');
+        tl.to('.hero-title', { text: title, duration: 1.5, ease: 'none' }, 'letters');
+        tl.to('.hero-terminal', { opacity: 1, y: 0, duration: 0.4 }, 'letters+=1.6');
+        tl.to('.boot-line', { opacity: 1, stagger: 0.25, duration: 0.1 }, 'letters+=2.0');
+        tl.to('.status-strip', { opacity: 1, duration: 0.3 }, 'letters+=3.0');
+        tl.to('.sys-coord', { opacity: 0.5, duration: 0.5 }, 'letters+=3.0');
+      }
+    );
+
+    return () => mm.revert();
   }, { scope: container, dependencies: [lang], revertOnUpdate: true }); // replays the boot sequence in the new language
 
   return (
@@ -58,7 +75,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="status-strip opacity-0 absolute bottom-0 left-0 w-full border-t border-[#F57C00]/30 py-2 px-14 flex justify-between font-mono text-[14px] text-[#F57C00]/70">
+      <div className="status-strip opacity-0 absolute bottom-0 start-0 w-full border-t border-[#F57C00]/30 py-2 px-4 md:px-14 flex justify-between gap-4 font-mono text-[12px] sm:text-[14px] text-[#F57C00]/70">
         <span>{t('hero.status')}</span>
         <span>{t('hero.network')}</span>
       </div>

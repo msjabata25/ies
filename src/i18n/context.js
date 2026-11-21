@@ -24,12 +24,21 @@ export function detectLanguage() {
   return (navigator.languages ?? [navigator.language]).some((l) => l?.toLowerCase().startsWith('ar')) ? 'ar' : 'en';
 }
 
+const ROUTE_TITLE_KEYS = { '/about': 'about', '/events': 'events', '/team': 'team', '/apply': 'apply' };
+
+/* <title> for a pathname: the chapter name on home, "Page — IES JUST" elsewhere, a 404 title for unknown routes. */
+export function titleFor(lang, pathname) {
+  const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  const key = path === '/' ? 'title' : `titles.${ROUTE_TITLE_KEYS[path] ?? 'notFound'}`;
+  return lookup(LANGS[lang], `meta.${key}`) ?? lookup(en, `meta.${key}`);
+}
+
 /* Applied before React renders (main.jsx) and on every switch, so the page never flashes the wrong direction. */
 export function applyLanguage(lang) {
   const html = document.documentElement;
   html.lang = lang;
   html.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.title = lookup(LANGS[lang], 'meta.title') ?? lookup(en, 'meta.title');
+  document.title = titleFor(lang, window.location.pathname);
 }
 
 function lookup(dict, key) {
@@ -40,6 +49,7 @@ export function makeI18n(lang, setLang) {
   const t = (key, vars) => {
     const value = lookup(LANGS[lang], key) ?? lookup(en, key);
     if (value == null) return key;
+    if (typeof value === 'function') return value(vars ?? {});
     if (typeof value !== 'string' || !vars) return value;
     return value.replace(/\{(\w+)\}/g, (match, name) => (name in vars ? vars[name] : match));
   };

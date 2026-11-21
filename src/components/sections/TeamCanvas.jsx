@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { initialsOf, team } from '@/data/team';
 import { useI18n } from '@/i18n/context';
 import { AnimatePresence, motion } from 'motion/react';
@@ -26,7 +26,8 @@ function BubbleCircle({
   const [imgError, setImgError] = useState(false);
   const color = committeeColor(member.committee);
   const { pick } = useI18n();
-  const initials = initialsOf(pick(member, 'name'));
+  const name = pick(member, 'name');
+  const initials = initialsOf(name);
 
   if (member.photo && !imgError) {
     return (
@@ -36,7 +37,7 @@ function BubbleCircle({
       >
         <img
           src={member.photo}
-          alt={member.name}
+          alt={name}
           className="w-full h-full object-cover"
           onError={() => setImgError(true)}
         />
@@ -62,10 +63,14 @@ function BubbleCircle({
 }
 
 function Bubble({ member, left, top, index, onClick }) {
+  const { pick } = useI18n();
   return (
-    <motion.div
+    <motion.button
+      type="button"
       layoutId={`team-bubble-${member.id}`}
-      className="absolute cursor-pointer"
+      data-member-id={member.id}
+      aria-label={`${pick(member, 'name')}, ${pick(member, 'role')}`}
+      className="absolute cursor-pointer p-0 border-0 bg-transparent block"
       style={{ left, top, width: BUBBLE_SIZE, height: BUBBLE_SIZE }}
       onClick={onClick}
       exit={{ scale: 0, opacity: 0 }}
@@ -81,7 +86,7 @@ function Bubble({ member, left, top, index, onClick }) {
       whileHover={{ scale: 1.08 }}
     >
       <BubbleCircle member={member} size={BUBBLE_SIZE} />
-    </motion.div>
+    </motion.button>
   );
 }
 
@@ -119,7 +124,12 @@ export default function TeamCanvas() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedId, setExpandedId] = useState(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [filterHeight, setFilterHeight] = useState(0);
+  const containerElRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const lastOpenedIdRef = useRef(null);
   const containerRefCallback = useCallback((el) => {
+    containerElRef.current = el;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
       setContainerWidth(entries[0].contentRect.width);
@@ -127,23 +137,39 @@ export default function TeamCanvas() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  /* The filter pills wrap on narrow screens; the canvas reserves their real height. */
+  const filterRefCallback = useCallback((el) => {
+    if (!el) return;
+    const ro = new ResizeObserver(() => setFilterHeight(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const layout = useMemo(() => {
+    const narrow = containerWidth < 640;
+    const cols = narrow ? 3 : containerWidth < 1024 ? 4 : 5;
+    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.8);
+    /* On phones the 0.85 row pitch is below the bubble diameter, so rows would overlap */
+    const rowPitch = narrow ? BUBBLE_SIZE + 16 : spacing * 0.85;
+    return { narrow, cols, spacing, rowPitch };
+  }, [containerWidth]);
 
   const bubblePositions = useMemo(() => {
     if (containerWidth === 0) return [];
-    const cols = containerWidth < 640 ? 3 : containerWidth < 1024 ? 4 : 5;
-    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.8);
+    const { narrow, cols, spacing, rowPitch } = layout;
     const startX = (containerWidth - spacing * cols) / 2;
+    const scatterScale = narrow ? 0.25 : 1;
 
     const raw = team.map((m, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
-      const left = startX + col * spacing + (m.scatter?.tx ?? 0);
-      const top = row * spacing * 0.85 + (m.scatter?.ty ?? 0) + 40;
+      const left = startX + col * spacing + (m.scatter?.tx ?? 0) * scatterScale;
+      const top = row * rowPitch + (m.scatter?.ty ?? 0) * scatterScale + 40;
       return { left, top };
     });
 
-    return separatePositions(raw, BUBBLE_SIZE * 0.9, 8);
-  }, [containerWidth]);
+    return separatePositions(raw, BUBBLE_SIZE + 8, 30);
+  }, [containerWidth, layout]);
 
   const expandedMember = useMemo(() => {
     if (!expandedId) return null;
@@ -151,6 +177,7 @@ export default function TeamCanvas() {
   }, [expandedId]);
 
   const handleExpand = useCallback((id) => {
+    lastOpenedIdRef.current = id;
     setExpandedId(id);
   }, []);
 
@@ -163,13 +190,45 @@ export default function TeamCanvas() {
     setExpandedId(null);
   }, []);
 
+  /* Modal: Escape closes, focus moves in and returns to the bubble, page scroll is locked. */
+  const modalOpen = Boolean(expandedMember);
+  useEffect(() => {
+    if (!modalOpen) return;
+    const html = document.documentElement;
+    const prev = { overflow: html.style.overflow, gutter: html.style.scrollbarGutter };
+    html.style.scrollbarGutter = 'stable'; // keep the layout from jumping when the scrollbar goes
+    html.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        setExpandedId(null);
+      } else if (e.key === 'Tab') {
+        e.preventDefault(); // the close button is the only focusable control in the dialog
+        closeButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      html.style.overflow = prev.overflow;
+      html.style.scrollbarGutter = prev.gutter;
+      /* the bubble remounts as the dialog closes, so look it up by id rather than keep a stale node */
+      const id = lastOpenedIdRef.current;
+      requestAnimationFrame(() => {
+        containerElRef.current?.querySelector(`[data-member-id="${id}"]`)?.focus({ preventScroll: true });
+      });
+    };
+  }, [modalOpen]);
+
   const canvasHeight = useMemo(() => {
     if (containerWidth === 0) return 600;
-    const cols = containerWidth < 640 ? 3 : containerWidth < 1024 ? 4 : 5;
-    const spacing = Math.min((containerWidth - 40) / cols, BUBBLE_SIZE * 1.8);
+    const { cols, rowPitch } = layout;
     const rows = Math.ceil(team.length / cols);
-    return rows * spacing * 0.85 + 120;
-  }, [containerWidth]);
+    /* last bubble row (incl. ~35px scatter) + 24px gap + the filter bar + its 16px bottom offset */
+    const needed = 40 + (rows - 1) * rowPitch + BUBBLE_SIZE + 35 + 24 + filterHeight + 16;
+    return Math.max(rows * rowPitch + 120, needed);
+  }, [containerWidth, layout, filterHeight]);
 
   return (
     <div
@@ -206,6 +265,7 @@ export default function TeamCanvas() {
         {expandedMember && (
           <motion.div
             key="backdrop"
+            data-lenis-prevent
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -214,6 +274,9 @@ export default function TeamCanvas() {
           >
             <motion.div
               layoutId={`team-bubble-${expandedMember.id}`}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="team-modal-title"
               className="bg-[#0e0e0e] border border-[#F57C00]/30 p-6 w-full max-w-md mx-4 rounded-sm shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
@@ -222,6 +285,8 @@ export default function TeamCanvas() {
                   {t(`team.committees.${expandedMember.committee}`)} &mdash; {pick(expandedMember, 'role')}
                 </span>
                 <button
+                  ref={closeButtonRef}
+                  type="button"
                   onClick={handleCollapse}
                   aria-label={t('team.close')}
                   className="text-[#dec1af] hover:text-[#F57C00] transition-colors font-mono text-[16px] leading-none"
@@ -233,7 +298,7 @@ export default function TeamCanvas() {
               <div className="flex items-center gap-4 mb-4">
                 <BubbleCircle member={expandedMember} size={64} />
                 <div>
-                  <h3 className="font-display text-[22px] text-[#F57C00] tracking-wider">
+                  <h3 id="team-modal-title" className="font-display text-[22px] text-[#F57C00] tracking-wider">
                     {pick(expandedMember, 'name')}
                   </h3>
                   <p className="font-mono text-[13px] text-[#dec1af] mt-1">
@@ -259,12 +324,19 @@ export default function TeamCanvas() {
         )}
       </AnimatePresence>
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 z-10">
+      <div
+        ref={filterRefCallback}
+        role="group"
+        aria-label={t('team.title')}
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 z-10 w-max max-w-full"
+      >
         {committees.map((c) => (
           <button
             key={c}
+            type="button"
+            aria-pressed={activeFilter === c}
             onClick={() => handleFilterChange(c)}
-            className={`px-4 py-1.5 rounded-full font-mono text-[11px] border transition-colors ${
+            className={`px-4 py-1.5 min-h-10 md:min-h-0 rounded-full font-mono text-[11px] border transition-colors ${
               activeFilter === c
                 ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
                 : 'bg-transparent text-[#dec1af] border-[#1E88E5]/30 hover:border-[#F57C00]/50'
