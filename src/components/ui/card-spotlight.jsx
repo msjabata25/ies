@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export const CardSpotlight = ({
   children,
   radius = 350,
-  color = "#262626",
+  color = "var(--color-line)",
   className,
   ...props
 }) => {
@@ -28,7 +28,7 @@ export const CardSpotlight = ({
   return (
     <div
       className={cn(
-        "group/spotlight p-10 rounded-md relative border border-neutral-800 bg-black dark:border-neutral-800",
+        "group/spotlight p-10 rounded-md relative border border-line bg-card",
         className
       )}
       onMouseMove={handleMouseMove}

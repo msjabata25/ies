@@ -85,6 +85,7 @@ export default function Navbar() {
     } else {
       document.documentElement.classList.remove('light-mode');
     }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isLightMode ? '#F7F5F0' : '#0A0A0A');
     try {
       localStorage.setItem(LIGHT_KEY, isLightMode ? '1' : '0');
     } catch {
@@ -156,7 +157,15 @@ export default function Navbar() {
     ScrollTrigger.refresh();
   }, [pathname]);
 
-  const togglePower = () => setIsLightMode(!isLightMode);
+  const fadeTimer = useRef(0);
+  const togglePower = () => {
+    /* brief colour fade while the theme flips (see .theme-fade in index.css) */
+    const root = document.documentElement;
+    root.classList.add('theme-fade');
+    clearTimeout(fadeTimer.current);
+    fadeTimer.current = setTimeout(() => root.classList.remove('theme-fade'), 450);
+    setIsLightMode(!isLightMode);
+  };
 
   /* Shows the language you'd switch to: "ع" on the English site, "EN" on the Arabic one */
   const langToggle = (height) => (
@@ -165,7 +174,7 @@ export default function Navbar() {
       onClick={toggleLang}
       aria-label={t('nav.switchLang')}
       title={t('nav.switchLang')}
-      className={`min-w-9 ${height} px-2 border border-[#F57C00]/60 text-[#F57C00] font-mono text-[14px] font-bold leading-none hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-colors cursor-pointer`}
+      className={`min-w-9 ${height} px-2 border border-primary/60 text-primary font-mono text-[14px] font-bold leading-none hover:bg-primary hover:text-surface transition-colors cursor-pointer`}
     >
       {t('nav.langLabel')}
     </button>
@@ -178,7 +187,7 @@ export default function Navbar() {
       onClick={togglePower}
       aria-label={t('nav.lightMode')}
       aria-pressed={isLightMode}
-      className={`inline-flex items-center justify-center hover:text-[#F57C00] transition-colors cursor-pointer ${size}`}
+      className={`inline-flex items-center justify-center hover:text-primary transition-colors cursor-pointer ${size}`}
     >
       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
         power_settings_new
@@ -188,7 +197,7 @@ export default function Navbar() {
 
   return (
     <>
-    <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-[#131313]/80 backdrop-blur-xl border-b-2 border-[#F57C00] shadow-[0_0_15px_rgba(245,124,0,0.3)]">
+    <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-panel/80 backdrop-blur-xl border-b-2 border-primary shadow-[0_0_15px_color-mix(in_oklab,var(--color-primary)_30%,transparent)]">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
         <Link to="/" className="flex-shrink-0">
           <img src="/logo-nav.png" alt="IES JUST" width="168" height="168" className="h-10 md:h-14 w-auto" />
@@ -202,8 +211,8 @@ export default function Navbar() {
               to={link.href}
               className={
                 pathname === link.href
-                  ? "text-[#F57C00] border-b-2 border-[#F57C00] pb-1"
-                  : "text-[#dec1af] hover:text-[#F57C00] transition-colors duration-200"
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-body hover:text-primary transition-colors duration-200"
               }
             >
               {pathname === link.href ? '> ' : ''}{t(`nav.${link.key}`)}
@@ -211,7 +220,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-4 text-white">
+        <div className="hidden md:flex items-center gap-4 text-fg">
           {langToggle('h-8')}
           {powerToggle()}
         </div>
@@ -219,7 +228,7 @@ export default function Navbar() {
         {/* Hamburger — mobile only */}
         <button
           ref={hamburgerRef}
-          className="md:hidden text-[#F57C00] p-2"
+          className="md:hidden text-primary p-2"
           onClick={() => setMobileOpen(true)}
           aria-label={t('nav.openMenu')}
           aria-expanded={mobileOpen}
@@ -251,16 +260,16 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label={t('nav.console')}
-          className={`absolute top-0 end-0 h-full w-72 bg-[#131313] border-s-2 border-[#F57C00] shadow-[-10px_0_30px_rgba(245,124,0,0.2)] rtl:shadow-[10px_0_30px_rgba(245,124,0,0.2)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
+          className={`absolute top-0 end-0 h-full w-72 bg-panel border-s-2 border-primary shadow-[-10px_0_30px_color-mix(in_oklab,var(--color-primary)_20%,transparent)] rtl:shadow-[10px_0_30px_color-mix(in_oklab,var(--color-primary)_20%,transparent)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
             mobileOpen ? 'translate-x-0' : 'translate-x-full rtl:-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-8">
-            <span className="font-mono text-[#F57C00] text-[14px]">{t('nav.console')}</span>
+            <span className="font-mono text-primary text-[14px]">{t('nav.console')}</span>
             <button
               ref={closeRef}
-              className="text-[#F57C00] p-2.5 -m-2.5"
+              className="text-primary p-2.5 -m-2.5"
               onClick={() => setMobileOpen(false)}
               aria-label={t('nav.closeMenu')}
             >
@@ -276,8 +285,8 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className={
                   pathname === link.href
-                    ? "text-[#F57C00] border-s-2 border-[#F57C00] ps-3 py-1"
-                    : "text-[#dec1af] hover:text-[#F57C00] transition-colors ps-3 py-1 border-s-2 border-transparent"
+                    ? "text-primary border-s-2 border-primary ps-3 py-1"
+                    : "text-body hover:text-primary transition-colors ps-3 py-1 border-s-2 border-transparent"
                 }
               >
                 {pathname === link.href ? '> ' : ''}{t(`nav.${link.key}`)}
@@ -285,7 +294,7 @@ export default function Navbar() {
             ))}
           </div>
 
-            <div className="mt-auto flex items-center gap-4 text-white pt-8 border-t border-[#1E88E5]/20">
+            <div className="mt-auto flex items-center gap-4 text-fg pt-8 border-t border-accent/20">
               {langToggle('h-11')}
               {powerToggle('min-w-11 min-h-11')}
             </div>

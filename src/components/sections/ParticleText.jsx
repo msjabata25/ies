@@ -1,9 +1,10 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
+import { useTheme, tokenColor, getTheme } from '@/lib/theme';
 
 export default function ParticleText({
   text = 'EVENTS_TERMINAL',
-  color = '#F57C00',
+  color,
   particleSize = 2.5,
   dispersionRadius = 200,
   dispersionStrength = 80,
@@ -11,6 +12,9 @@ export default function ParticleText({
 }) {
   const containerRef = useRef(null);
   const builtSizeRef = useRef({ width: 0, height: 0 });
+  /* Handles into the current three.js build so a theme change can recolour it without a rebuild */
+  const liveRef = useRef(null);
+  const theme = useTheme();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   /* Rebuild only for real size changes: debounced, and ignoring small height-only
@@ -124,15 +128,16 @@ export default function ParticleText({
       geometry.setAttribute('position', new THREE.BufferAttribute(currentPositions, 3));
 
       const material = new THREE.PointsMaterial({
-        color: new THREE.Color(color),
+        color: new THREE.Color(color ?? tokenColor('primary')),
         size: particleSize,
         sizeAttenuation: false,
         transparent: true,
-        opacity: 0.9,
+        opacity: getTheme() === 'light' ? 1 : 0.9,
       });
 
       const points = new THREE.Points(geometry, material);
       scene.add(points);
+      liveRef.current = { material, redraw: () => renderer.render(scene, camera) };
 
       const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
       const raycaster = new THREE.Raycaster();
@@ -217,6 +222,7 @@ export default function ParticleText({
       sync();
 
       teardown = () => {
+        liveRef.current = null;
         cancelAnimationFrame(animId);
         animId = 0;
         io.disconnect();
@@ -248,15 +254,24 @@ export default function ParticleText({
     };
   }, [text, color, particleSize, dispersionRadius, dispersionStrength, resolution, dimensions]);
 
+  /* Theme flip: recolour the existing particles (the render loop picks it up; reduced motion needs one redraw) */
+  useEffect(() => {
+    const live = liveRef.current;
+    if (!live) return;
+    live.material.color.set(color ?? tokenColor('primary'));
+    live.material.opacity = theme === 'light' ? 1 : 0.9; /* thin dark dots on light need full strength */
+    live.redraw();
+  }, [theme, color]);
+
   return (
     <div
       ref={containerRef}
       className="w-full h-full relative overflow-hidden"
       style={{
         backgroundImage: `
-          linear-gradient(90deg, rgba(30,136,229,0.15) 2px, transparent 2px),
-          linear-gradient(0deg, rgba(30,136,229,0.15) 2px, transparent 2px),
-          radial-gradient(circle, rgba(30,136,229,0.25) 3px, transparent 3px)
+          linear-gradient(90deg, color-mix(in oklab, var(--color-accent) 15%, transparent) 2px, transparent 2px),
+          linear-gradient(0deg, color-mix(in oklab, var(--color-accent) 15%, transparent) 2px, transparent 2px),
+          radial-gradient(circle, color-mix(in oklab, var(--color-accent) 25%, transparent) 3px, transparent 3px)
         `,
         backgroundSize: '40px 40px, 40px 40px, 40px 40px',
         backgroundPosition: '0 0, 0 0, 20px 20px',

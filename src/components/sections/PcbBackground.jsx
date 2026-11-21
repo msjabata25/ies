@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTheme, tokenColor, tokenRgb, getTheme } from '@/lib/theme';
 
 /*
  * Faint procedural PCB traces behind the hero, on a plain 2D canvas.
@@ -14,8 +15,6 @@ const RADIUS = 210;
 const LEVELS = 5; // brightness buckets, so each frame is a handful of strokes
 const MAX_PULSES = 28;
 const PULSE_SPEED = 9; // cells per second
-const ORANGE = '245,124,0';
-const BLUE = '30,136,229';
 
 /* 8 directions, clockwise from east; odd indexes are the 45° diagonals. */
 const DIRS = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
@@ -83,13 +82,23 @@ function generate(w, h) {
   return { traces, segments, pads };
 }
 
-function drawStatic(canvas, board, w, h, dpr) {
+/* Theme colours as 'r,g,b' strings (plus the pad fill), read from the CSS tokens */
+function readColors() {
+  return {
+    orange: tokenRgb('primary'),
+    blue: tokenRgb('accent'),
+    pad: tokenColor('surface'),
+    spark: getTheme() === 'light' ? '107,46,0' : '255,224,192',
+  };
+}
+
+function drawStatic(canvas, board, w, h, dpr, colors) {
   canvas.width = Math.round(w * dpr);
   canvas.height = Math.round(h * dpr);
   const ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.lineJoin = 'round';
-  ctx.strokeStyle = `rgba(${BLUE},0.13)`;
+  ctx.strokeStyle = `rgba(${colors.blue},0.13)`;
   ctx.lineWidth = 1.25;
   ctx.beginPath();
   board.traces.forEach((pts) => {
@@ -98,8 +107,8 @@ function drawStatic(canvas, board, w, h, dpr) {
   });
   ctx.stroke();
 
-  ctx.fillStyle = '#0A0A0A';
-  ctx.strokeStyle = `rgba(${BLUE},0.22)`;
+  ctx.fillStyle = colors.pad;
+  ctx.strokeStyle = `rgba(${colors.blue},0.22)`;
   ctx.beginPath();
   board.pads.forEach((p) => {
     ctx.moveTo(p.x + 3, p.y);
@@ -117,6 +126,8 @@ function pointAt(pts, pos) {
 
 export default function PcbBackground({ className = '' }) {
   const canvasRef = useRef(null);
+  const recolorRef = useRef(null);
+  const theme = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -129,6 +140,7 @@ export default function PcbBackground({ className = '' }) {
     let h = 0;
     let dpr = 1;
     let board = { traces: [], segments: [], pads: [] };
+    let colors = readColors();
     const light = { x: 0, y: 0, tx: 0, ty: 0 };
     let pulses = [];
     let travelled = 0; // pointer distance since the last pulse
@@ -173,10 +185,10 @@ export default function PcbBackground({ className = '' }) {
           ctx.moveTo(s.a.x, s.a.y);
           ctx.lineTo(s.b.x, s.b.y);
         });
-        ctx.strokeStyle = `rgba(${ORANGE},${0.18 * k})`;
+        ctx.strokeStyle = `rgba(${colors.orange},${0.18 * k})`;
         ctx.lineWidth = 6;
         ctx.stroke();
-        ctx.strokeStyle = `rgba(${ORANGE},${0.75 * k})`;
+        ctx.strokeStyle = `rgba(${colors.orange},${0.75 * k})`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
       });
@@ -184,11 +196,11 @@ export default function PcbBackground({ className = '' }) {
       for (const p of pulses) {
         const head = pointAt(p.pts, p.pos);
         const fade = Math.min(1, p.dir > 0 ? p.pts.length - 1 - p.pos : p.pos);
-        ctx.fillStyle = `rgba(${ORANGE},${0.28 * fade})`;
+        ctx.fillStyle = `rgba(${colors.orange},${0.28 * fade})`;
         ctx.beginPath();
         ctx.arc(head.x, head.y, 6, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = `rgba(255,224,192,${fade})`;
+        ctx.fillStyle = `rgba(${colors.spark},${fade})`;
         ctx.beginPath();
         ctx.arc(head.x, head.y, 1.8, 0, Math.PI * 2);
         ctx.fill();
@@ -239,7 +251,7 @@ export default function PcbBackground({ className = '' }) {
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       board = generate(w, h);
-      drawStatic(staticLayer, board, w, h, dpr);
+      drawStatic(staticLayer, board, w, h, dpr, colors);
       if (!light.x && !light.y) {
         light.x = light.tx = w * 0.72;
         light.y = light.ty = h * 0.45;
@@ -247,6 +259,14 @@ export default function PcbBackground({ className = '' }) {
       pulses = [];
       draw();
       kick();
+    };
+
+    /* Theme flip: re-read the tokens and repaint the static layer + current frame (the loop reads `colors` live) */
+    recolorRef.current = () => {
+      colors = readColors();
+      if (!w || !h) return;
+      drawStatic(staticLayer, board, w, h, dpr, colors);
+      draw();
     };
 
     const onPointerMove = (e) => {
@@ -275,6 +295,7 @@ export default function PcbBackground({ className = '' }) {
     if (!reduced && !wander) window.addEventListener('pointermove', onPointerMove);
 
     return () => {
+      recolorRef.current = null;
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
@@ -282,6 +303,10 @@ export default function PcbBackground({ className = '' }) {
       window.removeEventListener('pointermove', onPointerMove);
     };
   }, []);
+
+  useEffect(() => {
+    recolorRef.current?.();
+  }, [theme]);
 
   return <canvas ref={canvasRef} aria-hidden="true" className={`absolute inset-0 h-full w-full pointer-events-none ${className}`} />;
 }

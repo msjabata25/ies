@@ -123,12 +123,12 @@ function toPayload(d) {
 }
 
 const inputClass = (error) =>
-  `w-full bg-[#0A0A0A] border ${error ? 'border-red-400/70' : 'border-[#1E88E5]/70'} focus:border-[#F57C00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F57C00] px-3 py-2.5 font-mono text-[16px] text-[#dec1af] placeholder:text-gray-400 transition-colors`;
+  `w-full bg-surface border ${error ? 'border-err/70' : 'border-accent/70'} focus:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary px-3 py-2.5 font-mono text-[16px] text-body placeholder:text-muted transition-colors`;
 
 function ErrorText({ id, children }) {
   const { t } = useI18n();
   return (
-    <p id={id} role="alert" className="font-mono text-[12px] text-red-400">
+    <p id={id} role="alert" className="font-mono text-[12px] text-err">
       {t('apply.errPrefix')} {children}
     </p>
   );
@@ -138,13 +138,13 @@ function Field({ id, label, optional, hint, error, children }) {
   const { t } = useI18n();
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="block font-mono text-[13px] text-[#1E88E5]">
+      <label htmlFor={id} className="block font-mono text-[13px] text-accent">
         {'> '}
         {label}
-        {optional && <span className="text-gray-400"> {t('apply.optional')}</span>}
+        {optional && <span className="text-muted"> {t('apply.optional')}</span>}
       </label>
       {children}
-      {error ? <ErrorText id={`${id}-error`}>{error}</ErrorText> : hint && <p className="font-mono text-[12px] text-gray-400">{hint}</p>}
+      {error ? <ErrorText id={`${id}-error`}>{error}</ErrorText> : hint && <p className="font-mono text-[12px] text-muted">{hint}</p>}
     </div>
   );
 }
@@ -156,10 +156,10 @@ function Chip({ on, onClick, children }) {
       aria-pressed={on}
       onClick={onClick}
       className={`font-mono text-[13px] px-3 py-2 border transition-colors cursor-pointer ${
-        on ? 'border-[#F57C00] bg-[#F57C00]/15 text-[#F57C00]' : 'border-[#1E88E5]/70 text-[#dec1af] hover:border-[#F57C00]/60'
+        on ? 'border-primary bg-primary/15 text-primary' : 'border-accent/70 text-body hover:border-primary/60'
       }`}
     >
-      <span className="text-[#1E88E5]">{on ? '[x] ' : '[ ] '}</span>
+      <span className="text-accent">{on ? '[x] ' : '[ ] '}</span>
       {children}
     </button>
   );
@@ -169,15 +169,15 @@ function Progress({ step }) {
   const { t } = useI18n();
   const steps = t('apply.steps');
   return (
-    <div className="font-mono text-[13px] text-[#dec1af] mb-8" aria-live="polite">
+    <div className="font-mono text-[13px] text-body mb-8" aria-live="polite">
       <div className="flex gap-1 mb-2" aria-hidden="true">
         {steps.map((s, i) => (
-          <div key={s} className={`h-1.5 flex-1 ${i <= step ? 'bg-[#F57C00]' : 'bg-[#1E88E5]/20'} transition-colors duration-300`} />
+          <div key={s} className={`h-1.5 flex-1 ${i <= step ? 'bg-primary' : 'bg-accent/20'} transition-colors duration-300`} />
         ))}
       </div>
-      <span className="text-[#1E88E5]">{t('apply.stepCount', { n: step + 1, total: steps.length })}</span>
-      <span className="text-gray-600"> // </span>
-      <span className="text-[#F57C00]">{steps[step]}</span>
+      <span className="text-accent">{t('apply.stepCount', { n: step + 1, total: steps.length })}</span>
+      <span className="text-faint"> // </span>
+      <span className="text-primary">{steps[step]}</span>
     </div>
   );
 }
@@ -185,10 +185,10 @@ function Progress({ step }) {
 function ReviewRow({ label, value, onEdit }) {
   const { t } = useI18n();
   return (
-    <div className="flex gap-4 py-2.5 border-b border-[#1E88E5]/15 font-mono text-[14px]">
-      <dt className="w-32 shrink-0 text-[#1E88E5]">{label}</dt>
-      <dd className="flex-1 text-[#dec1af] break-words min-w-0">{value || <span className="text-gray-400">—</span>}</dd>
-      <button type="button" onClick={onEdit} aria-label={`${t('apply.review.edit')}: ${label}`} className="text-[12px] text-[#F57C00]/80 hover:text-[#F57C00] cursor-pointer shrink-0">
+    <div className="flex gap-4 py-2.5 border-b border-accent/15 font-mono text-[14px]">
+      <dt className="w-32 shrink-0 text-accent">{label}</dt>
+      <dd className="flex-1 text-body break-words min-w-0">{value || <span className="text-muted">—</span>}</dd>
+      <button type="button" onClick={onEdit} aria-label={`${t('apply.review.edit')}: ${label}`} className="text-[12px] text-primary/80 hover:text-primary cursor-pointer shrink-0">
         {t('apply.review.edit')}
       </button>
     </div>
@@ -200,12 +200,12 @@ function Header() {
   return (
     <div className="mb-10">
       <div className="flex items-center gap-4 mb-3">
-        <span aria-hidden="true" className="material-symbols-outlined text-[#F57C00] text-3xl">assignment_ind</span>
-        <h1 className="text-[36px] md:text-[56px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+        <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">assignment_ind</span>
+        <h1 className="text-[36px] md:text-[56px] leading-[110%] tracking-[0.02em] text-primary font-display">
           {t('apply.title')}<span className="cursor-blink font-mono">_</span>
         </h1>
       </div>
-      <p className="font-mono text-[13px] md:text-[15px] text-[#1E88E5]">{t('apply.subtitle')}</p>
+      <p className="font-mono text-[13px] md:text-[15px] text-accent">{t('apply.subtitle')}</p>
     </div>
   );
 }
@@ -299,15 +299,15 @@ export default function ApplyPage() {
     return (
       <main className="min-h-screen pt-28 pb-24 px-4 md:px-14 max-w-3xl mx-auto">
         <Header />
-        <div className="bg-[#0e0e0e] border border-[#1E88E5]/30 p-6 font-mono text-[14px] leading-[180%] text-[#dec1af] space-y-2">
-          <p className="text-[#F57C00]">{'> '}{t('apply.closed.title')}</p>
+        <div className="bg-card border border-accent/30 p-6 font-mono text-[14px] leading-[180%] text-body space-y-2">
+          <p className="text-primary">{'> '}{t('apply.closed.title')}</p>
           <p>{t('apply.closed.body')}</p>
           <a
             href="https://www.instagram.com/ieeeiesjust/"
             target="_blank"
             rel="noopener noreferrer"
             dir="ltr"
-            className="inline-block mt-4 border border-[#F57C00] text-[#F57C00] px-5 py-2.5 hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-colors"
+            className="inline-block mt-4 border border-primary text-primary px-5 py-2.5 hover:bg-primary hover:text-surface transition-colors"
           >
             @IEEEIESJUST →
           </a>
@@ -321,21 +321,21 @@ export default function ApplyPage() {
     return (
       <main className="min-h-screen pt-28 pb-24 px-4 md:px-14 max-w-3xl mx-auto">
         <Header />
-        <div className="bg-[#0e0e0e] border border-[#F57C00]/50 p-6 font-mono text-[14px] leading-[190%] text-[#dec1af] animate-in fade-in duration-500">
-          <p className="text-[#1E88E5]">{t('apply.done.uploading')}</p>
-          <p className="text-[#1E88E5]">{t('apply.done.notifying')}</p>
-          <h2 ref={doneRef} tabIndex={-1} className="text-[#F57C00] mt-3 text-[14px] font-normal outline-none">{t('apply.done.received', { ref: reference })}</h2>
+        <div className="bg-card border border-primary/50 p-6 font-mono text-[14px] leading-[190%] text-body animate-in fade-in duration-500">
+          <p className="text-accent">{t('apply.done.uploading')}</p>
+          <p className="text-accent">{t('apply.done.notifying')}</p>
+          <h2 ref={doneRef} tabIndex={-1} className="text-primary mt-3 text-[14px] font-normal outline-none">{t('apply.done.received', { ref: reference })}</h2>
           <p className="mt-3">
             {t('apply.done.thanks', { name: firstName ? t('apply.done.namePart', { name: firstName }) : '' })}{' '}
-            <span className="text-[#F57C00]" dir="ltr">{data.email.trim()}</span>
+            <span className="text-primary" dir="ltr">{data.email.trim()}</span>
             {t('apply.done.keepRef')}
           </p>
           {submissionsStubbed && (
-            <p className="mt-3 text-yellow-400/80 text-[12px]">{t('apply.done.devNote')}</p>
+            <p className="mt-3 text-warn/80 light:text-warn text-[12px]">{t('apply.done.devNote')}</p>
           )}
           <Link
             to="/"
-            className="inline-block mt-6 border border-[#1E88E5] text-[#1E88E5] px-5 py-2.5 hover:bg-[#1E88E5] hover:text-[#0A0A0A] transition-colors"
+            className="inline-block mt-6 border border-accent text-accent px-5 py-2.5 hover:bg-accent hover:text-surface transition-colors"
           >
             {t('apply.done.home')}
           </Link>
@@ -354,13 +354,13 @@ export default function ApplyPage() {
       <Header />
 
       {submissionsStubbed && (
-        <p className="mb-6 font-mono text-[12px] text-yellow-400/80 border border-yellow-400/30 px-3 py-2">
+        <p className="mb-6 font-mono text-[12px] text-warn/80 light:text-warn border border-warn/30 px-3 py-2">
           {t('apply.devBanner')}
         </p>
       )}
 
-      <form onSubmit={onSubmit} noValidate className="bg-[#0e0e0e] border border-[#1E88E5]/30 p-5 md:p-8 relative">
-        <div className="absolute top-0 end-0 px-2 py-0.5 text-[10px] font-mono bg-[#1E88E5] text-[#0A0A0A]">{t('apply.formBadge')}</div>
+      <form onSubmit={onSubmit} noValidate className="bg-card border border-accent/30 p-5 md:p-8 relative">
+        <div className="absolute top-0 end-0 px-2 py-0.5 text-[10px] font-mono bg-accent text-surface">{t('apply.formBadge')}</div>
         <Progress step={step} />
 
         {/* Honeypot — visually hidden (sr-only is direction-agnostic, unlike a -9999px offset) and skipped by keyboard and screen readers */}
@@ -404,7 +404,7 @@ export default function ApplyPage() {
                       <option key={m} value={m}>{majorLabel(m)}</option>
                     ))}
                   </select>
-                  <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-[#1E88E5]">expand_more</span>
+                  <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-accent">expand_more</span>
                 </div>
               </Field>
               {data.major === 'Other' && (
@@ -413,7 +413,7 @@ export default function ApplyPage() {
                 </Field>
               )}
               <fieldset className="space-y-2" tabIndex={-1} aria-invalid={errors.year ? true : undefined} aria-describedby={errors.year ? 'year-error' : undefined}>
-                <legend className="font-mono text-[13px] text-[#1E88E5] mb-2">{'> '}{t('apply.labels.year')}</legend>
+                <legend className="font-mono text-[13px] text-accent mb-2">{'> '}{t('apply.labels.year')}</legend>
                 <div className="flex flex-wrap gap-2">
                   {YEARS.map((y) => (
                     <Chip key={y} on={data.year === y} onClick={() => set('year')(y)}>{t(`apply.years.${y}`)}</Chip>
@@ -427,8 +427,8 @@ export default function ApplyPage() {
           {step === 2 && (
             <>
               <fieldset className="space-y-2" tabIndex={-1} aria-invalid={errors.committees ? true : undefined} aria-describedby={errors.committees ? 'committees-error' : undefined}>
-                <legend className="font-mono text-[13px] text-[#1E88E5] mb-2">
-                  {'> '}{t('apply.labels.committees')} <span className="text-gray-400">{t('apply.labels.committeesHint')}</span>
+                <legend className="font-mono text-[13px] text-accent mb-2">
+                  {'> '}{t('apply.labels.committees')} <span className="text-muted">{t('apply.labels.committeesHint')}</span>
                 </legend>
                 <div className="grid sm:grid-cols-3 gap-3">
                   {COMMITTEES.map((c) => {
@@ -439,13 +439,13 @@ export default function ApplyPage() {
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggle('committees', c.id)}
-                        className={`text-start p-4 border transition-colors cursor-pointer ${on ? 'border-[#F57C00] bg-[#F57C00]/10' : 'border-[#1E88E5]/70 hover:border-[#F57C00]/60'}`}
+                        className={`text-start p-4 border transition-colors cursor-pointer ${on ? 'border-primary bg-primary/10' : 'border-accent/70 hover:border-primary/60'}`}
                       >
-                        <span className="block font-display text-[22px] tracking-wider text-[#F57C00]">
+                        <span className="block font-display text-[22px] tracking-wider text-primary">
                           {on ? '[x] ' : '[ ] '}
                           {t(`apply.committees.${c.id}.name`)}
                         </span>
-                        <span className="block font-mono text-[12px] text-[#dec1af] mt-1">{t(`apply.committees.${c.id}.blurb`)}</span>
+                        <span className="block font-mono text-[12px] text-body mt-1">{t(`apply.committees.${c.id}.blurb`)}</span>
                       </button>
                     );
                   })}
@@ -453,8 +453,8 @@ export default function ApplyPage() {
                 {errors.committees && <ErrorText id="committees-error">{errText('committees')}</ErrorText>}
               </fieldset>
               <fieldset className="space-y-2">
-                <legend className="font-mono text-[13px] text-[#1E88E5] mb-2">
-                  {'> '}{t('apply.labels.skills')} <span className="text-gray-400">{t('apply.labels.skillsHint')}</span>
+                <legend className="font-mono text-[13px] text-accent mb-2">
+                  {'> '}{t('apply.labels.skills')} <span className="text-muted">{t('apply.labels.skillsHint')}</span>
                 </legend>
                 <div className="flex flex-wrap gap-2">
                   {SKILLS.map((s) => (
@@ -515,14 +515,14 @@ export default function ApplyPage() {
         </div>
 
         {status === 'error' && (
-          <p role="alert" className="mt-6 font-mono text-[13px] text-red-400 border border-red-400/40 px-3 py-2">
+          <p role="alert" className="mt-6 font-mono text-[13px] text-err border border-err/40 px-3 py-2">
             {t('apply.errors.submit')}
           </p>
         )}
 
-        <div className="flex justify-between items-center gap-4 mt-8 pt-6 border-t border-[#1E88E5]/20">
+        <div className="flex justify-between items-center gap-4 mt-8 pt-6 border-t border-accent/20">
           {step > 0 ? (
-            <button type="button" onClick={() => goTo(step - 1)} className="font-mono text-[14px] text-[#1E88E5] hover:text-[#F57C00] transition-colors cursor-pointer">
+            <button type="button" onClick={() => goTo(step - 1)} className="font-mono text-[14px] text-accent hover:text-primary transition-colors cursor-pointer">
               {t('apply.back')}
             </button>
           ) : (
@@ -531,7 +531,7 @@ export default function ApplyPage() {
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="font-mono text-[14px] font-bold border-2 border-[#F57C00] text-[#F57C00] px-6 py-3 hover:bg-[#F57C00] hover:text-[#0A0A0A] disabled:opacity-60 disabled:cursor-wait transition-colors cursor-pointer"
+            className="font-mono text-[14px] font-bold border-2 border-primary text-primary px-6 py-3 hover:bg-primary hover:text-surface disabled:opacity-60 disabled:cursor-wait transition-colors cursor-pointer"
           >
             {step < LAST ? t('apply.next') : status === 'sending' ? t('apply.sending') : t('apply.submit')}
           </button>

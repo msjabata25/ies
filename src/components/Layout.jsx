@@ -57,7 +57,7 @@ export default function Layout() {
       {/* First focusable element: hidden until a keyboard user tabs to it */}
       <a
         href="#main-content"
-        className="fixed top-2 start-2 z-[10000] -translate-y-[200%] focus:translate-y-0 bg-[#F57C00] text-[#0A0A0A] font-mono text-sm font-bold px-4 py-2"
+        className="fixed top-2 start-2 z-[10000] -translate-y-[200%] focus:translate-y-0 bg-primary text-surface font-mono text-sm font-bold px-4 py-2"
       >
         {t('nav.skip')}
       </a>

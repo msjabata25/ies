@@ -3,21 +3,23 @@
  * {
  *   id: string,           // unique, e.g. 'ev-001'
  *   title: string,
- *   date: string,         // 'YYYY-MM-DD'
+ *   date: string,         // 'YYYY-MM-DD', the day it starts
+ *   endDate?: string,     // 'YYYY-MM-DD', last day for multi-day events (defaults to date)
  *   type: 'Workshop' | 'Hackathon' | 'Seminar' | 'Expo',
- *   status: 'Upcoming' | 'Active' | 'Past',
  *   description: string,
  *   imageUrl?: string,    // optional
  *   ar?: { title?: string, description?: string }, // Arabic copy; falls back to English
  * }
+ *
+ * Don't write a status: it's worked out from the dates (see eventStatus below),
+ * so an event can never say 'Upcoming' after it has happened.
  */
-export const events = [
+const eventList = [
   {
     id: 'ev-001',
     title: 'PLC_PROGRAMMING_01',
     date: '2026-09-15',
     type: 'Workshop',
-    status: 'Upcoming',
     description: 'intro to ladder logic and plc programming for industrial automation. bring your laptop.',
     ar: {
       title: 'ورشة برمجة PLC',
@@ -29,7 +31,6 @@ export const events = [
     title: 'HACKATHON_24H',
     date: '2026-08-01',
     type: 'Hackathon',
-    status: 'Active',
     description: '24-hour embedded systems challenge. teams build a smart sensor node from scratch.',
     ar: {
       title: 'هاكاثون 24 ساعة',
@@ -41,7 +42,6 @@ export const events = [
     title: 'SEMICONDUCTOR_SEMINAR',
     date: '2026-07-20',
     type: 'Seminar',
-    status: 'Active',
     description: 'guest lecture on modern vlsi design and fpga applications in industry.',
     ar: {
       title: 'ندوة أشباه الموصلات',
@@ -53,7 +53,6 @@ export const events = [
     title: 'ROBOTICS_EXPO_2026',
     date: '2026-10-05',
     type: 'Expo',
-    status: 'Upcoming',
     description: 'annual showcase of student-built industrial robotics and automation systems.',
     ar: {
       title: 'معرض الروبوتات 2026',
@@ -65,7 +64,6 @@ export const events = [
     title: 'PCB_DESIGN_WORKSHOP',
     date: '2026-06-10',
     type: 'Workshop',
-    status: 'Past',
     description: 'hands-on pcb design using kicad. from schematic to gerber files.',
     ar: {
       title: 'ورشة تصميم PCB',
@@ -77,7 +75,6 @@ export const events = [
     title: 'CONTROL_SYSTEMS_BOOTCAMP',
     date: '2026-11-01',
     type: 'Workshop',
-    status: 'Upcoming',
     description: 'intensive bootcamp on pid tuning, state-space control, and simulink modeling.',
     ar: {
       title: 'معسكر أنظمة التحكم',
@@ -89,7 +86,6 @@ export const events = [
     title: 'AI_IN_INDUSTRY',
     date: '2026-09-01',
     type: 'Seminar',
-    status: 'Upcoming',
     description: 'exploring machine learning applications in predictive maintenance and quality control.',
     ar: {
       title: 'الذكاء الاصطناعي بالصناعة',
@@ -101,7 +97,6 @@ export const events = [
     title: 'RECRUITMENT_DRIVE',
     date: '2026-07-01',
     type: 'Seminar',
-    status: 'Active',
     description: 'join ies just — open call for engineers, designers, and operators.',
     ar: {
       title: 'حملة التسجيل',
@@ -109,3 +104,30 @@ export const events = [
     },
   },
 ];
+
+/** Today as 'YYYY-MM-DD' in the visitor's own timezone. */
+function todayISO() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** 'Upcoming' before the start date, 'Active' while it runs, 'Past' after the last day. */
+export function eventStatus(event, today = todayISO()) {
+  if (today < event.date) return 'Upcoming';
+  if (today <= (event.endDate ?? event.date)) return 'Active';
+  return 'Past';
+}
+
+const statusOrder = { Active: 0, Upcoming: 1, Past: 2 };
+
+/**
+ * Every event with its status filled in: happening now first, then upcoming
+ * (soonest first), then past (most recent first).
+ */
+export const events = eventList
+  .map((event) => ({ ...event, status: eventStatus(event) }))
+  .sort((a, b) =>
+    statusOrder[a.status] - statusOrder[b.status] ||
+    (a.status === 'Past' ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date))
+  );

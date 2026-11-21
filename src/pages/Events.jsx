@@ -6,10 +6,10 @@ import { useI18n } from '@/i18n/context';
 
 function getStatusColor(status) {
   switch (status) {
-    case 'Active': return 'text-green-400';
-    case 'Upcoming': return 'text-yellow-400';
-    case 'Past': return 'text-gray-500';
-    default: return 'text-gray-500';
+    case 'Active': return 'text-ok';
+    case 'Upcoming': return 'text-warn';
+    case 'Past': return 'text-idle';
+    default: return 'text-idle';
   }
 }
 
@@ -20,20 +20,20 @@ function EventCard({ event, index }) {
   const { t, pick } = useI18n();
   return (
     <CardSpotlight
-      className="!p-6 !border-[#1E88E5]/30 hover:!border-[#F57C00]/50 transition-colors bg-[#0e0e0e]"
-      color="rgba(245,124,0,0.05)"
+      className="!p-6 !border-accent/30 hover:!border-primary/50 transition-colors bg-card"
+      color="color-mix(in oklab, var(--color-primary) 5%, transparent)"
     >
       <div className="flex items-start justify-between mb-4">
-        <span className="font-display text-[48px] text-[#F57C00]/20 leading-none">
+        <span className="font-display text-[48px] text-primary/20 leading-none">
           {String(index + 1).padStart(2, '0')}
         </span>
         <span className={`font-mono text-[12px] ${getStatusColor(event.status)} border border-current px-2 py-1`}>
           {t(`events.statuses.${event.status}`)}
         </span>
       </div>
-      <h3 className="font-display text-[24px] text-[#F57C00] mb-2 tracking-wider">{pick(event, 'title')}</h3>
-      <p className="font-mono text-[13px] text-[#dec1af] leading-[170%] mb-4 min-h-[60px]">{pick(event, 'description')}</p>
-      <div className="flex justify-between items-center font-mono text-[12px] text-[#1E88E5] border-t border-[#1E88E5]/20 pt-3">
+      <h3 className="font-display text-[24px] text-primary mb-2 tracking-wider">{pick(event, 'title')}</h3>
+      <p className="font-mono text-[13px] text-body leading-[170%] mb-4 min-h-[60px]">{pick(event, 'description')}</p>
+      <div className="flex justify-between items-center font-mono text-[12px] text-accent border-t border-accent/20 pt-3">
         <span>{t(`events.typeNames.${event.type}`)}</span>
         <span>{new Date(event.date).toLocaleDateString(t('events.dateLocale'), { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
       </div>
@@ -66,15 +66,15 @@ export default function EventsPage() {
     <main className="flex min-h-screen flex-col">
       <h1 className="sr-only">{t('events.particle')}</h1>
       <section className="flex flex-col lg:flex-row w-full">
-        <div className="w-full lg:w-1/2 h-[50vh] lg:h-screen lg:sticky lg:top-0 bg-[#0A0A0A] z-10">
+        <div className="w-full lg:w-1/2 h-[50vh] lg:h-screen lg:sticky lg:top-0 bg-surface z-10">
           <ParticleText text={t('events.particle')} />
         </div>
-        <div className="w-full lg:w-1/2 bg-[#0A0A0A] pt-28 pb-12 px-4 md:px-8 overflow-y-auto"
+        <div className="w-full lg:w-1/2 bg-surface pt-28 pb-12 px-4 md:px-8 overflow-y-auto"
           style={{
             backgroundImage: `
-              linear-gradient(90deg, rgba(30,136,229,0.1) 1px, transparent 1px),
-              linear-gradient(0deg, rgba(30,136,229,0.1) 1px, transparent 1px),
-              radial-gradient(circle, rgba(30,136,229,0.18) 2px, transparent 2px)
+              linear-gradient(90deg, color-mix(in oklab, var(--color-accent) 10%, transparent) 1px, transparent 1px),
+              linear-gradient(0deg, color-mix(in oklab, var(--color-accent) 10%, transparent) 1px, transparent 1px),
+              radial-gradient(circle, color-mix(in oklab, var(--color-accent) 18%, transparent) 2px, transparent 2px)
             `,
             backgroundSize: '40px 40px, 40px 40px, 40px 40px',
             backgroundPosition: '0 0, 0 0, 20px 20px',
@@ -92,8 +92,8 @@ export default function EventsPage() {
                     aria-pressed={typeFilter === f}
                     className={`px-3 py-1.5 border transition-colors ${
                       typeFilter === f
-                        ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
-                        : 'bg-transparent text-[#dec1af] border-[#1E88E5]/30 hover:border-[#F57C00]/50'
+                        ? 'bg-primary text-surface border-primary'
+                        : 'bg-transparent text-body border-accent/30 hover:border-primary/50'
                     }`}
                   >
                     [{t(`events.types.${f}`)}]
@@ -107,14 +107,14 @@ export default function EventsPage() {
                   onClick={() => setMenuOpen(!menuOpen)}
                   aria-haspopup="listbox"
                   aria-expanded={menuOpen}
-                  className="px-3 py-1.5 border border-[#1E88E5]/30 text-[#dec1af] hover:border-[#F57C00]/50 transition-colors whitespace-nowrap"
+                  className="px-3 py-1.5 border border-accent/30 text-body hover:border-primary/50 transition-colors whitespace-nowrap"
                 >
                   {t('events.statusLabel')} {t(`events.statuses.${statusFilter}`)} ▼
                 </button>
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute end-0 top-full mt-1 z-50 bg-[#0e0e0e] border border-[#1E88E5]/30 shadow-lg min-w-[140px]" role="listbox">
+                    <div className="absolute end-0 top-full mt-1 z-50 bg-card border border-accent/30 shadow-lg min-w-[140px]" role="listbox">
                       {STATUS_FILTERS.map((f) => (
                         <button
                           key={f}
@@ -123,8 +123,8 @@ export default function EventsPage() {
                           onClick={() => { setStatusFilter(f); setMenuOpen(false); }}
                           className={`block w-full text-start px-3 py-2 transition-colors ${
                             statusFilter === f
-                              ? 'bg-[#F57C00]/20 text-[#F57C00]'
-                              : 'text-[#dec1af] hover:bg-[#1E88E5]/10'
+                              ? 'bg-primary/20 text-primary'
+                              : 'text-body hover:bg-accent/10'
                           }`}
                         >
                           [{t(`events.statuses.${f}`)}]
@@ -139,7 +139,7 @@ export default function EventsPage() {
             {/* Cards */}
             <div className="space-y-6">
               {filteredEvents.length === 0 ? (
-                <p className="font-mono text-[13px] text-[#dec1af] text-center py-12">
+                <p className="font-mono text-[13px] text-body text-center py-12">
                   {t('events.empty')}
                 </p>
               ) : (

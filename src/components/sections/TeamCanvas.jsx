@@ -10,13 +10,16 @@ const BUBBLE_SIZE = 88;
 
 function committeeColor(committee) {
   switch (committee) {
-    case 'Board': return '#F57C00';
-    case 'Scientific': return '#1E88E5';
-    case 'Media': return '#10b981';
-    case 'Web': return '#8b5cf6';
-    default: return '#F57C00';
+    case 'Board': return 'var(--color-primary)';
+    case 'Scientific': return 'var(--color-accent)';
+    case 'Media': return 'var(--color-media)';
+    case 'Web': return 'var(--color-web)';
+    default: return 'var(--color-primary)';
   }
 }
+
+/* Committee colours are CSS variables, so they flip with the theme on their own; this fades one to an alpha */
+const fade = (color, pct) => `color-mix(in oklab, ${color} ${pct}%, transparent)`;
 
 function BubbleCircle({
   member,
@@ -33,7 +36,7 @@ function BubbleCircle({
     return (
       <div
         className={`rounded-full overflow-hidden flex-shrink-0 ${className ?? ''}`}
-        style={{ width: size, height: size, border: `2px solid ${color}60` }}
+        style={{ width: size, height: size, border: `2px solid ${fade(color, 38)}` }}
       >
         <img
           src={member.photo}
@@ -51,8 +54,8 @@ function BubbleCircle({
       style={{
         width: size,
         height: size,
-        border: `2px solid ${color}60`,
-        backgroundColor: '#131313',
+        border: `2px solid ${fade(color, 38)}`,
+        backgroundColor: 'var(--color-panel)',
       }}
     >
       <span className="font-mono font-bold" style={{ color, fontSize: size * 0.22 }}>
@@ -277,11 +280,11 @@ export default function TeamCanvas() {
               role="dialog"
               aria-modal="true"
               aria-labelledby="team-modal-title"
-              className="bg-[#0e0e0e] border border-[#F57C00]/30 p-6 w-full max-w-md mx-4 rounded-sm shadow-2xl"
+              className="bg-card border border-primary/30 p-6 w-full max-w-md mx-4 rounded-sm shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-start mb-4">
-                <span className="font-mono text-[11px] text-[#1E88E5]">
+                <span className="font-mono text-[11px] text-accent">
                   {t(`team.committees.${expandedMember.committee}`)} &mdash; {pick(expandedMember, 'role')}
                 </span>
                 <button
@@ -289,7 +292,7 @@ export default function TeamCanvas() {
                   type="button"
                   onClick={handleCollapse}
                   aria-label={t('team.close')}
-                  className="text-[#dec1af] hover:text-[#F57C00] transition-colors font-mono text-[16px] leading-none"
+                  className="text-body hover:text-primary transition-colors font-mono text-[16px] leading-none"
                 >
                   ✕
                 </button>
@@ -298,17 +301,17 @@ export default function TeamCanvas() {
               <div className="flex items-center gap-4 mb-4">
                 <BubbleCircle member={expandedMember} size={64} />
                 <div>
-                  <h3 id="team-modal-title" className="font-display text-[22px] text-[#F57C00] tracking-wider">
+                  <h3 id="team-modal-title" className="font-display text-[22px] text-primary tracking-wider">
                     {pick(expandedMember, 'name')}
                   </h3>
-                  <p className="font-mono text-[13px] text-[#dec1af] mt-1">
+                  <p className="font-mono text-[13px] text-body mt-1">
                     {pick(expandedMember, 'role')}
                   </p>
                   <span
                     className="inline-block font-mono text-[10px] mt-1 px-2 py-0.5 border"
                     style={{
                       color: committeeColor(expandedMember.committee),
-                      borderColor: `${committeeColor(expandedMember.committee)}40`,
+                      borderColor: fade(committeeColor(expandedMember.committee), 25),
                     }}
                   >
                     {t(`team.committees.${expandedMember.committee}`)}
@@ -316,7 +319,7 @@ export default function TeamCanvas() {
                 </div>
               </div>
 
-              <p className="font-mono text-[13px] text-[#dec1af] leading-[170%]">
+              <p className="font-mono text-[13px] text-body leading-[170%]">
                 {pick(expandedMember, 'bio')}
               </p>
             </motion.div>
@@ -338,8 +341,8 @@ export default function TeamCanvas() {
             onClick={() => handleFilterChange(c)}
             className={`px-4 py-1.5 min-h-10 md:min-h-0 rounded-full font-mono text-[11px] border transition-colors ${
               activeFilter === c
-                ? 'bg-[#F57C00] text-[#0A0A0A] border-[#F57C00]'
-                : 'bg-transparent text-[#dec1af] border-[#1E88E5]/30 hover:border-[#F57C00]/50'
+                ? 'bg-primary text-surface border-primary'
+                : 'bg-transparent text-body border-accent/30 hover:border-primary/50'
             }`}
           >
             {t(`team.committees.${c}`)}

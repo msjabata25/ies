@@ -1,5 +1,6 @@
-import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { useTheme, tokenColor } from '@/lib/theme';
 
 /*
  * Scroll-driven NPN transistor schematic for the About page.
@@ -23,8 +24,6 @@ const BRANCHES = [
   { id: 'q4', terminal: 'emitter', side: 'right', row: 'bottom' },
 ];
 
-const ORANGE = '#F57C00';
-const BLUE = '#1E88E5';
 const PULSE_SECONDS = 2.4;
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
@@ -191,6 +190,14 @@ export default function CircuitScene({ ref, mirror = false }) {
   const svgRef = useRef(null);
   const stateRef = useRef({ core: 0, branches: BRANCHES.map(() => 0), lit: BRANCHES.map(() => false) });
   const [layout, setLayout] = useState(null);
+  /* Colours follow the theme tokens; a theme flip re-renders and swaps the attributes in place */
+  const theme = useTheme();
+  const [ORANGE, BLUE, PAD, BODY, FG] = useMemo(
+    () => ['primary', 'accent', 'surface', 'body', 'fg'].map(tokenColor),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [theme],
+  );
+  const PULSE_CORE = theme === 'light' ? '#6B2E00' : '#FFE0C0';
 
   useImperativeHandle(ref, () => ({
     setCore(p) {
@@ -239,7 +246,7 @@ export default function CircuitScene({ ref, mirror = false }) {
       >
         <defs>
           <pattern id="circuit-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="#ffffff" fillOpacity="0.05" />
+            <circle cx="1" cy="1" r="1" fill={FG} fillOpacity="0.05" />
           </pattern>
           <radialGradient id="circuit-glow">
             <stop offset="0%" stopColor={ORANGE} stopOpacity="0.22" />
@@ -262,13 +269,13 @@ export default function CircuitScene({ ref, mirror = false }) {
               <g key={b.id} data-branch={b.id} stroke={ORANGE} strokeLinejoin="round">
                 <path data-trace d={b.d} pathLength="1" strokeDasharray="1" strokeDashoffset="1" strokeOpacity="0.25" strokeWidth="6" />
                 <path data-trace d={b.d} pathLength="1" strokeDasharray="1" strokeDashoffset="1" strokeWidth="1.75" />
-                <circle cx={b.pad.x} cy={b.pad.y} r="4.5" stroke={BLUE} strokeOpacity="0.4" strokeWidth="1.5" fill="#0A0A0A" />
+                <circle cx={b.pad.x} cy={b.pad.y} r="4.5" stroke={BLUE} strokeOpacity="0.4" strokeWidth="1.5" fill={PAD} />
                 <circle data-lit opacity="0" cx={b.pad.x} cy={b.pad.y} r="4.5" stroke="none" fill={ORANGE} />
                 <g data-lit opacity="0" stroke="none" className="motion-reduce:hidden">
                   {[0, 0.5].map((phase) => (
                     <g key={phase}>
                       <circle r="7" fill={ORANGE} fillOpacity="0.25" />
-                      <circle r="2.25" fill="#FFE0C0" />
+                      <circle r="2.25" fill={PULSE_CORE} />
                       <animateMotion
                         dur={`${PULSE_SECONDS}s`}
                         begin={`${-phase * PULSE_SECONDS}s`}
@@ -284,7 +291,7 @@ export default function CircuitScene({ ref, mirror = false }) {
             {/* The transistor itself */}
             <circle data-core-fade opacity="0" cx={layout.cx} cy={layout.cy} r={layout.r * 2} fill="url(#circuit-glow)" />
             <g stroke={ORANGE} strokeLinejoin="round">
-              <circle data-core cx={layout.cx} cy={layout.cy} r={layout.r} pathLength="1" strokeDasharray="1" strokeDashoffset="1" strokeWidth="2" fill="#0A0A0A" fillOpacity="0.6" />
+              <circle data-core cx={layout.cx} cy={layout.cy} r={layout.r} pathLength="1" strokeDasharray="1" strokeDashoffset="1" strokeWidth="2" fill={PAD} fillOpacity="0.6" />
               {layout.symbol.map((s) => (
                 <path key={s.key} data-core d={s.d} pathLength="1" strokeDasharray="1" strokeDashoffset="1" strokeWidth={s.width} />
               ))}
@@ -301,7 +308,7 @@ export default function CircuitScene({ ref, mirror = false }) {
             opacity="0"
             className="font-mono"
             fontSize="11"
-            fill="#dec1af"
+            fill={BODY}
             fillOpacity="0.6"
             direction="ltr"
             textAnchor={layout.mirror ? 'end' : 'start'}

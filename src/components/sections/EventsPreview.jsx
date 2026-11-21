@@ -31,21 +31,21 @@ export default function EventsPreview() {
   return (
     <section className="px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-hidden">
       <div className="flex items-center gap-4 mb-8">
-        <span aria-hidden="true" className="material-symbols-outlined text-[#F57C00] text-3xl">terminal</span>
-        <h2 className="text-[32px] md:text-[48px] leading-[110%] tracking-[0.02em] text-[#F57C00] font-display">
+        <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">terminal</span>
+        <h2 className="text-[32px] md:text-[48px] leading-[110%] tracking-[0.02em] text-primary font-display">
           {t('eventsPreview.title')}<span className="cursor-blink font-mono">_</span>
         </h2>
-        <div className="h-px bg-[#1E88E5]/30 flex-grow ms-4"></div>
+        <div className="h-px bg-accent/30 flex-grow ms-4"></div>
       </div>
 
       <div className="relative">
         <HoverEffect items={previewEvents} />
 
         <div className="relative -mt-8 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-r rtl:bg-gradient-to-l from-transparent via-[#0A0A0A]/60 to-[#0A0A0A] z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-r rtl:bg-gradient-to-l from-transparent via-surface/60 to-surface z-10"></div>
           <div className="absolute inset-0 backdrop-blur-[2px] z-10 flex items-center justify-center">
             <Link to="/events">
-              <span className="font-mono text-[#F57C00] text-[16px] border border-[#F57C00] px-6 py-3 hover:bg-[#F57C00] hover:text-[#0A0A0A] transition-all duration-300 pointer-events-auto inline-block">
+              <span className="font-mono text-primary text-[16px] border border-primary px-6 py-3 hover:bg-primary hover:text-surface transition-all duration-300 pointer-events-auto inline-block">
                 {t('eventsPreview.cta')}
               </span>
             </Link>
