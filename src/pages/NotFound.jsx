@@ -9,7 +9,8 @@ export default function NotFoundPage() {
         <div className="flex items-center gap-4 mb-4">
           <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">error</span>
           <h1 className="page-title">
-            {t('notFound.title')}<span className="cursor-blink font-mono">_</span>
+            {/* bdi keeps the Latin "ERROR_404_" in order inside the Arabic (RTL) page */}
+            <bdi>{t('notFound.title')}<span className="cursor-blink font-mono">_</span></bdi>
           </h1>
           <div className="h-px bg-accent/30 flex-grow ms-4"></div>
         </div>

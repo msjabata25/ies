@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Button from '@/components/ui/Button';
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import { initialsOf, team } from '@/data/team';
 import { useI18n } from '@/i18n/context';
@@ -17,10 +17,10 @@ export default function TeamPreview() {
   }));
 
   return (
-    <section className="px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-visible border-t border-accent/20">
-      <div className="flex items-center gap-4 mb-12">
+    <section className="w-full px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-visible">
+      <div className="flex items-center gap-4 mb-8">
         <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">group</span>
-        <h2 className="text-[32px] md:text-[48px] leading-[110%] tracking-[0.02em] text-primary font-display">
+        <h2 className="section-title">
           {t('teamPreview.title')}<span className="cursor-blink font-mono">_</span>
         </h2>
         <div className="h-px bg-accent/30 flex-grow ms-4"></div>
@@ -31,11 +31,9 @@ export default function TeamPreview() {
       </div>
 
       <div className="text-center">
-        <Link to="/team">
-          <span className="font-mono text-accent text-[14px] border border-accent px-6 py-3 hover:bg-accent hover:text-surface transition-all duration-300 inline-block">
-            {t('teamPreview.cta')}
-          </span>
-        </Link>
+        <Button to="/team" variant="secondary" className="max-w-full">
+          {t('teamPreview.cta')}
+        </Button>
       </div>
     </section>
   );

@@ -307,9 +307,9 @@ export default function CircuitScene({ ref, mirror = false }) {
             data-core-fade
             opacity="0"
             className="font-mono"
-            fontSize="11"
+            fontSize="12"
             fill={BODY}
-            fillOpacity="0.6"
+            fillOpacity={theme === 'light' ? 0.85 : 0.6}
             direction="ltr"
             textAnchor={layout.mirror ? 'end' : 'start'}
           >

@@ -77,18 +77,16 @@ function Bubble({ member, left, top, index, onClick }) {
       style={{ left, top, width: BUBBLE_SIZE, height: BUBBLE_SIZE }}
       onClick={onClick}
       exit={{ scale: 0, opacity: 0 }}
-      animate={{
-        y: [0, -5, 0],
-        transition: {
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: index * 0.15,
-        },
-      }}
       whileHover={{ scale: 1.08 }}
     >
-      <BubbleCircle member={member} size={BUBBLE_SIZE} />
+      {/* the idle float lives on an inner element so it never competes with the exit / layout animations */}
+      <motion.span
+        className="block"
+        animate={{ y: [0, -5, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: index * 0.15 }}
+      >
+        <BubbleCircle member={member} size={BUBBLE_SIZE} />
+      </motion.span>
     </motion.button>
   );
 }
@@ -127,7 +125,6 @@ export default function TeamCanvas() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedId, setExpandedId] = useState(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [filterHeight, setFilterHeight] = useState(0);
   const containerElRef = useRef(null);
   const closeButtonRef = useRef(null);
   const lastOpenedIdRef = useRef(null);
@@ -140,14 +137,6 @@ export default function TeamCanvas() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  /* The filter pills wrap on narrow screens; the canvas reserves their real height. */
-  const filterRefCallback = useCallback((el) => {
-    if (!el) return;
-    const ro = new ResizeObserver(() => setFilterHeight(el.offsetHeight));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   const layout = useMemo(() => {
     const narrow = containerWidth < 640;
     const cols = narrow ? 3 : containerWidth < 1024 ? 4 : 5;
@@ -157,22 +146,31 @@ export default function TeamCanvas() {
     return { narrow, cols, spacing, rowPitch };
   }, [containerWidth]);
 
+  /* Only the members the filter keeps are laid out, so the canvas shrinks to fit them. */
+  const visibleMembers = useMemo(
+    () => (activeFilter === 'All' ? team : team.filter((m) => m.committee === activeFilter)),
+    [activeFilter],
+  );
+
   const bubblePositions = useMemo(() => {
     if (containerWidth === 0) return [];
     const { narrow, cols, spacing, rowPitch } = layout;
-    const startX = (containerWidth - spacing * cols) / 2;
     const scatterScale = narrow ? 0.25 : 1;
+    const n = visibleMembers.length;
 
-    const raw = team.map((m, i) => {
+    const raw = visibleMembers.map((m, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
+      /* a short last row is centred rather than left-aligned */
+      const inRow = Math.min(cols, n - row * cols);
+      const startX = (containerWidth - spacing * inRow) / 2;
       const left = startX + col * spacing + (m.scatter?.tx ?? 0) * scatterScale;
       const top = row * rowPitch + (m.scatter?.ty ?? 0) * scatterScale + 40;
       return { left, top };
     });
 
     return separatePositions(raw, BUBBLE_SIZE + 8, 30);
-  }, [containerWidth, layout]);
+  }, [containerWidth, layout, visibleMembers]);
 
   const expandedMember = useMemo(() => {
     if (!expandedId) return null;
@@ -227,35 +225,50 @@ export default function TeamCanvas() {
   const canvasHeight = useMemo(() => {
     if (containerWidth === 0) return 600;
     const { cols, rowPitch } = layout;
-    const rows = Math.ceil(team.length / cols);
-    /* last bubble row (incl. ~35px scatter) + 24px gap + the filter bar + its 16px bottom offset */
-    const needed = 40 + (rows - 1) * rowPitch + BUBBLE_SIZE + 35 + 24 + filterHeight + 16;
-    return Math.max(rows * rowPitch + 120, needed);
-  }, [containerWidth, layout, filterHeight]);
+    const rows = Math.max(1, Math.ceil(visibleMembers.length / cols));
+    /* last bubble row (incl. ~35px scatter and the 5px float) + a little breathing room */
+    return 40 + (rows - 1) * rowPitch + BUBBLE_SIZE + 35 + 16;
+  }, [containerWidth, layout, visibleMembers]);
 
   return (
-    <div
+    <div>
+      <div role="group" aria-label={t('team.title')} className="mb-6 flex flex-wrap gap-2">
+        {committees.map((c) => (
+          <button
+            key={c}
+            type="button"
+            aria-pressed={activeFilter === c}
+            onClick={() => handleFilterChange(c)}
+            className={`pill ${activeFilter === c ? 'pill-active' : ''}`}
+          >
+            {t(`team.committees.${c}`)}
+          </button>
+        ))}
+      </div>
+
+    <motion.div
       ref={containerRefCallback}
-      className="relative w-full"
-      style={{ minHeight: canvasHeight }}
+      className="relative w-full overflow-hidden"
+      initial={false}
+      animate={{ height: canvasHeight }}
+      transition={{ duration: 0.4, ease: 'easeInOut' }}
     >
       <div className="absolute inset-0 z-0">
         <StaticGrid />
       </div>
 
       <div className="absolute inset-0 z-[1]">
-        {bubblePositions.length > 0 && team.map((member, i) => {
-          const pos = bubblePositions[i];
-          if (!pos) return null;
-          const visible = activeFilter === 'All' || member.committee === activeFilter;
+        {bubblePositions.length > 0 && team.map((member) => {
+          const vi = visibleMembers.indexOf(member);
+          const pos = bubblePositions[vi];
           return (
             <AnimatePresence key={member.id}>
-              {visible && expandedId !== member.id && (
+              {vi >= 0 && pos && expandedId !== member.id && (
                 <Bubble
                   member={member}
                   left={pos.left}
                   top={pos.top}
-                  index={i}
+                  index={vi}
                   onClick={() => handleExpand(member.id)}
                 />
               )}
@@ -326,29 +339,7 @@ export default function TeamCanvas() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div
-        ref={filterRefCallback}
-        role="group"
-        aria-label={t('team.title')}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-2 z-10 w-max max-w-full"
-      >
-        {committees.map((c) => (
-          <button
-            key={c}
-            type="button"
-            aria-pressed={activeFilter === c}
-            onClick={() => handleFilterChange(c)}
-            className={`px-4 py-1.5 min-h-10 md:min-h-0 rounded-full font-mono text-[11px] border transition-colors ${
-              activeFilter === c
-                ? 'bg-primary text-surface border-primary'
-                : 'bg-transparent text-body border-accent/30 hover:border-primary/50'
-            }`}
-          >
-            {t(`team.committees.${c}`)}
-          </button>
-        ))}
-      </div>
+    </motion.div>
     </div>
   );
 }

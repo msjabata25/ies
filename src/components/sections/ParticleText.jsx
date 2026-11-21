@@ -129,7 +129,7 @@ export default function ParticleText({
 
       const material = new THREE.PointsMaterial({
         color: new THREE.Color(color ?? tokenColor('primary')),
-        size: particleSize,
+        size: getTheme() === 'light' ? particleSize * 1.25 : particleSize,
         sizeAttenuation: false,
         transparent: true,
         opacity: getTheme() === 'light' ? 1 : 0.9,
@@ -260,8 +260,9 @@ export default function ParticleText({
     if (!live) return;
     live.material.color.set(color ?? tokenColor('primary'));
     live.material.opacity = theme === 'light' ? 1 : 0.9; /* thin dark dots on light need full strength */
+    live.material.size = theme === 'light' ? particleSize * 1.25 : particleSize;
     live.redraw();
-  }, [theme, color]);
+  }, [theme, color, particleSize]);
 
   return (
     <div

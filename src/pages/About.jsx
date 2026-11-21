@@ -127,7 +127,7 @@ export default function AboutPage() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
             <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">folder_open</span>
-            <h1 className="text-[36px] md:text-[64px] leading-[110%] tracking-[0.02em] text-primary font-display">
+            <h1 className="page-title">
               {t('about.title')}<span className="cursor-blink font-mono">_</span>
             </h1>
           </div>

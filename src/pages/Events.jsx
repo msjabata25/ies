@@ -16,24 +16,32 @@ function getStatusColor(status) {
 const STATUS_FILTERS = ['All', 'Upcoming', 'Active', 'Past'];
 const TYPE_FILTERS = ['All', 'Workshop', 'Seminar', 'Hackathon', 'Expo'];
 
-function EventCard({ event, index }) {
+/* Card number = position in the full list, so it never changes with the filters */
+const EVENT_NUMBER = new Map(events.map((e, i) => [e.id, i + 1]));
+
+function EventCard({ event }) {
   const { t, pick } = useI18n();
+  const past = event.status === 'Past';
   return (
     <CardSpotlight
-      className="!p-6 !border-accent/30 hover:!border-primary/50 transition-colors bg-card"
+      className={`!p-6 transition-colors bg-card ${
+        past
+          ? '!border-line hover:!border-accent/50'
+          : '!border-primary/40 hover:!border-primary'
+      }`}
       color="color-mix(in oklab, var(--color-primary) 5%, transparent)"
     >
       <div className="flex items-start justify-between mb-4">
-        <span className="font-display text-[48px] text-primary/20 leading-none">
-          {String(index + 1).padStart(2, '0')}
+        <span className={`font-display text-[48px] leading-none ${past ? 'text-faint' : 'text-primary/40'}`}>
+          {String(EVENT_NUMBER.get(event.id)).padStart(2, '0')}
         </span>
-        <span className={`font-mono text-[12px] ${getStatusColor(event.status)} border border-current px-2 py-1`}>
+        <span className={`font-mono text-[13px] ${getStatusColor(event.status)} border border-current px-2 py-1`}>
           {t(`events.statuses.${event.status}`)}
         </span>
       </div>
-      <h3 className="font-display text-[24px] text-primary mb-2 tracking-wider">{pick(event, 'title')}</h3>
+      <h3 className={`font-display text-[24px] mb-2 ${past ? 'text-fg' : 'text-primary'} tracking-wider`}>{pick(event, 'title')}</h3>
       <p className="font-mono text-[13px] text-body leading-[170%] mb-4 min-h-[60px]">{pick(event, 'description')}</p>
-      <div className="flex justify-between items-center font-mono text-[12px] text-accent border-t border-accent/20 pt-3">
+      <div className="flex justify-between items-center font-mono text-[13px] text-accent border-t border-accent/20 pt-3">
         <span>{t(`events.typeNames.${event.type}`)}</span>
         <span>{new Date(event.date).toLocaleDateString(t('events.dateLocale'), { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</span>
       </div>
@@ -83,18 +91,14 @@ export default function EventsPage() {
         >
           <div className="max-w-2xl mx-auto">
             {/* Filter bar */}
-            <div className="mb-6 flex items-center justify-between gap-2 font-mono text-[11px]">
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-2">
               <div className="flex flex-wrap gap-2">
                 {TYPE_FILTERS.map((f) => (
                   <button
                     key={f}
                     onClick={() => setTypeFilter(f)}
                     aria-pressed={typeFilter === f}
-                    className={`px-3 py-1.5 border transition-colors ${
-                      typeFilter === f
-                        ? 'bg-primary text-surface border-primary'
-                        : 'bg-transparent text-body border-accent/30 hover:border-primary/50'
-                    }`}
+                    className={`pill ${typeFilter === f ? 'pill-active' : ''}`}
                   >
                     [{t(`events.types.${f}`)}]
                   </button>
@@ -102,28 +106,28 @@ export default function EventsPage() {
               </div>
 
               {/* Status dropdown */}
-              <div className="relative">
+              <div className="relative ms-auto">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
                   aria-haspopup="listbox"
                   aria-expanded={menuOpen}
-                  className="px-3 py-1.5 border border-accent/30 text-body hover:border-primary/50 transition-colors whitespace-nowrap"
+                  className={`pill ${statusFilter !== 'All' ? 'pill-active' : ''}`}
                 >
                   {t('events.statusLabel')} {t(`events.statuses.${statusFilter}`)} ▼
                 </button>
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                    <div className="absolute end-0 top-full mt-1 z-50 bg-card border border-accent/30 shadow-lg min-w-[140px]" role="listbox">
+                    <div className="absolute end-0 top-full mt-1 z-50 bg-card border border-accent/30 shadow-lg min-w-[160px]" role="listbox">
                       {STATUS_FILTERS.map((f) => (
                         <button
                           key={f}
                           role="option"
                           aria-selected={statusFilter === f}
                           onClick={() => { setStatusFilter(f); setMenuOpen(false); }}
-                          className={`block w-full text-start px-3 py-2 transition-colors ${
+                          className={`block w-full min-h-10 text-start px-4 py-2 font-mono text-[12px] uppercase transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary ${
                             statusFilter === f
-                              ? 'bg-primary/20 text-primary'
+                              ? 'bg-primary/15 text-primary'
                               : 'text-body hover:bg-accent/10'
                           }`}
                         >
@@ -143,8 +147,8 @@ export default function EventsPage() {
                   {t('events.empty')}
                 </p>
               ) : (
-                filteredEvents.map((event, i) => (
-                  <EventCard key={event.id} event={event} index={i} />
+                filteredEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
                 ))
               )}
             </div>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Button from '@/components/ui/Button';
 import { EncryptedText } from '@/components/ui/encrypted-text';
 import { BlurFade } from '@/components/ui/blur-fade';
 import { useI18n } from '@/i18n/context';
@@ -7,11 +7,11 @@ export default function AboutSnippet() {
   const { t, isArabic } = useI18n();
 
   return (
-    <section className="min-h-[60vh] flex flex-col justify-center px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-hidden">
+    <section className="w-full min-h-[60vh] flex flex-col justify-center px-4 md:px-14 max-w-7xl mx-auto py-20 overflow-hidden">
       <BlurFade inView delay={0.1} direction="up">
         <div className="flex items-center gap-4 mb-8">
           <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">folder_open</span>
-          <h2 className="text-[48px] leading-[110%] tracking-[0.02em] text-primary font-display">
+          <h2 className="section-title">
             {t('aboutSnippet.title')}<span className="cursor-blink font-mono">_</span>
           </h2>
           <div className="h-px bg-accent/30 flex-grow ms-4"></div>
@@ -31,10 +31,7 @@ export default function AboutSnippet() {
         </BlurFade>
 
         <BlurFade inView delay={0.35} direction="right" className="flex justify-center">
-          <Link
-            to="/about"
-            className="relative group cursor-pointer bg-transparent border-2 border-primary px-8 py-5 font-mono text-[16px] text-primary hover:bg-primary hover:text-surface transition-all duration-300 inline-grid"
-          >
+          <Button to="/about" className="group inline-grid max-w-full">
             {/* both labels share one grid cell, so the button keeps the wider width and never resizes on hover */}
             <span className="[grid-area:1/1] group-hover:invisible group-focus-visible:invisible">
               {/* The per-letter scramble would split up Arabic's joined letters, so Arabic gets plain text */}
@@ -53,7 +50,7 @@ export default function AboutSnippet() {
             <span className="[grid-area:1/1] invisible group-hover:visible group-focus-visible:visible text-surface font-bold">
               {t('aboutSnippet.unlocked')}
             </span>
-          </Link>
+          </Button>
         </BlurFade>
       </div>
     </section>

@@ -23,7 +23,7 @@
   --color-line: #111111;      /* hairlines */
   --color-ok: #4ade80;        /* status text: active / success */
   --color-warn: #facc15;      /* status text: upcoming / warning */
-  --color-idle: #6b7280;      /* status text: past / planned */
+  --color-idle: #7c8492;      /* status text: past / planned (>= 4.5:1 on card and panel) */
   --color-err: #f87171;       /* error text */
   --color-media: #10b981;     /* committee data colours (Board = primary, Scientific = accent) */
   --color-web: #8b5cf6;
@@ -90,7 +90,7 @@ html.light-mode:not(.crt) {
   --color-led-ok: #16a34a;
   --color-led-warn: #ca8a04;
   --color-led-idle: #8b93a1;
-  --scanline: rgba(60, 40, 20, 0.05);
+  --scanline: transparent; /* the CRT-style scanlines read as banding on a light page */
   --grid-line: rgba(21, 101, 192, 0.07);
   --glitch-a: color-mix(in oklab, #1565C0 35%, transparent);
   --glitch-b: color-mix(in oklab, #A64B00 35%, transparent);

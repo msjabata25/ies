@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Button from '@/components/ui/Button';
 import {
   COMMITTEES,
   MAJORS,
@@ -151,14 +151,7 @@ function Field({ id, label, optional, hint, error, children }) {
 
 function Chip({ on, onClick, children }) {
   return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={onClick}
-      className={`font-mono text-[13px] px-3 py-2 border transition-colors cursor-pointer ${
-        on ? 'border-primary bg-primary/15 text-primary' : 'border-accent/70 text-body hover:border-primary/60'
-      }`}
-    >
+    <button type="button" aria-pressed={on} onClick={onClick} className={`pill gap-1.5 ${on ? 'pill-active' : ''}`}>
       <span className="text-accent">{on ? '[x] ' : '[ ] '}</span>
       {children}
     </button>
@@ -185,12 +178,12 @@ function Progress({ step }) {
 function ReviewRow({ label, value, onEdit }) {
   const { t } = useI18n();
   return (
-    <div className="flex gap-4 py-2.5 border-b border-accent/15 font-mono text-[14px]">
-      <dt className="w-32 shrink-0 text-accent">{label}</dt>
-      <dd className="flex-1 text-body break-words min-w-0">{value || <span className="text-muted">—</span>}</dd>
-      <button type="button" onClick={onEdit} aria-label={`${t('apply.review.edit')}: ${label}`} className="text-[12px] text-primary/80 hover:text-primary cursor-pointer shrink-0">
+    <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-1 py-2.5 border-b border-accent/15 font-mono text-[14px] sm:flex">
+      <dt className="text-accent sm:w-32 sm:shrink-0">{label}</dt>
+      <dd className="col-span-2 row-start-2 min-w-0 break-words text-body sm:flex-1">{value || <span className="text-muted">—</span>}</dd>
+      <Button size="sm" onClick={onEdit} aria-label={`${t('apply.review.edit')}: ${label}`} className="col-start-2 row-start-1 shrink-0 self-start !px-3 !py-1 !text-[12px] sm:order-last">
         {t('apply.review.edit')}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -201,7 +194,7 @@ function Header() {
     <div className="mb-10">
       <div className="flex items-center gap-4 mb-3">
         <span aria-hidden="true" className="material-symbols-outlined text-primary text-3xl">assignment_ind</span>
-        <h1 className="text-[36px] md:text-[56px] leading-[110%] tracking-[0.02em] text-primary font-display">
+        <h1 className="page-title">
           {t('apply.title')}<span className="cursor-blink font-mono">_</span>
         </h1>
       </div>
@@ -302,15 +295,9 @@ export default function ApplyPage() {
         <div className="bg-card border border-accent/30 p-6 font-mono text-[14px] leading-[180%] text-body space-y-2">
           <p className="text-primary">{'> '}{t('apply.closed.title')}</p>
           <p>{t('apply.closed.body')}</p>
-          <a
-            href="https://www.instagram.com/ieeeiesjust/"
-            target="_blank"
-            rel="noopener noreferrer"
-            dir="ltr"
-            className="inline-block mt-4 border border-primary text-primary px-5 py-2.5 hover:bg-primary hover:text-surface transition-colors"
-          >
+          <Button href="https://www.instagram.com/ieeeiesjust/" target="_blank" rel="noopener noreferrer" dir="ltr" size="sm" className="mt-4">
             @IEEEIESJUST →
-          </a>
+          </Button>
         </div>
       </main>
     );
@@ -333,12 +320,9 @@ export default function ApplyPage() {
           {submissionsStubbed && (
             <p className="mt-3 text-warn/80 light:text-warn text-[12px]">{t('apply.done.devNote')}</p>
           )}
-          <Link
-            to="/"
-            className="inline-block mt-6 border border-accent text-accent px-5 py-2.5 hover:bg-accent hover:text-surface transition-colors"
-          >
+          <Button to="/" variant="secondary" size="sm" className="mt-6">
             {t('apply.done.home')}
-          </Link>
+          </Button>
         </div>
       </main>
     );
@@ -522,19 +506,15 @@ export default function ApplyPage() {
 
         <div className="flex justify-between items-center gap-4 mt-8 pt-6 border-t border-accent/20">
           {step > 0 ? (
-            <button type="button" onClick={() => goTo(step - 1)} className="font-mono text-[14px] text-accent hover:text-primary transition-colors cursor-pointer">
+            <Button variant="secondary" size="sm" onClick={() => goTo(step - 1)}>
               {t('apply.back')}
-            </button>
+            </Button>
           ) : (
             <span />
           )}
-          <button
-            type="submit"
-            disabled={status === 'sending'}
-            className="font-mono text-[14px] font-bold border-2 border-primary text-primary px-6 py-3 hover:bg-primary hover:text-surface disabled:opacity-60 disabled:cursor-wait transition-colors cursor-pointer"
-          >
+          <Button type="submit" size="sm" disabled={status === 'sending'} className="disabled:cursor-wait">
             {step < LAST ? t('apply.next') : status === 'sending' ? t('apply.sending') : t('apply.submit')}
-          </button>
+          </Button>
         </div>
       </form>
     </main>

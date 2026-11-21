@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { TextPlugin } from 'gsap/TextPlugin';
-import { Link } from 'react-router-dom';
+import Button from '@/components/ui/Button';
 import { useI18n } from '@/i18n/context';
 
 if (typeof window !== 'undefined') {
@@ -56,7 +56,7 @@ export default function Join() {
         });
 
         gsap.to('.join-btn', {
-          boxShadow: '0 0 20px color-mix(in oklab, var(--color-primary) 80%, transparent), inset 0 0 10px color-mix(in oklab, var(--color-primary) 50%, transparent)',
+          boxShadow: '0 0 20px color-mix(in oklab, var(--color-accent) 80%, transparent), inset 0 0 10px color-mix(in oklab, var(--color-accent) 50%, transparent)',
           duration: 1.5,
           yoyo: true,
           repeat: -1,
@@ -76,7 +76,7 @@ export default function Join() {
     <section id="join" ref={container} className="relative min-h-[80vh] flex flex-col justify-center items-center text-center overflow-hidden border-t-2 border-primary/30 mb-24 mt-24">
 
       <div className="absolute top-0 w-full overflow-hidden bg-accent/10 border-b border-accent/30 py-2 z-0">
-        <div dir="ltr" className="ticker-content whitespace-nowrap text-accent font-mono text-[12px] tracking-widest opacity-50 flex w-max">
+        <div dir="ltr" className="ticker-content whitespace-nowrap text-accent font-mono text-[12px] tracking-widest opacity-50 light:opacity-80 flex w-max">
           <span>{fullTicker}</span>
           <span>{fullTicker}</span>
         </div>
@@ -90,11 +90,13 @@ export default function Join() {
           {t('join.subtitle')}
         </p>
 
-        <Link
+        {/* GSAP pulses .join-btn's box-shadow, so the Button's hover/focus glow is switched off here */}
+        <Button
           to="/apply"
-          className="join-btn inline-block bg-card text-primary border-2 border-accent px-4 sm:px-8 py-4 font-ui text-[14px] sm:text-[16px] font-bold max-w-full break-words hover:bg-primary hover:text-surface hover:border-primary hover:shadow-[0_0_25px_color-mix(in_oklab,var(--color-primary)_70%,transparent)] cursor-pointer transition-all duration-300">
+          variant="secondary"
+          className="join-btn max-w-full break-words bg-card hover:shadow-none focus-visible:shadow-none">
           {t('join.button')}
-        </Link>
+        </Button>
 
         <p dir="ltr" className="font-mono text-[12px] sm:text-[14px] text-accent mt-8 text-shadow-glitch">
           {`C:\\>CONNECT_ALLIANCE => @IES_JUST`}

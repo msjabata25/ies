@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
    otherwise <button type="button">. Pass className to add layout classes (margins, width). */
 const base =
   'inline-flex items-center justify-center gap-2 border-2 bg-transparent font-mono font-bold text-center cursor-pointer transition-all duration-300 ' +
-  'disabled:opacity-60 disabled:cursor-not-allowed aria-disabled:opacity-60';
+  'disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none aria-disabled:opacity-60 aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none';
 
 const variants = {
   primary:
@@ -23,11 +23,15 @@ const sizes = {
 
 export default function Button({ variant = 'primary', size = 'md', to, href, className, children, ...props }) {
   const classes = cn(base, variants[variant], sizes[size], className);
+  /* Links have no `disabled`: with aria-disabled="true" also swallow keyboard activation */
+  const linkProps = props['aria-disabled'] === true || props['aria-disabled'] === 'true'
+    ? { ...props, tabIndex: -1, onClick: (e) => e.preventDefault() }
+    : props;
   if (to !== undefined) {
-    return <Link to={to} className={classes} {...props}>{children}</Link>;
+    return <Link to={to} className={classes} {...linkProps}>{children}</Link>;
   }
   if (href !== undefined) {
-    return <a href={href} className={classes} {...props}>{children}</a>;
+    return <a href={href} className={classes} {...linkProps}>{children}</a>;
   }
   return <button type="button" className={classes} {...props}>{children}</button>;
 }

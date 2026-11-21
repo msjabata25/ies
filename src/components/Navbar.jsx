@@ -198,7 +198,7 @@ export default function Navbar() {
   return (
     <>
     <nav ref={containerRef} className="fixed top-0 left-0 w-full z-40 opacity-0 bg-panel/80 backdrop-blur-xl border-b-2 border-primary shadow-[0_0_15px_color-mix(in_oklab,var(--color-primary)_30%,transparent)]">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 md:px-14 h-16 flex justify-between items-center">
         <Link to="/" className="flex-shrink-0">
           <img src="/logo-nav.png" alt="IES JUST" width="168" height="168" className="h-10 md:h-14 w-auto" />
         </Link>
@@ -260,8 +260,11 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label={t('nav.console')}
-          className={`absolute top-0 end-0 h-full w-72 bg-panel border-s-2 border-primary shadow-[-10px_0_30px_color-mix(in_oklab,var(--color-primary)_20%,transparent)] rtl:shadow-[10px_0_30px_color-mix(in_oklab,var(--color-primary)_20%,transparent)] p-6 flex flex-col transition-all duration-300 ease-in-out ${
-            mobileOpen ? 'translate-x-0' : 'translate-x-full rtl:-translate-x-full'
+          className={`absolute top-0 end-0 h-full w-72 bg-panel border-s-2 border-primary p-6 flex flex-col transition-all duration-300 ease-in-out ${
+            /* the glow only exists while open — otherwise it bleeds in from the off-screen drawer as an edge glow */
+            mobileOpen
+              ? 'translate-x-0 shadow-[-10px_0_30px_color-mix(in_oklab,var(--color-primary)_20%,transparent)] rtl:shadow-[10px_0_30px_color-mix(in_oklab,var(--color-primary)_20%,transparent)]'
+              : 'translate-x-full rtl:-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
